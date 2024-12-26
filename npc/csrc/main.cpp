@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     printf("a = %d, b = %d, f = %d\n", a, b, top->f);
     assert(top->f == (a ^ b));
   }
-  // tfp->close();
+  tfp->close();
   delete top;
   delete contextp;
   return 0;
