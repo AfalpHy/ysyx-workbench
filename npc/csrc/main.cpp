@@ -6,6 +6,7 @@
 
 int main(int argc, char **argv) {
   VerilatedContext *contextp = new VerilatedContext;
+  contextp->traceEverOn(true);
   contextp->commandArgs(argc, argv);
   Vexample *top = new Vexample{contextp};
   while (!contextp->gotFinish()) {
