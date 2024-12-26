@@ -6,6 +6,6 @@ module example (
   assign f = a ^ b;
   initial begin
     // $dumpfile("test.vcd");
-     $finish;
+    #10; $finish;
   end
 endmodule
