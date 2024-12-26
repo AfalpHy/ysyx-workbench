@@ -4,5 +4,8 @@ module example (
     output f
 );
   assign f = a ^ b;
+  initial begin
+    
   $dumpfile("out.vcd");
+  end
 endmodule
