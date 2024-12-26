@@ -5,7 +5,7 @@ module example (
 );
   assign f = a ^ b;
   initial begin
-    $dumpfile("test.vcd");
+    // $dumpfile("test.vcd");
     #10 $finish;
   end
 endmodule
