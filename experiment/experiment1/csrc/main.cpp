@@ -12,6 +12,7 @@ void step_and_dump_wave() {
   i++;
   if (i % 50000000 == 0) {
     top.Y += 1;
+    top.Y = top.Y % 4;
   }
   nvboard_update();
   top.eval();
