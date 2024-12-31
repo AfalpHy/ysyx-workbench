@@ -85,6 +85,17 @@ static int cmd_x(char *args) {
   return 0;
 }
 
+static int cmd_p(char *args) {
+  bool success = true;
+  word_t result = expr(args, &success);
+  if (!success) {
+    printf("eval the expr failed\n");
+  } else {
+    printf("%lu or 0x%016lx\n", result, result);
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 
@@ -96,9 +107,11 @@ static struct {
     {"help", "Display information about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
+    /* TODO: Add more commands */
     {"si", "Step forward n instructions", cmd_si},
     {"info", "Printf reg value or watchpoint", cmd_info},
-    {"x", "Printf memory message, example: x 10 0x80000000", cmd_x}
+    {"x", "Printf memory message, example: x 10 0x80000000", cmd_x},
+    {"p", "Eval the expr", cmd_p}
 
 };
 
