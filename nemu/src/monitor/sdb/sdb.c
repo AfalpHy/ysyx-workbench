@@ -98,9 +98,7 @@ static struct {
     {"q", "Exit NEMU", cmd_q},
     {"si", "Step forward n instructions", cmd_si},
     {"info", "Printf reg value or watchpoint", cmd_info},
-    {"x", "Printf memory message, example: x 10 0x80000000", cmd_x},
-
-    /* TODO: Add more commands */
+    {"x", "Printf memory message, example: x 10 0x80000000", cmd_x}
 
 };
 
