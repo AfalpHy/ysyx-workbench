@@ -4,14 +4,14 @@ module ps2_keyboard (
     ps2_clk,
     ps2_data,
     data,
-    data1,
-    data2,
+    ascii,
+    input_count,
     ready,
     overflow,
     off
 );
   input clk, clrn, ps2_clk, ps2_data;
-  output reg [7:0] data, data1, data2;
+  output reg [7:0] data, ascii, input_count;
   output reg ready;
   output reg overflow;  // fifo overflow
   output reg off;  //lignt off
@@ -45,40 +45,40 @@ module ps2_keyboard (
         end
 
         if (fifo[r_ptr] == 8'hF0) begin
-          data2 = data2 + 1;
+          input_count = input_count + 1;
         end
 
         data = fifo[r_ptr];
 
         if (data != 8'hF0) begin
           case (data)
-            8'h1C:   data1 = 97;
-            8'h32:   data1 = 98;
-            8'h21:   data1 = 99;
-            8'h23:   data1 = 100;
-            8'h24:   data1 = 101;
-            8'h2B:   data1 = 102;
-            8'h34:   data1 = 103;
-            8'h33:   data1 = 104;
-            8'h43:   data1 = 105;
-            8'h3B:   data1 = 106;
-            8'h42:   data1 = 107;
-            8'h4B:   data1 = 108;
-            8'h3A:   data1 = 109;
-            8'h31:   data1 = 110;
-            8'h44:   data1 = 111;
-            8'h4D:   data1 = 112;
-            8'h15:   data1 = 113;
-            8'h2D:   data1 = 114;
-            8'h1B:   data1 = 115;
-            8'h2C:   data1 = 116;
-            8'h3C:   data1 = 117;
-            8'h2A:   data1 = 118;
-            8'h1D:   data1 = 119;
-            8'h22:   data1 = 120;
-            8'h35:   data1 = 121;
-            8'h1A:   data1 = 122;
-            default: data1 = 0;
+            8'h1C:   ascii = 97;
+            8'h32:   ascii = 98;
+            8'h21:   ascii = 99;
+            8'h23:   ascii = 100;
+            8'h24:   ascii = 101;
+            8'h2B:   ascii = 102;
+            8'h34:   ascii = 103;
+            8'h33:   ascii = 104;
+            8'h43:   ascii = 105;
+            8'h3B:   ascii = 106;
+            8'h42:   ascii = 107;
+            8'h4B:   ascii = 108;
+            8'h3A:   ascii = 109;
+            8'h31:   ascii = 110;
+            8'h44:   ascii = 111;
+            8'h4D:   ascii = 112;
+            8'h15:   ascii = 113;
+            8'h2D:   ascii = 114;
+            8'h1B:   ascii = 115;
+            8'h2C:   ascii = 116;
+            8'h3C:   ascii = 117;
+            8'h2A:   ascii = 118;
+            8'h1D:   ascii = 119;
+            8'h22:   ascii = 120;
+            8'h35:   ascii = 121;
+            8'h1A:   ascii = 122;
+            default: ascii = 0;
           endcase
         end
 
@@ -107,8 +107,6 @@ module ps2_keyboard (
     end
   end
 
-  // assign data = fifo[r_ptr]; //always set output data
-
 endmodule
 
 module Keyboard (
@@ -126,7 +124,7 @@ module Keyboard (
   input clk, rst, ps2_clk, ps2_data;
   output reg [7:0] hex0, hex1, hex2, hex3, hex4, hex5;
 
-  reg [7:0] data, data1, data2;
+  reg [7:0] data, ascii, input_count;
   reg ready;
   reg overflow;
   reg off;
@@ -136,8 +134,8 @@ module Keyboard (
       ps2_clk,
       ps2_data,
       data,
-      data1,
-      data2,
+      ascii,
+      input_count,
       ready,
       overflow,
       off
@@ -145,26 +143,33 @@ module Keyboard (
 
   bcd7seg i0 (
       data[3:0],
+      off,
       hex0
   );
   bcd7seg i1 (
       data[7:4],
+      off,
       hex1
   );
   bcd7seg i2 (
-      data1[3:0],
+      ascii[3:0],
+      off,
       hex2
+
   );
   bcd7seg i3 (
-      data1[7:4],
+      ascii[7:4],
+      off,
       hex3
   );
   bcd7seg i4 (
-      data2[3:0],
+      input_count[3:0],
+      0,
       hex4
   );
   bcd7seg i5 (
-      data2[7:4],
+      input_count[7:4],
+      0,
       hex5
   );
 endmodule
