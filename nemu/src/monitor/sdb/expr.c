@@ -217,7 +217,7 @@ static word_t eval(int left, int right, bool *success) {
         TK_AND, TK_EQ, TK_NE, '+', '-', '*' << 16 | '/', TK_DEREF,
     };
     int order = 0;
-    while (op == -1 && order < 6) {
+    while (op == -1 && order < 7) {
       for (int i = right; i >= left; --i) {
         if (tokens[i].type == ')') {
           right_parenthese++;
