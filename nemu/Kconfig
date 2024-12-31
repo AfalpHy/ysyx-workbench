@@ -105,7 +105,6 @@ config CC_OPT
   string
   default "-O0" if CC_O0
   default "-O1" if CC_O1
-  default "-O2" if CC_O2
   default "-O3" if CC_O3
   default "none"
 
