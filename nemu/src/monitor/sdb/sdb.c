@@ -57,12 +57,23 @@ static int cmd_si(char* args ){
   if (args == NULL) {
     cpu_exec(1);
   } else {
-    long num = strtol(args, NULL, 10);
-    cpu_exec(num);
+    cpu_exec(strtol(args, NULL, 10));
   }
   return 0;
 }
+
+static int cmd_info(char *args){
+  if(strcmp(args,"r")==0){
+    isa_reg_display();
+  }else if(strcmp(args,"w")==0){
+    
+  }
+  return 0;
+}
+
+
 static int cmd_help(char *args);
+
 
 static struct {
   const char *name;
@@ -72,7 +83,8 @@ static struct {
     {"help", "Display information about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
-    {"si", "step forward n instructions", cmd_si}
+    {"si", "Step forward n instructions", cmd_si},
+    {"info", "Printf reg value or watchpoint", cmd_info}
 
     /* TODO: Add more commands */
 
