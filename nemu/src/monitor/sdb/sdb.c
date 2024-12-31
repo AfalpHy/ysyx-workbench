@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <memory/vaddr.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
@@ -53,18 +54,51 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char* args ){
+  if (args == NULL) {
+    cpu_exec(1);
+  } else {
+    cpu_exec(strtol(args, NULL, 10));
+  }
+  return 0;
+}
+
+static int cmd_info(char *args){
+  if (args == NULL) {
+    return 0;
+  }
+  if(strcmp(args,"r")==0){
+    isa_reg_display();
+  }else if(strcmp(args,"w")==0){
+    
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char *base = NULL;
+  uint64_t size = strtoul(args, &base, 10);
+  uint64_t addr = strtoul(base, NULL, 16);
+  for (uint64_t i = 0; i < size; ++i) {
+    printf("0x%08x\n", (uint32_t)vaddr_read(addr + 4 * i, 4));
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
+
 
 static struct {
   const char *name;
   const char *description;
   int (*handler) (char *);
-} cmd_table [] = {
-  { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
-
-  /* TODO: Add more commands */
+} cmd_table[] = {
+    {"help", "Display information about all supported commands", cmd_help},
+    {"c", "Continue the execution of the program", cmd_c},
+    {"q", "Exit NEMU", cmd_q},
+    {"si", "Step forward n instructions", cmd_si},
+    {"info", "Printf reg value or watchpoint", cmd_info},
+    {"x", "Printf memory message, example: x 10 0x80000000", cmd_x}
 
 };
 
