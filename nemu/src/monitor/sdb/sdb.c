@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <memory/vaddr.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
@@ -74,6 +75,15 @@ static int cmd_info(char *args){
   return 0;
 }
 
+static int cmd_x(char *args) {
+  char *base = NULL;
+  uint64_t size = strtoul(args, &base, 10);
+  uint64_t addr = strtoul(base, NULL, 16);
+  for (uint64_t i = 0; i < size; ++i) {
+    printf("0x%08x\n", (uint32_t)vaddr_read(addr + 4 * i, 4));
+  }
+  return 0;
+}
 
 static int cmd_help(char *args);
 
@@ -87,7 +97,8 @@ static struct {
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
     {"si", "Step forward n instructions", cmd_si},
-    {"info", "Printf reg value or watchpoint", cmd_info}
+    {"info", "Printf reg value or watchpoint", cmd_info},
+    {"x", "Printf memory message, example: x 10 0x80000000", cmd_x},
 
     /* TODO: Add more commands */
 
