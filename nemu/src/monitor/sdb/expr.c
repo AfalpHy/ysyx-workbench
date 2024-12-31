@@ -237,6 +237,11 @@ static word_t eval(int left, int right, bool *success) {
       order++;
     }
 
+    if (op == -1) {
+      *success = false;
+      return 0;
+    }
+
     if (tokens[op].type == TK_DEREF) {
       return vaddr_read(eval(left + 1, right, success), 8);
     }
