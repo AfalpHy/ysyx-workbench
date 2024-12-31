@@ -68,13 +68,13 @@ static struct {
   const char *name;
   const char *description;
   int (*handler) (char *);
-} cmd_table [] = {
-  { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
-  {"si","step by n instruct",cmd_si}
+} cmd_table[] = {
+    {"help", "Display information about all supported commands", cmd_help},
+    {"c", "Continue the execution of the program", cmd_c},
+    {"q", "Exit NEMU", cmd_q},
+    {"si", "step forward n instructions", cmd_si}
 
-  /* TODO: Add more commands */
+    /* TODO: Add more commands */
 
 };
 
