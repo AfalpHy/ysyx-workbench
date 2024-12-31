@@ -89,7 +89,7 @@ static int cmd_p(char *args) {
   bool success = true;
   word_t result = expr(args, &success);
   if (!success) {
-    printf("eval the expr failed\n");
+    printf("eval expr failed, please check the expr\n");
   } else {
     printf("%lu or 0x%016lx\n", result, result);
   }
