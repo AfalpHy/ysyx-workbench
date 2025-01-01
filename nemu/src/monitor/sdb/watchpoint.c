@@ -111,7 +111,7 @@ bool check_wp() {
     Assert(success, "eval failed when checking wp");
     if (result != wp->val) {
       change = true;
-      printf("%s old value = %lu, new value = %lu\n", wp->expr, wp->val,
+      printf("{%s} old value = %lu, new value = %lu\n", wp->expr, wp->val,
              result);
       wp->val = result;
     }
