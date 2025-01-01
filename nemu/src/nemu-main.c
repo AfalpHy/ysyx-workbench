@@ -55,6 +55,8 @@ int main(int argc, char *argv[]) {
     test_expr = false;
   }
 
+  int a = *(int*)(0);
+  printf("%d\n",a);
   /* Start engine. */
   engine_start();
 
