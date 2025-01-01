@@ -21,7 +21,7 @@ all:
 	@gcc -o $(BUILD_DIR)/gen-expr $(WORK_DIR)/gen-expr.c
 
 run:all
-	@$(BUILD_DIR)/gen-expr 100> /tmp/expr_result.txt
+	@$(BUILD_DIR)/gen-expr 100 > /tmp/expr_result.txt
 
 clean:
 	@rm -rf build
