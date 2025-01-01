@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
       i++;
     }
     fclose(fp);
+    test_expr = false;
   }
 
   /* Start engine. */
