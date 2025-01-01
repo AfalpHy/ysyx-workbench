@@ -13,6 +13,17 @@
 # See the Mulan PSL v2 for more details.
 #**************************************************************************************/
 
-NAME = gen-expr
-SRCS = gen-expr.c
-include $(NEMU_HOME)/scripts/build.mk
+WORK_DIR = $(NEMU_HOME)/tools/gen-expr
+BUILD_DIR = $(WORK_DIR)/build
+
+all:
+	@mkdir -p $(BUILD_DIR)
+	@gcc -o $(BUILD_DIR)/gen-expr $(WORK_DIR)/gen-expr.c
+
+run:all
+	@$(BUILD_DIR)/gen-expr 100 > /tmp/expr_result.txt
+
+clean:
+	@rm -rf build
+
+.PHONY: all clean
