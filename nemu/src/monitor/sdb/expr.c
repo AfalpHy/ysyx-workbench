@@ -194,6 +194,18 @@ static bool make_token(char *e) {
 }
 
 static bool check_parentheses(int left, int right) {
+  int parenthese=0;
+  for (int i = left + 1; i < right; i++) {
+    if (tokens[left].type == '(') {
+      parenthese += 1;
+    } else if (tokens[left].type == ')') {
+      if (parenthese > 0) {
+        parenthese -= 1;
+      } else {
+        return false;
+      }
+    }
+  }
   return tokens[left].type == '(' && tokens[right].type == ')';
 }
 
