@@ -85,29 +85,9 @@ static int parse_args(int argc, char *argv[]) {
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
       case 't':{
-        word_t expr(char *e, bool *success);
-        char *nemu_home = getenv("NEMU_HOME");
-        char cmd[256];
-        sprintf(cmd, "make -f %s/tools/gen-expr/Makefile run", nemu_home);
-        int ret = system(cmd);
-        Assert(ret == 0, "genearte expr failed");
-        char buff[65536];
-        FILE *fp = fopen("/tmp/expr_result.txt", "r");
-        Assert(fp != NULL, "open /tmp/expr_result.txt failed");
-        int i = 1;
-        while (fgets(buff, 65536, fp)) {
-          char *result = strtok(buff, " ");
-          char *expr_str = result + strlen(result) + 1;
-          uint64_t ans = strtoull(result, NULL, 10);
-          bool success = true;
-          uint64_t calc = expr(expr_str, &success);
-          Assert(success, "eval the expr failed %s index: %d", expr_str, i);
-          Assert(ans == calc, "ans:%lu calc:%lu index:%d", ans, calc, i);
-          i++;
-        }
-        fclose(fp);
-
-        break; 
+        extern bool test_expr;
+        test_expr = true;
+        break;
       }
       case 1: img_file = optarg; return 0;
       default:
