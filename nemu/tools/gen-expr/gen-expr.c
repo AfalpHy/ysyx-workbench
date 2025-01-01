@@ -26,13 +26,73 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned result = %s; "
-"  printf(\"%%u\", result); "
+"  unsigned long result = %s; "
+"  printf(\"%%lu\", result); "
 "  return 0; "
 "}";
 
+static int pos = 0;
+
+void gen_num() {
+  uint64_t num = rand();
+  int size = 0;
+  char tmp[10];
+  while (num > 0) {
+    tmp[size++] = num % 10 + '0';
+    num /= 10;
+  }
+  for (int i = size - 1; i >= 0; --i) {
+    if (pos < 65536)
+      buf[pos++] = tmp[i];
+  }
+  //保证表达式进行无符号运算
+  if (pos < 65536)
+    buf[pos++] = 'l';
+  if (pos < 65536)
+    buf[pos++] = 'u';
+}
+
+void gen(char c) {
+  if (pos < 65536)
+    buf[pos++] = c;
+}
+
+void gen_rand_op() {
+  if (pos < 65536) {
+    int op = rand() % 4;
+    switch (op) {
+    case 0:
+      buf[pos++] = '+';
+      break;
+    case 1:
+      buf[pos++] = '-';
+      break;
+    case 2:
+      buf[pos++] = '*';
+      break;
+    default:
+      buf[pos++] = '/';
+      break;
+    }
+  }
+}
+
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  switch (rand() % 3) {
+  case 0:
+    gen_num();
+    break;
+  case 1:
+    gen('(');
+    gen_rand_expr();
+    gen(')');
+    break;
+  default:
+    gen_rand_expr();
+    gen_rand_op();
+    gen_rand_expr();
+    break;
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -43,9 +103,15 @@ int main(int argc, char *argv[]) {
     sscanf(argv[1], "%d", &loop);
   }
   int i;
-  for (i = 0; i < loop; i ++) {
+  for (i = 0; i < loop; i++) {
+    pos = 0;
     gen_rand_expr();
-
+    if (pos < 65536) {
+      buf[pos] = '\0';
+    } else {
+      //超出buf范围丢弃
+      continue;
+    }
     sprintf(code_buf, code_format, buf);
 
     FILE *fp = fopen("/tmp/.code.c", "w");
@@ -53,17 +119,29 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-    if (ret != 0) continue;
+    int ret =
+        system("gcc -O2 -Wall -Werror /tmp/.code.c -o /tmp/.expr 2>/dev/null");
+    if (ret != 0)
+      continue;
 
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
-    int result;
-    ret = fscanf(fp, "%d", &result);
+    uint64_t result;
+    int success = fscanf(fp, "%lu", &result);
     pclose(fp);
+    if (success == 1) {
+      //将用于表示无符号的数字后缀u替换为空格
+      for (int i = 0; buf[i] != '\0'; i++) {
+        if (buf[i] == 'l') {
+          buf[i] = ' ';
+          i++;
+          buf[i] = ' ';
+        }
+      }
 
-    printf("%u %s\n", result, buf);
+      printf("%lu %s\n", result, buf);
+    }
   }
   return 0;
 }

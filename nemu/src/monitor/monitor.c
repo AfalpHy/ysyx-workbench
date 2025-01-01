@@ -74,15 +74,41 @@ static int parse_args(int argc, char *argv[]) {
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
     {"help"     , no_argument      , NULL, 'h'},
+    {"test-expr", no_argument      , NULL, 't'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhtl:d:p:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
+      case 't':{
+        word_t expr(char *e, bool *success);
+        char *nemu_home = getenv("NEMU_HOME");
+        char cmd[256];
+        sprintf(cmd, "make -f %s/tools/gen-expr/Makefile run", nemu_home);
+        int ret = system(cmd);
+        Assert(ret == 0, "genearte expr failed");
+        char buff[65536];
+        FILE *fp = fopen("/tmp/expr_result.txt", "r");
+        Assert(fp != NULL, "open /tmp/expr_result.txt failed");
+        int i = 1;
+        while (fgets(buff, 65536, fp)) {
+          char *result = strtok(buff, " ");
+          char *expr_str = result + strlen(result) + 1;
+          uint64_t ans = strtoull(result, NULL, 10);
+          bool success = true;
+          uint64_t calc = expr(expr_str, &success);
+          Assert(success, "eval the expr failed %s index: %d", expr_str, i);
+          Assert(ans == calc, "ans:%lu calc:%lu index:%d", ans, calc, i);
+          i++;
+        }
+        fclose(fp);
+
+        break; 
+      }
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -90,6 +116,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-l,--log=FILE           output log to FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+        printf("\t-t,--test-expr          test the expr function\n");
         printf("\n");
         exit(0);
     }
