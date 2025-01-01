@@ -21,6 +21,19 @@
 #include "sdb.h"
 
 static int is_batch_mode = false;
+typedef struct watchpoint {
+  int NO;
+  struct watchpoint *next;
+
+  /* TODO: Add more members if necessary */
+  char expr[256];
+  word_t val;
+  bool used;
+} WP;
+
+WP *new_wp();
+void free_wp(uint64_t order);
+void print_wp();
 
 void init_regex();
 void init_wp_pool();
@@ -70,7 +83,7 @@ static int cmd_info(char *args){
   if(strcmp(args,"r")==0){
     isa_reg_display();
   }else if(strcmp(args,"w")==0){
-    
+    print_wp();
   }
   return 0;
 }
@@ -96,6 +109,34 @@ static int cmd_p(char *args) {
   return 0;
 }
 
+static int cmd_w(char *args) {
+#ifdef CONFIG_WATCHPOINT
+  if (args == NULL) {
+    printf("w commond need args, add watchpoint failed\n");
+    return 0;
+  }
+  bool success = true;
+  word_t result = expr(args, &success);
+  if (!success) {
+    printf("eval expr failed, please check the expr\n");
+  } else {
+    WP *wp = new_wp();
+    strcpy(wp->expr, args);
+    wp->val = result;
+    wp->used = true;
+  }
+#else
+  printf("watchpoint function is closed");
+#endif
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  uint64_t order = strtoul(args, NULL, 10);
+  free_wp(order);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 
@@ -111,8 +152,9 @@ static struct {
     {"si", "Step forward n instructions", cmd_si},
     {"info", "Printf reg value or watchpoint", cmd_info},
     {"x", "Printf memory message, example: x 10 0x80000000", cmd_x},
-    {"p", "Eval the expr", cmd_p}
-
+    {"p", "Eval the expr", cmd_p},
+    {"w", "Set the watchpoint", cmd_w},
+    {"d", "Delete the watchpoint", cmd_d}
 };
 
 #define NR_CMD ARRLEN(cmd_table)
