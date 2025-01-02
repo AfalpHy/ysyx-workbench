@@ -5,12 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static TOP_NAME* top = nullptr;
+static VNPC *top = nullptr;
 
 int main(int argc, char **argv) {
   VerilatedContext *contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  top = new TOP_NAME{contextp};
+  top = new VNPC{contextp};
   while (!contextp->gotFinish()) {
     top->clk = ~top->clk;
   }
