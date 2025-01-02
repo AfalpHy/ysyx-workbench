@@ -91,9 +91,9 @@ static int cmd_info(char *args){
 static int cmd_x(char *args) {
   char *base = NULL;
   uint64_t size = strtoul(args, &base, 10);
-  uint64_t addr = strtoul(base, NULL, 16);
+  word_t addr = strtoul(base, NULL, 16);
   for (uint64_t i = 0; i < size; ++i) {
-    printf("0x%08x\n", (uint32_t)vaddr_read(addr + 4 * i, 4));
+    printf("0x%08x\n", vaddr_read(addr + 4 * i, 4));
   }
   return 0;
 }
@@ -104,7 +104,7 @@ static int cmd_p(char *args) {
   if (!success) {
     printf("eval expr failed, please check the expr\n");
   } else {
-    printf("%lu or 0x%lx\n", result, result);
+    printf("%u or 0x%x\n", result, result);
   }
   return 0;
 }

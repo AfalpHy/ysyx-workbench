@@ -26,15 +26,15 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned long result = %s; "
-"  printf(\"%%lu\", result); "
+"  unsigned  result = %s; "
+"  printf(\"%%u\", result); "
 "  return 0; "
 "}";
 
 static int pos = 0;
 
 void gen_num() {
-  uint64_t num = rand();
+  uint32_t num = rand();
   int size = 0;
   char tmp[10];
   while (num > 0) {
@@ -46,8 +46,6 @@ void gen_num() {
       buf[pos++] = tmp[i];
   }
   //保证表达式进行无符号运算
-  if (pos < 65536)
-    buf[pos++] = 'l';
   if (pos < 65536)
     buf[pos++] = 'u';
 }
@@ -127,20 +125,18 @@ int main(int argc, char *argv[]) {
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
-    uint64_t result;
-    int success = fscanf(fp, "%lu", &result);
+    uint32_t result;
+    int success = fscanf(fp, "%u", &result);
     pclose(fp);
     if (success == 1) {
       //将用于表示无符号的数字后缀u替换为空格
       for (int i = 0; buf[i] != '\0'; i++) {
-        if (buf[i] == 'l') {
-          buf[i] = ' ';
-          i++;
+        if (buf[i] == 'u') {
           buf[i] = ' ';
         }
       }
 
-      printf("%lu %s\n", result, buf);
+      printf("%u %s\n", result, buf);
     }
   }
   return 0;
