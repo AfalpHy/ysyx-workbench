@@ -111,7 +111,7 @@ bool check_wp() {
     Assert(success, "eval failed when checking wp");
     if (result != wp->val) {
       change = true;
-      printf("{%s} old value = %lu, new value = %lu\n", wp->expr, wp->val,
+      printf("{%s} old value = %u, new value = %u\n", wp->expr, wp->val,
              result);
       wp->val = result;
     }
@@ -123,6 +123,6 @@ void print_wp() {
   for (WP *wp = head; wp != NULL; wp = wp->next) {
     printf("watchpoint's index:\t%d\n", wp->NO);
     printf("watchpoint's expr:\t%s\n", wp->expr);
-    printf("watchpoint's current value:\t%lu\n", wp->val);
+    printf("watchpoint's current value:\t%u\n", wp->val);
   }
 }

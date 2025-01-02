@@ -104,7 +104,7 @@ static int cmd_p(char *args) {
   if (!success) {
     printf("eval expr failed, please check the expr\n");
   } else {
-    printf("%lu or 0x%lx\n", result, result);
+    printf("%u or 0x%x\n", result, result);
   }
   return 0;
 }
