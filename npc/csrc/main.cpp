@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
   contextp->commandArgs(argc, argv);
   top = new TOP_NAME{contextp};
   while (!contextp->gotFinish()) {
+    top->clk = ~top->clk;
   }
   delete top;
   delete contextp;
