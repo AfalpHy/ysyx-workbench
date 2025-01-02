@@ -44,11 +44,11 @@ int main(int argc, char *argv[]) {
     while (fgets(buff, 65536, fp)) {
       char *result = strtok(buff, " ");
       char *expr_str = result + strlen(result) + 1;
-      uint64_t ans = strtoull(result, NULL, 10);
+      word_t ans = strtoull(result, NULL, 10);
       bool success = true;
-      uint64_t calc = expr(expr_str, &success);
+      word_t calc = expr(expr_str, &success);
       Assert(success, "eval the expr failed %s index: %d", expr_str, i);
-      Assert(ans == calc, "ans:%lu calc:%lu index:%d", ans, calc, i);
+      Assert(ans == calc, "ans:%u calc:%u index:%d", ans, calc, i);
       i++;
     }
     fclose(fp);
