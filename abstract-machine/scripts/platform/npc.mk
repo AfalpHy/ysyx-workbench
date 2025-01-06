@@ -29,6 +29,6 @@ run: insert-arg
 	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin
 
 gdb: insert-arg
-	$(MAKE) -C $(NPC_HOME) gdb IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) gdb IMG=$(IMAGE).bin OPT_FAST=""
     
 .PHONY: insert-arg
