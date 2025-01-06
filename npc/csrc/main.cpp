@@ -70,8 +70,9 @@ int main(int argc, char **argv) {
   VerilatedContext *contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   top = new VNPC{contextp};
+  top->eval();
   vector<string> imgs;
-  imgs.push_back( argv[1]);
+  imgs.push_back(argv[1]);
   for (const auto &img : imgs) {
     load_img(img);
     reset();
