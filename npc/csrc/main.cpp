@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
     top->eval();
     top->clk = 0;
     top->eval();
+    cout<<*pc<<endl;
     if (top->halt) {
       break;
     }
