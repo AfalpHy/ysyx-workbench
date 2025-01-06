@@ -35,7 +35,6 @@ sim: all
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
-
 gdb: all 
 	$(call git_commit, "sim RTL")
 	gdb -args $(BIN) $(IMG) 
