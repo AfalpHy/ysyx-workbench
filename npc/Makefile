@@ -38,7 +38,7 @@ gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
 
 gdb: all 
 	$(call git_commit, "sim RTL")
-	gdb -args $^ $(IMG) 
+	gdb -args $(BIN) $(IMG) 
 
 
 .PHONY: all clean sim gdb
