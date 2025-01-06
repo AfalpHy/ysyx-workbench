@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
     top->eval();
     top->clk = 0;
     top->eval();
-   cout<<hex<<pc<<" " <<*pc<<endl; 
+   cout<<hex<<*pc<<" " <<pmem_read(*pc,4)<<endl; 
     
     int c;
     cin>>c;
