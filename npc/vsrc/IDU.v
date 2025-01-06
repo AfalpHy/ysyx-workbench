@@ -128,8 +128,6 @@ module IDU (
   assign mem_wen = store;
 
   assign halt = EBREAK;
-  always @(*) begin
-    $display("imm: %d %d %d %d %d %d", U_imm,J_imm,B_imm,I_imm,S_imm,imm );
-  end
+
 endmodule
 
