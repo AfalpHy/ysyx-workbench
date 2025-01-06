@@ -29,15 +29,19 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
-sim: all
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@gdb -args $(BIN) $(IMG)	
+# sim: all
+# 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+# 	@$(BIN) $(IMG)	
 
-# GDB: CFLAGS += -g
-# GDB: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
-# GDB: $(BIN)
-# 	$(call git_commit, "sim RTL")
-# 	gdb -args $^ $(NPCFLAGS) 
+GDB: CFLAGS += -g
+GDB: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
+GDB: $(BIN)
+	$(call git_commit, "sim RTL")
+	gdb -args $^ $(IMG) 
+
+# 关闭-Os优化
+sim: clean
+	@make OPT_FAST="" GDB
 
 
 .PHONY: all clean sim
