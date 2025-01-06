@@ -31,7 +31,14 @@ clean:
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@$(BIN) $(IMG)	
+	@gdb -args $(BIN) $(IMG)	
+
+# GDB: CFLAGS += -g
+# GDB: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
+# GDB: $(BIN)
+# 	$(call git_commit, "sim RTL")
+# 	gdb -args $^ $(NPCFLAGS) 
+
 
 .PHONY: all clean sim
 
