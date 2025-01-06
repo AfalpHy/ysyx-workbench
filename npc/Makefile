@@ -1,7 +1,7 @@
 TOPNAME = NPC
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace\
-				 --x-assign fast --x-initial fast --noassert
+				-O3 --x-assign fast --x-initial fast --noassert
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -15,7 +15,7 @@ CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -g
+CXXFLAGS += $(INCFLAGS)
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -29,21 +29,18 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
-# sim: all
-# 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-# 	@$(BIN) $(IMG)	
+sim: all
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	@$(BIN) $(IMG)	
 
-GDB: CFLAGS += -g
-GDB: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
-GDB: $(BIN)
+gdb: CXXFLAGS += -g
+gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
+
+gdb: 
 	$(call git_commit, "sim RTL")
 	gdb -args $^ $(IMG) 
 
-# 关闭-Os优化
-sim: clean
-	@make OPT_FAST="" GDB
 
-
-.PHONY: all clean sim
+.PHONY: all clean sim gdb
 
 include ../Makefile

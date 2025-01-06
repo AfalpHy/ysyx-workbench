@@ -116,7 +116,7 @@ module IDU (
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
   assign imm_for_alu = I_type | S_type;
 
-  assign rs1 = LUI ? 0 : inst[19:15]; // LUI always use x0 for 0 + imm
+  assign rs1 = LUI ? 0 : inst[19:15]; // LUI always use x0 means 0 + imm
   assign rs2 = inst[24:20];
   assign rd  = inst[11:7];
 

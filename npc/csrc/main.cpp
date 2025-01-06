@@ -78,15 +78,10 @@ int main(int argc, char **argv) {
     reset();
   }
   while (!contextp->gotFinish()) {
-    cout << hex << *pc << " " << pmem_read(*pc, 4) << endl;
     top->clk = 1;
     top->eval();
     top->clk = 0;
     top->eval();
-    cout << hex << *pc << " " << pmem_read(*pc, 4) << endl;
-
-    int c;
-    cin >> c;
     if (top->halt) {
       break;
     }
