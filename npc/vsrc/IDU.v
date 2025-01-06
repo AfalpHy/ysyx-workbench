@@ -1,6 +1,8 @@
 module IDU (
     input [31:0] inst,
 
+    output [1:0] npc_sel,
+
     output [31:0] imm,
     output imm_for_alu,
 
@@ -8,6 +10,7 @@ module IDU (
     output [4:0] rs2,
     output [4:0] rd,
     output reg_wen,
+    output [1:0] reg_wdata_sel,
 
     output mem_ren,
     output mem_wen,
@@ -94,8 +97,9 @@ module IDU (
   
   wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
 
-  assign halt = EBREAK;
-
+  assign npc_sel[0] = JAL | branch;
+  assign npc_sel[1] = JALR;
+  
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
   wire B_type = branch;
@@ -116,11 +120,14 @@ module IDU (
   assign rs2 = inst[24:20];
   assign rd  = inst[11:7];
 
-  assign reg_wen = U_type | J_type | I_type | R_type;
-  
+  assign reg_wen          = U_type | J_type | I_type | R_type;
+  assign reg_wdata_sel[0] = JAL | JALR | load;
+  assign reg_wdata_sel[1] = AUIPC | load;
+
   assign mem_ren = load;
   assign mem_wen = store;
 
+  assign halt = EBREAK;
 
 endmodule
 

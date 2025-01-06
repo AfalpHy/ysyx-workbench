@@ -22,6 +22,7 @@ module NPC (
   wire [31:0] src1, src2;
   wire reg_wen;
   wire [31:0] reg_wdata;
+  wire [1:0] reg_wdata_sel;
 
   // alu
   wire [4:0] alu_opcode;
@@ -30,14 +31,13 @@ module NPC (
 
   // memory
   wire mem_ren, mem_wen;
+  wire [31:0] mem_rdata;
 
   assign snpc = pc + 4;
   assign dnpc = pc + imm;
 
   assign alu_operand1 = src1;
   assign alu_operand2 = imm_for_alu ? imm : src2;
-
-  assign reg_wdata = alu_result;
 
   // set pointer of pc for cpp
   initial begin
@@ -53,6 +53,12 @@ module NPC (
       npc,
       npc_sel,
       {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, zero ? snpc : dnpc}
+  );
+
+  MuxKey #(4, 2, 32) mux_reg_wdata (
+      reg_wdata,
+      reg_wdata_sel,
+      {2'b00, alu_result, 2'b01, snpc, 2'b10, dnpc, 2'b11, mem_rdata}
   );
 
   RegHeap reg_heap (
@@ -75,12 +81,14 @@ module NPC (
 
   IDU idu (
       .inst(inst),
+      .npc_sel(npc_sel),
       .imm(imm),
       .imm_for_alu(imm_for_alu),
       .rs1(rs1),
       .rs2(rs2),
       .rd(rd),
       .reg_wen(reg_wen),
+      .reg_wdata_sel(reg_wdata_sel),
       .mem_ren(mem_ren),
       .mem_wen(mem_wen),
       .alu_opcode(alu_opcode),
