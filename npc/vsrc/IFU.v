@@ -11,9 +11,7 @@ module IFU (
 );
 
   always @(posedge clk) begin
-    if (!rst) begin inst = pmem_read(pc, 4);
-    $display("inst %h",inst);
-    end
+    if (!rst) inst = pmem_read(pc, 4);
   end
 
 endmodule

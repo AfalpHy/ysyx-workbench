@@ -24,9 +24,8 @@ module Memory (
     set_memory_ptr(memory);
   end
 
-
-  always @(posedge clk) begin
-    if (ren) rdata = pmem_read(raddr, 4);
+  always @(posedge ren) begin
+    rdata = pmem_read(raddr, 4);
     // if (wen) memory[waddr-'h8000_0000] <= wdata;
   end
 endmodule
