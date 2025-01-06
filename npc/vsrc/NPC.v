@@ -5,15 +5,15 @@ module NPC (
     input  rst,
     output halt
 );
-
+  // pc
   reg [31:0] pc;
-  wire [31:0] snpc, dnpc;
+  wire [31:0] npc, snpc, dnpc;
   wire [1:0] npc_sel;
 
-  //  instruct
+  // instruction
   wire [31:0] inst;
   wire [31:0] imm;
-  wire use_imm;
+  wire imm_for_alu;
   wire sext_b;
   wire sext_h;
 
@@ -21,10 +21,12 @@ module NPC (
   wire [4:0] rs1, rs2, rd;
   wire [31:0] src1, src2;
   wire reg_wen;
+  wire [31:0] reg_wdata;
 
   // alu
-  wire [4:0] opcode;
-  wire [31:0] operan1, operand2, result;
+  wire [4:0] alu_opcode;
+  wire [31:0] alu_operand1, alu_operand2, alu_result;
+  wire zero;
 
   // memory
   wire mem_ren, mem_wen;
@@ -32,24 +34,67 @@ module NPC (
   assign snpc = pc + 4;
   assign dnpc = pc + imm;
 
-  assign operan1 = src1;
-  assign operand2 = use_imm ? imm : src2;
+  assign alu_operand1 = src1;
+  assign alu_operand2 = imm_for_alu ? imm : src2;
 
+  assign reg_wdata = alu_result;
+
+  // set pointer of pc for cpp
   initial begin
     set_pc(pc);
   end
 
   always @(posedge clk) begin
     if (rst) pc <= 32'h8000_0000;
-    else begin
-      case (npc_sel)
-        2'b00: pc <= snpc;
-        2'b01: pc <= dnpc;
-        2'b10: pc <= result & (~32'b1);
-        2'b11: pc <= result ? dnpc : snpc;
-      endcase
-    end
+    else pc <= npc;
   end
+
+  MuxKey #(4, 2, 32) mux_npc (
+      npc,
+      npc_sel,
+      {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, zero ? snpc : dnpc}
+  );
+
+  RegHeap reg_heap (
+      .clk(clk),
+      .rst(rst),
+      .rs1(rs1),
+      .rs2(rs2),
+      .rd(rd),
+      .wen(reg_wen),
+      .wdata(reg_wdata),
+      .src1(src1),
+      .src2(src2)
+  );
+
+  IFU ifu (
+      .clk (clk),
+      .pc  (pc),
+      .inst(inst)
+  );
+
+  IDU idu (
+      .inst(inst),
+      .imm(imm),
+      .imm_for_alu(imm_for_alu),
+      .rs1(rs1),
+      .rs2(rs2),
+      .rd(rd),
+      .reg_wen(reg_wen),
+      .mem_ren(mem_ren),
+      .mem_wen(mem_wen),
+      .alu_opcode(alu_opcode),
+      .halt(halt)
+  );
+
+  ALU alu (
+      .opcode(alu_opcode),
+      .opearnd1(alu_operand1),
+      .operand2(alu_operand2),
+      .result(alu_result),
+      .zero(zero)
+  );
+
 
 
 endmodule
