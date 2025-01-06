@@ -31,7 +31,7 @@ clean:
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@$(BIN)	
+	@$(BIN) $(IMG)	
 
 .PHONY: all clean sim
 

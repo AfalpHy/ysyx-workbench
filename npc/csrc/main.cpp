@@ -3,8 +3,13 @@
 #include "verilated_dpi.h"
 #include "verilated_vcd_c.h"
 #include <assert.h>
+#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <vector>
+
+using namespace std;
 
 static VNPC *top = nullptr;
 
@@ -39,10 +44,36 @@ extern "C" uint32_t pmem_read(uint32_t addr, int len) {
   }
 }
 
+int load_img(const string &filepath) {
+  ifstream file(filepath, ios::binary);
+  assert(file.is_open());
+  file.seekg(0, ios::end);
+  size_t size = file.tellg();
+  file.seekg(0, ios::beg);
+  file.read((char *)pmem, size);
+  file.close();
+  return size;
+}
+
+void reset() {
+  top->rst = 1;
+  top->clk = 1;
+  top->eval();
+  top->clk = 0;
+  top->eval();
+  top->rst = 0;
+}
+
 int main(int argc, char **argv) {
   VerilatedContext *contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   top = new VNPC{contextp};
+  vector<string> imgs;
+  imgs.push_back(argv[1]);
+  for (const auto &img : imgs) {
+    load_img(img);
+    reset();
+  }
   while (!contextp->gotFinish()) {
     top->clk = 1;
     top->eval();

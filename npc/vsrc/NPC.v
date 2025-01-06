@@ -75,6 +75,7 @@ module NPC (
 
   IFU ifu (
       .clk (clk),
+      .rst (rst),
       .pc  (pc),
       .inst(inst)
   );
