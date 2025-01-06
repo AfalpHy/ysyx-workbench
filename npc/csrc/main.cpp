@@ -84,8 +84,7 @@ int main(int argc, char **argv) {
     top->eval();
     top->clk = 0;
     top->eval();
-   cout<<hex<<pc<<endl; 
-    cout<<hex<<*pc<<endl;
+   cout<<hex<<pc<<" " <<*pc<<endl; 
     
     int c;
     cin>>c;
