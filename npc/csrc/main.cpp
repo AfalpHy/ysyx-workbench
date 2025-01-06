@@ -34,11 +34,11 @@ extern "C" uint32_t pmem_read(uint32_t addr, int len) {
   auto pmem_addr = addr - 0x80000000;
   switch (len) {
   case 1:
-    return pmem[pmem_addr];
+    return pmem[pmem_addr] & 255;
   case 2:
-    return pmem[pmem_addr + 1] << 8 | pmem[pmem_addr];
+    return pmem[pmem_addr] & ((1 << 16) - 1);
   case 4:
-    return pmem_read(addr + 2, 2) << 16 | pmem_read(addr, 2);
+    return pmem[pmem_addr];
   default:
     assert(0);
     break;
@@ -64,7 +64,7 @@ void reset() {
   top->clk = 0;
   top->eval();
   top->rst = 0;
-  cout<<*pc<<endl;
+  cout << *pc << endl;
 }
 
 int main(int argc, char **argv) {
@@ -77,17 +77,16 @@ int main(int argc, char **argv) {
   for (const auto &img : imgs) {
     load_img(img);
     reset();
-
   }
   while (!contextp->gotFinish()) {
     top->clk = 1;
     top->eval();
     top->clk = 0;
     top->eval();
-   cout<<hex<<*pc<<" " <<pmem_read(*pc,4)<<endl; 
-    
+    cout << hex << *pc << " " << pmem_read(*pc, 4) << endl;
+
     int c;
-    cin>>c;
+    cin >> c;
     if (top->halt) {
       break;
     }
