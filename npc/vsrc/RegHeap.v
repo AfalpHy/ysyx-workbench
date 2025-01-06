@@ -27,6 +27,7 @@ module RegHeap (
   always @(posedge clk or wen) begin
     if (rst) for (int i = 0; i < 32; i = i + 1) regs[i] <= 0;
     else if (wen && rd != 0) regs[rd] <= wdata;
+    $display("hello");
   end
 
 endmodule
