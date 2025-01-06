@@ -71,8 +71,7 @@ int main(int argc, char **argv) {
   contextp->commandArgs(argc, argv);
   top = new VNPC{contextp};
   vector<string> imgs;
-  string img = argv[1];
-  imgs.push_back(img);
+  imgs.push_back( argv[1]);
   for (const auto &img : imgs) {
     load_img(img);
     reset();
