@@ -76,16 +76,6 @@ int main(int argc, char **argv) {
   imgs.push_back(argv[1]);
   for (const auto &img : imgs) {
     load_img(img);
-    cout<<hex<<*pmem<<endl;
-    
-    cout<<hex<<*(pmem+1)<<endl;
-    cout<<hex<<*(pmem+2)<<endl;
-    cout<<hex<<*(pmem+3)<<endl;
-    cout<<hex<<*(pmem+4)<<endl;
-    
-    
-    
-    
     reset();
 
   }
@@ -94,7 +84,9 @@ int main(int argc, char **argv) {
     top->eval();
     top->clk = 0;
     top->eval();
-    // cout<<*pc<<endl;
+    cout<<*pc<<endl;
+    int c;
+    cin>>c;
     if (top->halt) {
       break;
     }
