@@ -4,6 +4,7 @@
 #include "verilated_vcd_c.h"
 #include <assert.h>
 #include <fstream>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -45,6 +46,7 @@ extern "C" uint32_t pmem_read(uint32_t addr, int len) {
 }
 
 int load_img(const string &filepath) {
+  cout << filepath << endl;
   ifstream file(filepath, ios::binary);
   assert(file.is_open());
   file.seekg(0, ios::end);
@@ -69,7 +71,8 @@ int main(int argc, char **argv) {
   contextp->commandArgs(argc, argv);
   top = new VNPC{contextp};
   vector<string> imgs;
-  imgs.push_back(argv[1]);
+  string img = argv[1];
+  imgs.push_back(img);
   for (const auto &img : imgs) {
     load_img(img);
     reset();
