@@ -31,7 +31,7 @@ extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
 }
 
 extern "C" uint32_t pmem_read(uint32_t addr, int len) {
-  auto pmem_addr = addr - 0x80000000;
+  auto pmem_addr = (addr - 0x80000000) / 4;
   switch (len) {
   case 1:
     return pmem[pmem_addr] & 255;
