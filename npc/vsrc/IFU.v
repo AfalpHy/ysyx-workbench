@@ -10,7 +10,7 @@ module IFU (
 );
 
   always @(posedge clk) begin
-    inst = pmem_read(pc, inst);
+    inst = pmem_read(pc, 4);
   end
 
 endmodule
