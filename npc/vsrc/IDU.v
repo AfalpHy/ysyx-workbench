@@ -108,7 +108,7 @@ module IDU (
   wire R_type = op;
 
   wire [31:0] U_imm = U_type ? {inst[31:12], {12{1'b0}}} : 0;
-  wire [31:0] J_imm = J_type ? {{12{inst[31]}}, inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0}:0;
+  wire [31:0] J_imm = J_type ? {{12{inst[31]}}, inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0} : 0;
   wire [31:0] B_imm = B_type ? {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} : 0;
   wire [31:0] I_imm = I_type ? {{20{inst[31]}}, inst[31:20]} : 0;
   wire [31:0] S_imm = S_type ? {{20{inst[31]}}, inst[31:25], inst[11:7]} : 0;
