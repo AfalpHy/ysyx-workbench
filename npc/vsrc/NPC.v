@@ -73,6 +73,16 @@ module NPC (
       .src2(src2)
   );
 
+  Memory memory (
+      .clk  (clk),
+      .ren  (mem_ren),
+      .raddr(alu_result),
+      .wen  (mem_wen),
+      .waddr(alu_result),
+      .wdata(src2),
+      .rdata(mem_rdata)
+  );
+
   IFU ifu (
       .clk (clk),
       .rst (rst),
@@ -103,7 +113,6 @@ module NPC (
       .result(alu_result),
       .zero(zero)
   );
-
 
 
 endmodule
