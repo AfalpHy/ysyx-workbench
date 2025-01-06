@@ -15,7 +15,7 @@ module Memory (
     input [31:0] waddr,
     input [31:0] wdata,
 
-    output [31:0] rdata
+    output reg [31:0] rdata
 );
 
   reg [31:0] memory['h100_0000-1:0];
@@ -24,9 +24,9 @@ module Memory (
     set_memory_ptr(memory);
   end
 
-  assign rdata = pmem_read(raddr, 4);
 
   always @(posedge clk) begin
+    if (ren) rdata = pmem_read(raddr, 4);
     if (wen) memory[waddr-'h8000_0000] <= wdata;
   end
 endmodule
