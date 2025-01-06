@@ -64,6 +64,7 @@ void reset() {
   top->clk = 0;
   top->eval();
   top->rst = 0;
+  cout<<*pc<<endl;
 }
 
 int main(int argc, char **argv) {
