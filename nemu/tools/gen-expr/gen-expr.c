@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
   if (is_lu) {
     code_format = "#include <stdio.h>\n"
                   "int main() { "
-                  "  unsigned  result = %s; "
+                  "  unsigned long result = %s; "
                   "  printf(\"%%lu\", result); "
                   "  return 0; "
                   "}";
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
   if (argc > 2) {
     sscanf(argv[2], "%d", &loop);
   }
-
+  printf("%d %d",is_lu,loop);
   int i;
   for (i = 0; i < loop; i++) {
     pos = 0;
