@@ -114,7 +114,6 @@ int main(int argc, char *argv[]) {
   if (argc > 2) {
     sscanf(argv[2], "%d", &loop);
   }
-  printf("%d %d",is_lu,loop);
   int i;
   for (i = 0; i < loop; i++) {
     pos = 0;
