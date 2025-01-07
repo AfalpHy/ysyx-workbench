@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
   int seed = time(0);
   srand(seed);
 
-  sscanf(argv[1], "%d", is_lu);
+  sscanf(argv[1], "%d", &is_lu);
   if (is_lu) {
     code_format = "#include <stdio.h>\n"
                   "int main() { "
