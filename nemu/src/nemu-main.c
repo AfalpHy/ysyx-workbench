@@ -48,7 +48,8 @@ int main(int argc, char *argv[]) {
       bool success = true;
       word_t calc = expr(expr_str, &success);
       Assert(success, "eval the expr failed %s index: %d", expr_str, i);
-      Assert(ans == calc, "ans:%u calc:%u index:%d", ans, calc, i);
+      Assert(ans == calc, "ans:" FMT_WORD_D " calc:" FMT_WORD_D " index:%d",
+             ans, calc, i);
       i++;
     }
     fclose(fp);
