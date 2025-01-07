@@ -28,7 +28,11 @@ override ARGS ?= --log=$(BUILD_DIR)/nemu-log.txt
 override ARGS += $(ARGS_DIFF)
 
 ifdef TEST_EXPR
-	override ARGS += --test-expr
+override ARGS += --test-expr
+endif
+
+ifdef BATCH
+override ARGS += --batch
 endif
 
 # Command to execute NEMU
