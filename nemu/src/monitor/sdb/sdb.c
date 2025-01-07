@@ -80,10 +80,13 @@ static int cmd_info(char *args){
   if (args == NULL) {
     return 0;
   }
-  if(strcmp(args,"r")==0){
+  if (strcmp(args, "r") == 0) {
     isa_reg_display();
-  }else if(strcmp(args,"w")==0){
+  } else if (strcmp(args, "w") == 0) {
     print_wp();
+  } else if (strcmp(args, "i") == 0) {
+    void iringbuf_display();
+    iringbuf_display();
   }
   return 0;
 }
