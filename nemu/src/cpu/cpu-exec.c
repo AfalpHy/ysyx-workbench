@@ -47,6 +47,18 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
 }
 
+#define IRINGBUF_MAX 20
+static char iringbuf[IRINGBUF_MAX][128];
+static int iring_index = 0;
+
+void iringbuf_display() {
+  for (int i = iring_index; i < iring_index + IRINGBUF_MAX; i++) {
+    if (strcmp(iringbuf[i % IRINGBUF_MAX], "")) {
+      printf("%s\n", iringbuf[i % IRINGBUF_MAX]);
+    }
+  }
+}
+
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
@@ -75,6 +87,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
+  strcpy(iringbuf[iring_index], s->logbuf);
+  iring_index = (iring_index + 1) % IRINGBUF_MAX;
 #endif
 }
 

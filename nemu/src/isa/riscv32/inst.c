@@ -143,26 +143,7 @@ static int decode_exec(Decode *s) {
   return 0;
 }
 
-#define IRINGBUF_MAX 20
-static char iringbuf[IRINGBUF_MAX][128];
-static int iring_index = 0;
-
 int isa_exec_once(Decode *s) {
   s->isa.inst = inst_fetch(&s->snpc, 4);
-#ifdef CONFIG_ITRACE
-  int ret = decode_exec(s);
-  strcpy(iringbuf[iring_index], s->logbuf);
-  iring_index = (iring_index + 1) % IRINGBUF_MAX;
-  return ret;
-#else
   return decode_exec(s);
-#endif
-}
-
-void iringbuf_display() {
-  for (int i = iring_index; i < iring_index + IRINGBUF_MAX; i++) {
-    if (strcmp(iringbuf[i % IRINGBUF_MAX], "")) {
-      printf("%s\n", iringbuf[i % IRINGBUF_MAX]);
-    }
-  }
 }
