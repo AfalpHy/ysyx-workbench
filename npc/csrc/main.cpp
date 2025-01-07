@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
     top->clk = 0;
     top->eval();
     if (top->halt) {
+      cout << *(regs + 10) << endl;
       break;
     }
   }
