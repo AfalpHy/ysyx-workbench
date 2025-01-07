@@ -34,7 +34,8 @@ int main(int argc, char *argv[]) {
     word_t expr(char *e, bool *success);
     char *nemu_home = getenv("NEMU_HOME");
     char cmd[256];
-    sprintf(cmd, "make -f %s/tools/gen-expr/Makefile run", nemu_home);
+    sprintf(cmd, "make -f %s/tools/gen-expr/Makefile run LU=%d", nemu_home,
+            MUXDEF(CONFIG_ISA64, 1, 0));
     int ret = system(cmd);
     Assert(ret == 0, "genearte expr failed");
     char buff[65536];
@@ -48,7 +49,8 @@ int main(int argc, char *argv[]) {
       bool success = true;
       word_t calc = expr(expr_str, &success);
       Assert(success, "eval the expr failed %s index: %d", expr_str, i);
-      Assert(ans == calc, "ans:%u calc:%u index:%d", ans, calc, i);
+      Assert(ans == calc, "ans:" FMT_WORD_D " calc:" FMT_WORD_D " index:%d",
+             ans, calc, i);
       i++;
     }
     fclose(fp);

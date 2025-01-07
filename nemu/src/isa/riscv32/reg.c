@@ -25,7 +25,8 @@ const char *regs[] = {
 
 void isa_reg_display() {
   for (int i = 0; i < 32; i++) {
-    printf("%d\t%s\t%010u\t0x%08x\n",i, regs[i], gpr(i), gpr(i));
+    printf("%d\t%s\t" FMT_WORD_D "\t" FMT_WORD "\n", i, regs[i], gpr(i),
+           gpr(i));
   }
 }
 
