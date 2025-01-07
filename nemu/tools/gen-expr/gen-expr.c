@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
     assert(fp != NULL);
     if (is_lu) {
       uint64_t result;
-      int success = fscanf(fp, "%u", &result);
+      int success = fscanf(fp, "%lu", &result);
       pclose(fp);
       if (success == 1) {
         //将用于表示无符号的数字后缀u替换为空格
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
             buf[i] = ' ';
           }
         }
-        printf("%u %s\n", result, buf);
+        printf("%lu %s\n", result, buf);
       }
     } else {
       uint32_t result;
