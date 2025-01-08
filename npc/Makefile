@@ -19,7 +19,9 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS)
 LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
-ifdef RV32_IM or RV64_IM
+ifdef RV32_IM
+override CXXFLAGS += -DREGS_NUM=32
+else ifdef RV64_IM
 override CXXFLAGS += -DREGS_NUM=32
 else
 override CXXFLAGS += -DREGS_NUM=16
