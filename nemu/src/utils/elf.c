@@ -1,13 +1,16 @@
 #include "common.h"
 #include <elf.h>
 
+#define FILE_NAME_MAXLEN 256
+#define MAX_FUNCTION_NUM 65536
+
 typedef struct {
-  char fun_name[256];
+  char fun_name[FILE_NAME_MAXLEN];
   word_t begin;
   word_t end;
 } function_message;
 
-static function_message funs[100000];
+static function_message funs[MAX_FUNCTION_NUM];
 static int fun_num = 0;
 
 FILE *ftrace_log = NULL;
@@ -53,7 +56,9 @@ void add_elf(const char *elf_file) {
         strcpy(funs[fun_num].fun_name, &buff[str_offset + str_index]);
         funs[fun_num].begin = symbol->st_value;
         funs[fun_num].end = symbol->st_value + symbol->st_size;
-        fun_num++;
+        if (++fun_num >= MAX_FUNCTION_NUM) {
+          break;
+        }
       }
     }
   }
@@ -83,4 +88,47 @@ bool is_call(word_t addr) {
     }
   }
   return false;
+}
+
+#define MAX_DEEP 128
+static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
+static int indent = 0;
+
+void ftrace(word_t addr, word_t imm, uint32_t inst_val, bool jalr) {
+  bool call = is_call(addr), ret = false;
+  int rs1 = BITS(inst_val, 19, 15);
+  if (jalr && (rs1 == 1 || rs1 == 5) && imm == 0) {
+    ret = true;
+  }
+  char *fun_name = get_fun_name(addr);
+  if (fun_name == NULL) {
+    return;
+  }
+  if (call) {
+    for (int i = 0; i < indent; i++) {
+      fprintf(ftrace_log, "  ");
+    }
+    fprintf(ftrace_log, "call %s " FMT_PADDR "\n", fun_name, addr);
+    strcpy(call_chain[indent], fun_name);
+    indent++;
+  }
+  if (ret) {
+    assert(call == false);
+    indent -= 1;
+    while (indent >= 0) {
+      if (indent == 0) {
+        printf("fun name:%s not found\n", fun_name);
+        return;
+      }
+      if (strcmp(call_chain[indent - 1], fun_name) != 0) {
+        indent -= 1;
+      } else {
+        for (int i = 0; i < indent; i++) {
+          fprintf(ftrace_log, "  ");
+        }
+        fprintf(ftrace_log, "ret to %s " FMT_PADDR "\n", fun_name, addr);
+        break;
+      }
+    }
+  }
 }
