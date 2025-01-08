@@ -25,7 +25,7 @@ static void display_one_inst(const DisasmInst *di) {
 }
 
 void iringbuf_display() {
-  for (auto i = 0; i < 10; i++) {
+  for (auto i = 0; i < MAX_IRINGBUF_LEN; i++) {
     int iringbuf_index = (total_inst_num + i) % MAX_IRINGBUF_LEN;
     const auto &buf = iringbuf[iringbuf_index];
     if (strcmp(buf.str, "")) {
