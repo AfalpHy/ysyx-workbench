@@ -26,6 +26,10 @@ $(info hello)
 override ARGS += -diff_so=$(NEME_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
+ifdef BATCH
+override ARGS += -b 
+endif
+
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
