@@ -74,6 +74,9 @@ void reset() {
 }
 
 void cpu_exec(uint32_t num) {
+  if (top.halt) {
+    return;
+  }
   uint32_t print_num = num;
   while (num-- > 0) {
     uint32_t inst = pmem_read(*pc, 4);
