@@ -41,7 +41,7 @@ $(OBJ_DIR)/%.o: %.cc
 
 # Depencies
 -include $(OBJS:.o=.d)
-
+$(info $(OBJS))
 # Some convenient rules
 
 .PHONY: app clean
