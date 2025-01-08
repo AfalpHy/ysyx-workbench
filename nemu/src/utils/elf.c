@@ -103,10 +103,11 @@ bool is_call(word_t addr) {
 static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
 static int indent = 0;
 
-void ftrace(word_t addr, uint32_t inst, bool jalr) {
+void ftrace(word_t pc, word_t addr, uint32_t inst, bool jalr) {
   char *fun_name = get_fun_name(addr);
   Assert(fun_name, "ftrace get function name failed");
   if (is_call(addr)) {
+    fprintf(ftrace_log, "[" FMT_PADDR "]", pc);
     for (int i = 0; i < indent; i++) {
       fprintf(ftrace_log, "  ");
     }
@@ -123,6 +124,7 @@ void ftrace(word_t addr, uint32_t inst, bool jalr) {
       if (strcmp(call_chain[indent - 1], fun_name) != 0) {
         indent -= 1;
       } else {
+        fprintf(ftrace_log, "[" FMT_PADDR "]", pc);
         for (int i = 0; i < indent; i++) {
           fprintf(ftrace_log, "  ");
         }
