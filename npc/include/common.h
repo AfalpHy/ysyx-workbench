@@ -28,5 +28,4 @@ extern const char *regs_name[];
     printf(format "\n", ##__VA_ARGS__);                                        \
   assert(cond);
 
-
 #endif
