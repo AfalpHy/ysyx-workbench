@@ -110,7 +110,7 @@ void ftrace(word_t addr, uint32_t inst, bool jalr) {
     for (int i = 0; i < indent; i++) {
       fprintf(ftrace_log, "  ");
     }
-    fprintf(ftrace_log, "call %s " FMT_PADDR "\n", fun_name, addr);
+    fprintf(ftrace_log, "call %s [" FMT_PADDR "]\n", fun_name, addr);
     strcpy(call_chain[indent], fun_name);
     indent++;
     return;
@@ -126,7 +126,7 @@ void ftrace(word_t addr, uint32_t inst, bool jalr) {
         for (int i = 0; i < indent; i++) {
           fprintf(ftrace_log, "  ");
         }
-        fprintf(ftrace_log, "ret to %s " FMT_PADDR "\n", fun_name, addr);
+        fprintf(ftrace_log, "ret to %s [" FMT_PADDR "]\n", fun_name, addr);
         break;
       }
     }
