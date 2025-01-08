@@ -22,6 +22,7 @@ LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 ARGS = -img=$(IMG)
 
 ifdef DIFF_TEST
+$(info hello)
 override ARGS += -diff_so=$(NEME_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
