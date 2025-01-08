@@ -19,7 +19,7 @@ typedef uint32_t paddr_t;
 #define FMT_WORD_D "0x%010u"
 #endif
 
-#ifdef (RV32IM || RV64IM)
+#if defined(RV32IM) || defined(RV64IM)
 #define REGS_NUM 32
 #else
 #define REGS_NUM 16
