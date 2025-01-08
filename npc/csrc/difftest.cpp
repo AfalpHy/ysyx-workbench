@@ -13,7 +13,7 @@ void init_difftest(const char *ref_so_file, int img_size) {
 
   void *handle;
   handle = dlopen(ref_so_file, RTLD_LAZY);
-  Assert(handle, "s", dlerror());
+  Assert(handle, "%s", dlerror());
 
   ref_difftest_memcpy =
       (void (*)(paddr_t, void *, size_t, bool))dlsym(handle, "difftest_memcpy");
