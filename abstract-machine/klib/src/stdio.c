@@ -1,7 +1,8 @@
 #include <am.h>
-#include <klib.h>
 #include <klib-macros.h>
+#include <klib.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
@@ -65,7 +66,6 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   char c;
   char *s;
   int width = 0;
-  uint32_t p;
   bool skip = false;
   while (*fmt) {
     if (*fmt != '%' && !skip) {
@@ -87,11 +87,12 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         c = (char)va_arg(ap, int);
         *out++ = c;
         break;
-      case 'p':
-        p = (uint32_t)va_arg(ap, void *);
+      case 'p': {
+        uintptr_t p = (uintptr_t)va_arg(ap, void *);
         get_num(&out, p, false, width, 1);
-        width=0;
+        width = 0;
         break;
+      }
       case 'l': {
         char ch = *++fmt;
         if (ch == 'd') {
