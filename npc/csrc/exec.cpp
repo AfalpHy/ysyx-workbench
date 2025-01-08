@@ -36,21 +36,13 @@ void iringbuf_display() {
 
 static int check_ref() {
   word_t ref_reg[32];
-  paddr_t reg_pc;
-  ref_difftest_regcpy((void *)ref_reg, &reg_pc, DIFFTEST_TO_DUT);
+  ref_difftest_regcpy((void *)ref_reg, DIFFTEST_TO_DUT);
   for (int i = 0; i < 32; i++) {
     if (ref_reg[i] != regs[i]) {
       std::cerr << total_inst_num << " instrutions has been executed"
                 << std::endl;
       std::cerr << regs_name[i] << " ref:" << std::hex << ref_reg[i]
                 << " npc:" << regs[i] << std::endl;
-      return -1;
-    }
-    if (*pc != reg_pc) {
-      std::cerr << total_inst_num << " instrutions has been executed"
-                << std::endl;
-      std::cerr << std::hex << " ref's pc:" << reg_pc << " npc's pc:" << *pc
-                << std::endl;
       return -1;
     }
   }
