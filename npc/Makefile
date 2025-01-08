@@ -1,4 +1,5 @@
 TOPNAME = NPC
+INC_PATH ?= $(NPC_HOME)/include
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace\
 				-O3 --x-assign fast --x-initial fast --noassert
@@ -16,6 +17,7 @@ CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS)
+LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

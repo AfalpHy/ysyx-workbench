@@ -20,8 +20,9 @@
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   for (size_t i = 0; i < 32; i++) {
     if (cpu.gpr[i] != ref_r->gpr[i]) {
-      printf("difference reg name:%s dut:" FMT_WORD " ref:" FMT_WORD "\n",
-             reg_name(i), cpu.gpr[i], ref_r->gpr[i]);
+      printf("difference reg name:%s  pc:" FMT_PADDR " dut:" FMT_WORD
+             " ref:" FMT_WORD "\n",
+             reg_name(i), pc, cpu.gpr[i], ref_r->gpr[i]);
       return false;
     }
   }
