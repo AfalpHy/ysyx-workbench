@@ -33,6 +33,10 @@ VNPC top;
 
 word_t *regs, *pmem;
 paddr_t *pc;
+const char *regs_name[] = {"$0", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
+                           "s0", "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
+                           "a6", "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
+                           "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
 
 int status = 0;
 bool diff_test_on = false;
@@ -51,7 +55,7 @@ extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
   pmem = (word_t *)(((VerilatedDpiOpenVar *)r)->datap());
 }
 
-extern "C" word_t pmem_read(word_t addr, int len) {
+extern "C" word_t pmem_read(paddr_t addr, int len) {
   if (addr == RTC_ADDR) { // 时钟
     skip_next_ref = true;
     struct timeval now;
@@ -70,87 +74,80 @@ extern "C" word_t pmem_read(word_t addr, int len) {
   }
 
   uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
-  switch (rtype) {
-  case 0:
-    return *pmem_addr;
+  switch (len) {
   case 1:
-    return *(uint16_t *)pmem_addr;
+    return *pmem_addr;
   case 2:
-    return *(uint32_t *)pmem_addr;
+    return *(uint16_t *)pmem_addr;
+  case 4:
+    return *(word_t *)pmem_addr;
   default:
     return *(word_t *)pmem_addr;
   }
 }
 
-extern "C" void pmem_write(word_t addr, word_t data, int wrtype) {
-  if (pmem == nullptr || !ready) {
-    return;
-  }
+// extern "C" void pmem_write(word_t addr, word_t data, int len) {
+//   if (addr == SERIAL_PORT) { //串口
+//     skip_current_ref = true;
+//     putchar(data);
+//     return;
+//   } else if (addr >= FB_ADDR) {
+//     skip_current_ref = true;
+//     uint8_t *fb_addr = (uint8_t *)vmem + (addr - FB_ADDR);
+//     switch (wrtype) {
+//     case 0:
+//       *fb_addr = data;
+//       break;
+//     case 1:
+//       *(uint16_t *)fb_addr = data;
+//       break;
+//     case 2:
+//       *(uint32_t *)fb_addr = data;
+//       break;
+//     default:
+//       *(word_t *)fb_addr = data;
+//       break;
+//     }
+//     return;
+//   } else if (addr == SYNC_ADDR) {
+//     skip_current_ref = true;
+//     vgactl_port_base[1] = data;
+//     return;
+//   }
 
-  check_pemm_access(addr, wrtype);
+//   uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
+//   switch (len) {
+//   case 1:
+//     *pmem_addr = data;
+//     break;
+//   case 2:
+//     *(uint16_t *)pmem_addr = data;
+//     break;
+//   case 4:
+//     *(uint32_t *)pmem_addr = data;
+//     break;
+//   default:
+//     *(word_t *)pmem_addr = data;
+//     break;
+//   }
+// }
 
-  if (addr == SERIAL_PORT) { //串口
-    skip_current_ref = true;
-    putchar(data);
-    return;
-  } else if (addr >= FB_ADDR) {
-    skip_current_ref = true;
-    uint8_t *fb_addr = (uint8_t *)vmem + (addr - FB_ADDR);
-    switch (wrtype) {
-    case 0:
-      *fb_addr = data;
-      break;
-    case 1:
-      *(uint16_t *)fb_addr = data;
-      break;
-    case 2:
-      *(uint32_t *)fb_addr = data;
-      break;
-    default:
-      *(word_t *)fb_addr = data;
-      break;
-    }
-    return;
-  } else if (addr == SYNC_ADDR) {
-    skip_current_ref = true;
-    vgactl_port_base[1] = data;
-    return;
-  }
-
-  uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
-  switch (wrtype) {
-  case 0:
-    *pmem_addr = data;
-    break;
-  case 1:
-    *(uint16_t *)pmem_addr = data;
-    break;
-  case 2:
-    *(uint32_t *)pmem_addr = data;
-    break;
-  default:
-    *(word_t *)pmem_addr = data;
-    break;
-  }
-}
-
-word_t isa_reg_str2val(const char *s, bool *success) {
+word_t isa_reg_str2val(const char *s) {
   if (strcmp(s, "pc") == 0) {
-    return cpu.pc;
+    return *pc;
   }
   for (int i = 0; i < 32; i++) {
-    if (strcmp(regs[i], s) == 0) {
-      return gpr(i);
+    if (strcmp(regs_name[i], s) == 0) {
+      return regs[i];
     }
   }
-  *success = false;
   return 0;
 }
 
 void isa_reg_display() {
   for (int i = 0; i < 32; i++) {
-    printf("%d\t%s\t" FMT_WORD_D "\t" FMT_WORD "\n", i, regs[i], gpr(i),
-           gpr(i));
+    printf("%d\t%s\t" FMT_WORD_D "\t" FMT_WORD "\n", i, regs_name[i], regs[i],
+           regs[i]);
   }
 }
 

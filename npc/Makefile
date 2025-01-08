@@ -17,7 +17,7 @@ CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS)
-LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM
+LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

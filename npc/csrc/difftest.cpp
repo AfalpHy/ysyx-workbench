@@ -8,11 +8,6 @@ void (*ref_difftest_regcpy)(void *dut, void *pc, bool direction) = nullptr;
 void (*ref_difftest_exec)(uint64_t n) = nullptr;
 void (*ref_difftest_raise_intr)(uint64_t NO) = nullptr;
 
-const char *regs_name[] = {"$0", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
-                           "s0", "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
-                           "a6", "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
-                           "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
-
 void init_difftest(const char *ref_so_file, int img_size) {
   assert(ref_so_file != nullptr);
 

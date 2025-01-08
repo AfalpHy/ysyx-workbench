@@ -26,9 +26,11 @@ typedef struct {
   paddr_t pc;
   uint32_t inst;
   char str[128];
-} DisasmInst iringbuf[MAX_IRINGBUF_LEN];
+} DisasmInst;
 
-static void display_one_inst(DisasmInst *di) {
+static DisasmInst iringbuf[MAX_IRINGBUF_LEN];
+
+static void display_one_inst(const DisasmInst *di) {
   printf(FMT_WORD ":%08x\t%s\n", di->pc, di->inst, di->str);
 }
 
@@ -52,14 +54,13 @@ static int check_ref() {
                 << std::endl;
       std::cerr << regs_name[i] << " ref:" << std::hex << ref_reg[i]
                 << " npc:" << regs[i] << std::endl;
-      display_inst();
       return -1;
     }
     if (*pc != reg_pc) {
-      std::cerr << total_inst_num << " instrutions has been executed" std::endl;
+      std::cerr << total_inst_num << " instrutions has been executed"
+                << std::endl;
       std::cerr << std::hex << " ref's pc:" << reg_pc << " npc's pc:" << *pc
                 << std::endl;
-      display_inst();
       return -1;
     }
   }
@@ -93,7 +94,7 @@ static void cpu_exec(uint32_t num) {
     disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str), *pc,
                 (uint8_t *)&inst, 4);
     if (print_num <= 10) {
-      display_one_inst(iringbuf[iringbuf_index]);
+      display_one_inst(&iringbuf[iringbuf_index]);
     }
 
     single_cycle();
@@ -123,10 +124,7 @@ static int cmd_c(char *args) {
   return 0;
 }
 
-static int cmd_q(char *args) {
-  nemu_state.state = NEMU_QUIT;
-  return -1;
-}
+static int cmd_q(char *args) { return -1; }
 
 static int cmd_si(char *args) {
   if (args == NULL) {
@@ -156,7 +154,7 @@ static int cmd_x(char *args) {
   uint64_t size = strtoul(args, &base, 10);
   word_t addr = strtoul(base, NULL, 16);
   for (uint64_t i = 0; i < size; ++i) {
-    printf("0x%08x\n", (uint32_t)vaddr_read(addr + 4 * i, 4));
+    printf("0x%08x\n", (uint32_t)pmem_read(addr + 4 * i, 4));
   }
   return 0;
 }
@@ -214,7 +212,7 @@ static struct {
     {"w", "Set the watchpoint", cmd_w},
     {"d", "Delete the watchpoint", cmd_d}};
 
-#define NR_CMD ARRLEN(cmd_table)
+#define NR_CMD sizeof(cmd_table) / sizeof(cmd_table[0])
 
 static int cmd_help(char *args) {
   /* extract the first argument */
