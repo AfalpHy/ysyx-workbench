@@ -103,32 +103,23 @@ bool is_call(word_t addr) {
 static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
 static int indent = 0;
 
-void ftrace(word_t addr, word_t imm, uint32_t inst_val, bool jalr) {
-  bool call = is_call(addr), ret = false;
-  int rs1 = BITS(inst_val, 19, 15);
-  if (jalr && (rs1 == 1 || rs1 == 5) && imm == 0) {
-    ret = true;
-  }
+void ftrace(word_t addr, uint32_t inst, bool jalr) {
   char *fun_name = get_fun_name(addr);
-  if (fun_name == NULL) {
-    return;
-  }
-  if (call) {
+  Assert(fun_name, "ftrace get function name failed");
+  if (is_call(addr)) {
     for (int i = 0; i < indent; i++) {
       fprintf(ftrace_log, "  ");
     }
     fprintf(ftrace_log, "call %s " FMT_PADDR "\n", fun_name, addr);
     strcpy(call_chain[indent], fun_name);
     indent++;
+    return;
   }
-  if (ret) {
-    assert(call == false);
+  int rs1 = BITS(inst, 19, 15);
+  int rd = BITS(inst, 11, 7);
+  if (jalr && rs1 == 1 && rd == 0) {
     indent -= 1;
     while (indent >= 0) {
-      if (indent == 0) {
-        printf("fun name:%s not found\n", fun_name);
-        return;
-      }
       if (strcmp(call_chain[indent - 1], fun_name) != 0) {
         indent -= 1;
       } else {
