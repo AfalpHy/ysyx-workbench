@@ -4,7 +4,7 @@
 
 void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n,
                             bool direction) = nullptr;
-void (*ref_difftest_regcpy)(void *dut, void *pc, bool direction) = nullptr;
+void (*ref_difftest_regcpy)(void *dut, bool direction) = nullptr;
 void (*ref_difftest_exec)(uint64_t n) = nullptr;
 void (*ref_difftest_raise_intr)(uint64_t NO) = nullptr;
 
@@ -13,14 +13,18 @@ void init_difftest(const char *ref_so_file, int img_size) {
 
   void *handle;
   handle = dlopen(ref_so_file, RTLD_LAZY);
-  assert(handle);
+  Assert(handle, "%s", dlerror());
+
+  int *regs_num = (int *)dlsym(handle, "regs_num");
+  assert(regs_num);
+  *regs_num = REGS_NUM;
 
   ref_difftest_memcpy =
       (void (*)(paddr_t, void *, size_t, bool))dlsym(handle, "difftest_memcpy");
   assert(ref_difftest_memcpy);
 
   ref_difftest_regcpy =
-      (void (*)(void *, void *, bool))dlsym(handle, "difftest_regcpy");
+      (void (*)(void *, bool))dlsym(handle, "difftest_regcpy");
   assert(ref_difftest_regcpy);
 
   ref_difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
@@ -36,6 +40,5 @@ void init_difftest(const char *ref_so_file, int img_size) {
 
   ref_difftest_init(0);
   ref_difftest_memcpy(0x80000000, pmem, img_size, DIFFTEST_TO_REF);
-  paddr_t pc = 0x80000000;
-  ref_difftest_regcpy(regs, &pc, DIFFTEST_TO_REF);
+  ref_difftest_regcpy(regs, DIFFTEST_TO_REF);
 }

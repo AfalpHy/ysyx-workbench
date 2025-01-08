@@ -18,16 +18,32 @@
 #include <difftest-def.h>
 #include <memory/paddr.h>
 
+// rv32e has 16 register instead of 32
+__EXPORT int regs_num;
+
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-  assert(0);
+  if (direction == DIFFTEST_TO_REF) {
+    memcpy(guest_to_host(addr), buf, n);
+  } else {
+    Assert(0, "memcpy to dut is not supported");
+  }
 }
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
-  assert(0);
+  word_t *reg = dut;
+  if (direction == DIFFTEST_TO_REF) {
+    for (int i = 0; i < regs_num; i++) {
+      cpu.gpr[i] = *(reg + i);
+    }
+  } else {
+    for (int i = 0; i < regs_num; i++) {
+      *(reg + i) = cpu.gpr[i];
+    }
+  }
 }
 
 __EXPORT void difftest_exec(uint64_t n) {
-  assert(0);
+  cpu_exec(n);
 }
 
 __EXPORT void difftest_raise_intr(word_t NO) {

@@ -86,14 +86,15 @@ module IDU (
   wire SRA    = op & funct3_101 & funct7_01000_00;
   wire OR     = op & funct3_110 & funct7_00000_00;
   wire AND    = op & funct3_111 & funct7_00000_00;
-  wire MUL    = op & funct3_000 & funct7_00000_01;
-  wire MULH   = op & funct3_001 & funct7_00000_01;
-  wire MULHSU = op & funct3_010 & funct7_00000_01;
-  wire MULHU  = op & funct3_011 & funct7_00000_01;
-  wire DIV    = op & funct3_100 & funct7_00000_01;
-  wire DIVU   = op & funct3_101 & funct7_00000_01;
-  wire REM    = op & funct3_110 & funct7_00000_01;
-  wire REMU   = op & funct3_111 & funct7_00000_01;
+  // disable the RV32M temporarily
+  // wire MUL    = op & funct3_000 & funct7_00000_01;
+  // wire MULH   = op & funct3_001 & funct7_00000_01;
+  // wire MULHSU = op & funct3_010 & funct7_00000_01;
+  // wire MULHU  = op & funct3_011 & funct7_00000_01;
+  // wire DIV    = op & funct3_100 & funct7_00000_01;
+  // wire DIVU   = op & funct3_101 & funct7_00000_01;
+  // wire REM    = op & funct3_110 & funct7_00000_01;
+  // wire REMU   = op & funct3_111 & funct7_00000_01;
   
   wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
 

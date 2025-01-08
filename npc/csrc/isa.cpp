@@ -22,7 +22,7 @@ word_t isa_reg_str2val(const char *s) {
   if (strcmp(s, "pc") == 0) {
     return *pc;
   }
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < REGS_NUM; i++) {
     if (strcmp(regs_name[i], s) == 0) {
       return regs[i];
     }
@@ -31,7 +31,7 @@ word_t isa_reg_str2val(const char *s) {
 }
 
 void isa_reg_display() {
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < REGS_NUM; i++) {
     printf("%d\t%s\t" FMT_WORD_D "\t" FMT_WORD "\n", i, regs_name[i], regs[i],
            regs[i]);
   }

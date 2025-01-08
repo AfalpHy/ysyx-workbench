@@ -19,6 +19,24 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS)
 LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
+ifdef RV32IM
+override CXXFLAGS += -DRV32IM
+else ifdef RV64IM
+override CXXFLAGS += -DRV64IM
+else
+override CXXFLAGS += -DRV32E
+endif
+
+ARGS = -img=$(IMG)
+
+ifdef DIFF_TEST
+override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+endif
+
+ifdef BATCH
+override ARGS += -b 
+endif
+
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
@@ -33,13 +51,13 @@ clean:
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@$(BIN) -img=$(IMG)	
+	@$(BIN) $(ARGS)	
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
 gdb: all 
 	$(call git_commit, "sim RTL")
-	gdb -args $(BIN) -img=$(IMG) 
+	gdb -args $(BIN) $(ARGS)
 
 
 .PHONY: all clean sim gdb
