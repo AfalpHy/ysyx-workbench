@@ -77,7 +77,7 @@ static int parse_args(int argc, char *argv[]) {
     {"help"       , no_argument      , NULL, 'h'},
     {"test-expr"  , no_argument      , NULL, 't'},
     {"elf"        , required_argument, NULL, 'e'},
-    {"ftrace-loog", required_argument, NULL, 'f'},
+    {"ftrace-log" , required_argument, NULL, 'f'},
     {0            , 0                , NULL,  0 },
   };
   int o;
