@@ -89,7 +89,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         break;
       case 'p': {
         uintptr_t p = (uintptr_t)va_arg(ap, void *);
-        get_num(&out, (uint64_t)p, false, width, 1);
+        get_num(&out, p, false, width, 1);
         width = 0;
         break;
       }
