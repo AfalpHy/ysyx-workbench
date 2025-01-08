@@ -19,7 +19,7 @@
 #include <memory/paddr.h>
 
 // rv32e has 16 register instead of 32
-__EXPORT int regs_num;
+int regs_num;
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
