@@ -23,8 +23,9 @@ void add_elf(const char *elf_file) {
   long file_size = ftell(fp);
   char *buff = malloc(file_size);
   fseek(fp, 0, SEEK_SET);
-
-  if (fread(buff, 1, file_size, fp)) {
+    int size  =fread(buff, 1, file_size, fp); 
+    printf("%d %ld\n",size,file_size);
+  if (size) {
     Elf64_Ehdr *elf_header = (Elf64_Ehdr *)buff;
     // section header offset
     Elf64_Off shoff = elf_header->e_shoff;
