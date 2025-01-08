@@ -1,5 +1,4 @@
 #include "watchpoint.h"
-#include "assert.h"
 #include "expr.h"
 #include "stdio.h"
 #include "string.h"

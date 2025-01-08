@@ -17,7 +17,6 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include "common.h"
-#include <assert.h>
 #include <regex.h>
 #include <stdint.h>
 #include <stdio.h>

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <stdint.h>
+#include <assert.h>
 
 #ifdef CONFIG_ISA64
 typedef uint64_t word_t;
