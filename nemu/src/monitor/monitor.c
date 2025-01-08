@@ -43,6 +43,8 @@ static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
+static char *elf_file[128];
+static int elf_num = 0;
 
 static long load_img() {
   if (img_file == NULL) {
@@ -68,16 +70,18 @@ static long load_img() {
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
-    {"batch"    , no_argument      , NULL, 'b'},
-    {"log"      , required_argument, NULL, 'l'},
-    {"diff"     , required_argument, NULL, 'd'},
-    {"port"     , required_argument, NULL, 'p'},
-    {"help"     , no_argument      , NULL, 'h'},
-    {"test-expr", no_argument      , NULL, 't'},
-    {0          , 0                , NULL,  0 },
+    {"batch"      , no_argument      , NULL, 'b'},
+    {"log"        , required_argument, NULL, 'l'},
+    {"diff"       , required_argument, NULL, 'd'},
+    {"port"       , required_argument, NULL, 'p'},
+    {"help"       , no_argument      , NULL, 'h'},
+    {"test-expr"  , no_argument      , NULL, 't'},
+    {"elf"        , required_argument, NULL, 'e'},
+    {"ftrace-log" , required_argument, NULL, 'f'},
+    {0            , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhtl:d:p:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhtl:d:p:e:f:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
@@ -86,6 +90,13 @@ static int parse_args(int argc, char *argv[]) {
       case 't':{
         extern bool test_expr;
         test_expr = true;
+        break;
+      }
+      case 'e': elf_file[elf_num++] = optarg; break;
+      case 'f': {
+        extern FILE *ftrace_log;
+        ftrace_log = fopen(optarg, "w");
+        Assert(ftrace_log, "open ftrace log failed");
         break;
       }
       case 1: img_file = optarg; return 0;
@@ -114,6 +125,11 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Open the log file. */
   init_log(log_file);
+
+#ifdef CONFIG_FTRACE
+  void init_elf(const char *elf_file[], int num);
+  init_elf((const char **)elf_file, elf_num);
+#endif
 
   /* Initialize memory. */
   init_mem();
