@@ -20,11 +20,8 @@ CXXFLAGS += $(INCFLAGS)
 LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
 ifdef RV32_IM
-$(info 32)
 override CXXFLAGS += -DREGS_NUM=32
 else ifdef RV64_IM
-$(info 64)
-
 override CXXFLAGS += -DREGS_NUM=32
 else
 override CXXFLAGS += -DREGS_NUM=16
