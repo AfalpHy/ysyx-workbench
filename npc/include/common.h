@@ -25,7 +25,7 @@ extern const char *regs_name[];
 
 #define Assert(cond, format, ...)                                              \
   if (!cond)                                                                   \
-    printf(format, ##__VA_ARGS__);                                             \
+    printf(format "\n", ##__VA_ARGS__);                                        \
   assert(cond);
 
 #endif
