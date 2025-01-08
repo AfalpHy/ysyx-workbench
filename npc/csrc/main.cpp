@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     diff_test_on = true;
   }
   sdb_mainloop();
-  if (status == 0 && isa_reg_str2val("a0") != 0) {
+  if (status != 0 || isa_reg_str2val("a0") != 0) {
     status = -1;
     cout << img << "\033[31m\tBAD TRAP\033[0m" << endl;
   } else {
