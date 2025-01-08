@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
   // init watchpoint
   init_wp_pool();
   // init sdl
-  // init_vga();
+  init_vga();
   int size = load_img(img);
   reset();
   if (!ref_so.empty()) {
