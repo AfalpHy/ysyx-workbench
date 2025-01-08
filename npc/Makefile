@@ -20,7 +20,7 @@ CXXFLAGS += $(INCFLAGS)
 LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
