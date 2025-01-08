@@ -41,7 +41,7 @@ static int check_ref() {
     if (ref_reg[i] != regs[i]) {
       std::cerr << total_inst_num << " instrutions has been executed"
                 << std::endl;
-      std::cerr << "reg index" << i << " " << regs_name[i]
+      std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
                 << std::endl;
       return -1;
