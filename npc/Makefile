@@ -19,6 +19,12 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS)
 LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
+ARGS = -img=$(IMG)
+
+ifdef DIFF_TEST
+override ARGS += -diff_so=$(NEME_HOME)/build/riscv32-nemu-interpreter-so
+endif
+
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
