@@ -118,7 +118,7 @@ void ftrace(word_t pc, word_t addr, uint32_t inst, bool jalr) {
   }
   int rs1 = BITS(inst, 19, 15);
   int rd = BITS(inst, 11, 7);
-  if (jalr && rs1 == 1 && rd == 0) {
+  if (jalr && (rs1 == 1 || rs1 == 5) && rd == 0) {
     indent -= 1;
     while (indent >= 0) {
       if (strcmp(call_chain[indent - 1], fun_name) != 0) {
