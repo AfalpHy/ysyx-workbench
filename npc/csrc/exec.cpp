@@ -37,9 +37,6 @@ void iringbuf_display() {
 static int check_ref() {
   word_t ref_reg[REGS_NUM];
   ref_difftest_regcpy((void *)ref_reg, DIFFTEST_TO_DUT);
-  for(auto i=0;i<REGS_NUM;i++){
-    printf("ll %d\n",ref_reg[i]);
-  }
   for (int i = 0; i < REGS_NUM; i++) {
     if (ref_reg[i] != regs[i]) {
       std::cerr << total_inst_num << " instrutions has been executed"

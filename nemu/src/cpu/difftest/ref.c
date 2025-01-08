@@ -34,12 +34,10 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
     for (int i = 0; i < regs_num; i++) {
       cpu.gpr[i] = *(reg + i);
-      printf("%d %d\n", *(word_t *)(dut + i), cpu.gpr[i]);
     }
   } else {
     for (int i = 0; i < regs_num; i++) {
       *(reg + i) = cpu.gpr[i];
-      printf("%d %d\n", *(word_t *)(dut + i), cpu.gpr[i]);
     }
   }
 }
