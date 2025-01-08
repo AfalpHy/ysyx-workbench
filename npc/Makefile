@@ -23,7 +23,7 @@ ARGS = -img=$(IMG)
 
 ifdef DIFF_TEST
 $(info hello)
-override ARGS += -diff_so=$(NEME_HOME)/build/riscv32-nemu-interpreter-so
+override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
 ifdef BATCH
