@@ -57,7 +57,7 @@ void add_elf(const char *elf_file) {
     Elf_Off sym_offset = sym_section_hdr->sh_offset;
     Elf_Xword sym_size = sym_section_hdr->sh_size;
     Elf_Xword section_entry_size = sym_section_hdr->sh_entsize;
-    // 遍历符号表
+    // iterate symblo table
     for (Elf_Xword begin = 0; begin < sym_size; begin += section_entry_size) {
       Elf_Sym *symbol = (Elf_Sym *)&buff[sym_offset + begin];
       if ((symbol->st_info & 0x0f) == SYMINFO_NUM) {
@@ -66,6 +66,7 @@ void add_elf(const char *elf_file) {
         funs[fun_num].begin = symbol->st_value;
         funs[fun_num].end = symbol->st_value + symbol->st_size;
         if (++fun_num >= MAX_FUNCTION_NUM) {
+          printf("can't not save more function message\n");
           break;
         }
       }
