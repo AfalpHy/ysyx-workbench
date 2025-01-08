@@ -110,8 +110,7 @@ static struct {
 } cmd_table[] = {
     {"help", "Display information about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
-    {"q", "Exit NEMU", cmd_q},
-    /* TODO: Add more commands */
+    {"q", "Exit NPC", cmd_q},
     {"si", "Step forward n instructions", cmd_si},
     {"info", "Printf reg value or watchpoint", cmd_info},
     {"x", "Printf memory message, example: x 10 0x80000000", cmd_x},
