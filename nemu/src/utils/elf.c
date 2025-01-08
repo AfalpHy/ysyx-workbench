@@ -62,10 +62,6 @@ void add_elf(const char *elf_file) {
 }
 
 void init_elf(const char *elf_file[], int num) {
-  // 清空ftrace.log
-  ftrace_log = fopen("ftrace.log", "w");
-  assert(ftrace_log);
-
   for (int i = 0; i < num; i++) {
     add_elf(elf_file[i]);
   }
