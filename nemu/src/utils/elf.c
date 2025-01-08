@@ -61,13 +61,11 @@ void add_elf(const char *elf_file) {
   fclose(fp);
 }
 
-void init_elf(const char *elf_file[], int num) {
+void init_elf(const char *elf_files[], int num) {
   for (int i = 0; i < num; i++) {
-    add_elf(elf_file[i]);
+    add_elf(elf_files[i]);
   }
 }
-
-bool has_message() { return fun_num != 0; }
 
 char *get_fun_name(word_t addr) {
   for (int i = 0; i < fun_num; i++) {
