@@ -17,10 +17,13 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include "common.h"
+#include "isa.h"
+#include "memory.h"
 #include <regex.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
 enum {
   TK_NOTYPE = 256,
   TK_EQ,

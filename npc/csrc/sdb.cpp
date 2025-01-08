@@ -1,71 +1,13 @@
-#include "device.h"
-#include "difftest.h"
-#include "disasm.h"
+#include "exec.h"
 #include "expr.h"
-#include "verilated_dpi.h"
+#include "isa.h"
+#include "memory.h"
 #include "watchpoint.h"
-#include <VNPC.h>
 #include <iostream>
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <sys/time.h>
-#include <unistd.h>
-
-extern VNPC top;
-extern int status;
-extern bool diff_test_on;
 
 static int is_batch_mode = false;
-int total_inst_num = 0;
-// npc因为是仿真，存在上升沿与下降沿的时序逻辑，上升沿检测到的跳过当前指令，下降沿检测到的跳过下一条指令
-bool skip_current_ref = false;
-bool skip_next_ref = false;
-
-#define MAX_IRINGBUF_LEN 20
-typedef struct {
-  paddr_t pc;
-  uint32_t inst;
-  char str[128];
-} DisasmInst;
-
-static DisasmInst iringbuf[MAX_IRINGBUF_LEN];
-
-static void display_one_inst(const DisasmInst *di) {
-  printf(FMT_WORD ":%08x\t%s\n", di->pc, di->inst, di->str);
-}
-
-static void iringbuf_display() {
-  for (auto i = 0; i < 10; i++) {
-    int iringbuf_index = (total_inst_num + i) % MAX_IRINGBUF_LEN;
-    const auto &buf = iringbuf[iringbuf_index];
-    if (strcmp(buf.str, "")) {
-      display_one_inst(&buf);
-    }
-  }
-}
-
-static int check_ref() {
-  word_t ref_reg[32];
-  paddr_t reg_pc;
-  ref_difftest_regcpy((void *)ref_reg, &reg_pc, DIFFTEST_TO_DUT);
-  for (int i = 0; i < 32; i++) {
-    if (ref_reg[i] != regs[i]) {
-      std::cerr << total_inst_num << " instrutions has been executed"
-                << std::endl;
-      std::cerr << regs_name[i] << " ref:" << std::hex << ref_reg[i]
-                << " npc:" << regs[i] << std::endl;
-      return -1;
-    }
-    if (*pc != reg_pc) {
-      std::cerr << total_inst_num << " instrutions has been executed"
-                << std::endl;
-      std::cerr << std::hex << " ref's pc:" << reg_pc << " npc's pc:" << *pc
-                << std::endl;
-      return -1;
-    }
-  }
-  return 0;
-}
 
 static char *rl_gets() {
   static char *line_read = NULL;
@@ -84,41 +26,6 @@ static char *rl_gets() {
   return line_read;
 }
 
-static void cpu_exec(uint32_t num) {
-  uint32_t print_num = num;
-  while (num-- > 0) {
-    uint32_t inst = pmem_read(*pc, 4);
-    int iringbuf_index = total_inst_num % MAX_IRINGBUF_LEN;
-    iringbuf[iringbuf_index].pc = *pc;
-    iringbuf[iringbuf_index].inst = inst;
-    disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str), *pc,
-                (uint8_t *)&inst, 4);
-    if (print_num <= 10) {
-      display_one_inst(&iringbuf[iringbuf_index]);
-    }
-
-    single_cycle();
-
-    if (diff_test_on) {
-      if (skip_current_ref) {
-        ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
-      } else {
-        ref_difftest_exec(1);
-        if (check_ref() != 0) {
-          return;
-        }
-      }
-    }
-    total_inst_num++;
-    if (top.halt) {
-      return;
-    }
-    if (check_wp()) {
-      printf("watch point has been triggered\n");
-      return;
-    }
-  }
-}
 static int cmd_c(char *args) {
   cpu_exec(-1);
   return 0;
