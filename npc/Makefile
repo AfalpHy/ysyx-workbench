@@ -33,7 +33,7 @@ clean:
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@$(BIN) -img$(IMG)	
+	@$(BIN) -img=$(IMG)	
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
