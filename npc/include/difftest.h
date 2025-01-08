@@ -1,7 +1,6 @@
 #ifndef DIFFTEST_H
 #define DIFFTEST_H
 #include "common.h"
-#include "string.h"
 
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
