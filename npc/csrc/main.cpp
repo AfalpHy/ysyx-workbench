@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
       img = tmp.substr(pos + 1);
     } else if (option == "diff_so") {
       ref_so = tmp.substr(pos + 1);
+      cout<<ref_so<<endl;
     } else if (option == "b") {
       sdb_set_batch_mode();
     }
