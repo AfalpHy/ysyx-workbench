@@ -44,6 +44,8 @@ void add_elf(const char *elf_file) {
         str_section_hdr = section_header;
       }
     }
+    Assert(sym_section_hdr && str_section_hdr,
+           "get symtab or strtab header failed");
     Elf64_Off str_offset = str_section_hdr->sh_offset;
     Elf64_Off sym_offset = sym_section_hdr->sh_offset;
     Elf64_Xword sym_size = sym_section_hdr->sh_size;
