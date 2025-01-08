@@ -75,6 +75,7 @@ void reset() {
 
 void cpu_exec(uint32_t num) {
   if (top.halt) {
+    printf("Program execution has ended\n");
     return;
   }
   uint32_t print_num = num;
