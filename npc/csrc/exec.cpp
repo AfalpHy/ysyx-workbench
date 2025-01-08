@@ -93,7 +93,6 @@ void cpu_exec(uint32_t num) {
     single_cycle();
 
     if (diff_test_on) {
-      printf("here\n");
       ref_difftest_exec(1);
       if (check_ref() != 0) {
         status = -1;
