@@ -4,6 +4,14 @@
 #define FILE_NAME_MAXLEN 256
 #define MAX_FUNCTION_NUM 65536
 
+#define Elf_Ehdr MUXDEF(CONFIG_ISA64, Elf64_Ehdr, Elf32_Ehdr)
+#define Elf_Off MUXDEF(CONFIG_ISA64, Elf64_Off, Elf32_Off)
+#define Elf_Half MUXDEF(CONFIG_ISA64, Elf64_Half, Elf32_Half)
+#define Elf_Shdr MUXDEF(CONFIG_ISA64, Elf64_Shdr, Elf32_Shdr)
+#define Elf_Xword MUXDEF(CONFIG_ISA64, Elf64_Xword, Elf32_Xword)
+#define Elf_Word MUXDEF(CONFIG_ISA64, Elf64_Word, Elf32_Word)
+#define Elf_Sym MUXDEF(CONFIG_ISA64, Elf64_Sym, Elf32_Sym)
+
 typedef struct {
   char fun_name[FILE_NAME_MAXLEN];
   word_t begin;
@@ -23,21 +31,19 @@ void add_elf(const char *elf_file) {
   long file_size = ftell(fp);
   char *buff = malloc(file_size);
   fseek(fp, 0, SEEK_SET);
-    int size  =fread(buff, 1, file_size, fp); 
-    printf("%d %ld\n",size,file_size);
-  if (size) {
-    Elf64_Ehdr *elf_header = (Elf64_Ehdr *)buff;
+  if (fread(buff, 1, file_size, fp)) {
+    Elf_Ehdr *elf_header = (Elf_Ehdr *)buff;
     // section header offset
-    Elf64_Off shoff = elf_header->e_shoff;
+    Elf_Off shoff = elf_header->e_shoff;
     // section header num
-    Elf64_Half shnum = elf_header->e_shnum;
+    Elf_Half shnum = elf_header->e_shnum;
     // symbol table section header
-    Elf64_Shdr *sym_section_hdr = NULL;
+    Elf_Shdr *sym_section_hdr = NULL;
     // str table section header
-    Elf64_Shdr *str_section_hdr = NULL;
-    for (Elf64_Half i = 0; i < shnum; i++) {
-      Elf64_Shdr *section_header =
-          (Elf64_Shdr *)&buff[shoff + i * sizeof(Elf64_Shdr)];
+    Elf_Shdr *str_section_hdr = NULL;
+    for (Elf_Half i = 0; i < shnum; i++) {
+      Elf_Shdr *section_header =
+          (Elf_Shdr *)&buff[shoff + i * sizeof(Elf_Shdr)];
       if (section_header->sh_type == SHT_SYMTAB) {
         sym_section_hdr = section_header;
       } else if (section_header->sh_type == SHT_STRTAB &&
@@ -47,15 +53,15 @@ void add_elf(const char *elf_file) {
     }
     Assert(sym_section_hdr && str_section_hdr,
            "get symtab or strtab header failed");
-    Elf64_Off str_offset = str_section_hdr->sh_offset;
-    Elf64_Off sym_offset = sym_section_hdr->sh_offset;
-    Elf64_Xword sym_size = sym_section_hdr->sh_size;
-    Elf64_Xword section_entry_size = sym_section_hdr->sh_entsize;
+    Elf_Off str_offset = str_section_hdr->sh_offset;
+    Elf_Off sym_offset = sym_section_hdr->sh_offset;
+    Elf_Xword sym_size = sym_section_hdr->sh_size;
+    Elf_Xword section_entry_size = sym_section_hdr->sh_entsize;
     // 遍历符号表
-    for (Elf64_Xword begin = 0; begin < sym_size; begin += section_entry_size) {
-      Elf64_Sym *symbol = (Elf64_Sym *)&buff[sym_offset + begin];
+    for (Elf_Xword begin = 0; begin < sym_size; begin += section_entry_size) {
+      Elf_Sym *symbol = (Elf_Sym *)&buff[sym_offset + begin];
       if ((symbol->st_info & 0x0f) == SYMINFO_NUM) {
-        Elf64_Word str_index = symbol->st_name;
+        Elf_Word str_index = symbol->st_name;
         strcpy(funs[fun_num].fun_name, &buff[str_offset + str_index]);
         funs[fun_num].begin = symbol->st_value;
         funs[fun_num].end = symbol->st_value + symbol->st_size;
