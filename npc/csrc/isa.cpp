@@ -5,7 +5,7 @@
 word_t *regs = nullptr;
 paddr_t *pc = nullptr;
 
-int regs_num = REGS_NUM;
+extern "C" int regs_num = REGS_NUM;
 
 const char *regs_name[] = {"$0", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
                            "s0", "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
