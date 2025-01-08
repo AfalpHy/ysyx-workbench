@@ -1,9 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <assert.h>
 #include <iostream>
 #include <stdint.h>
-#include <assert.h>
 
 #ifdef CONFIG_ISA64
 typedef uint64_t word_t;
@@ -24,7 +24,8 @@ extern word_t *pc;
 extern const char *regs_name[];
 
 #define Assert(cond, format, ...)                                              \
-  printf(format, ##__VA_ARGS__);                                               \
+  if (!cond)                                                                   \
+    printf(format, ##__VA_ARGS__);                                             \
   assert(cond);
 
 #endif
