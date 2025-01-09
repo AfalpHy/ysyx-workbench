@@ -20,8 +20,7 @@ module Memory (
     input [31:0] waddr,
     input [31:0] wdata,
 
-    output reg [31:0] rdata,
-    output reg complete
+    output reg [31:0] rdata
 );
 
   reg [31:0] memory['h100_0000-1:0];
@@ -33,8 +32,6 @@ module Memory (
   integer tmp;
 
   always @(posedge clk) begin
-    complete = 0;
-
     if (ren) begin
       if (suffix_b) begin
         tmp = pmem_read(raddr, 1);
@@ -47,7 +44,5 @@ module Memory (
       end else rdata = pmem_read(raddr, 4);
     end
     if (wen) pmem_write(waddr, wdata, suffix_b ? 1 : (suffix_h ? 2 : 4));
-
-    complete = 1;
   end
 endmodule
