@@ -122,7 +122,11 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
     fprintf(ftrace_log, "call %s [" FMT_PADDR "]\n", fun_name, addr);
     strcpy(call_chain[indent], fun_name);
     indent++;
-    Assert(indent <= MAX_DEEP, "too deep function call nesting");
+    if(indent > MAX_DEEP){
+      printf("hhh");
+      assert(0);
+    }
+    // Assert(indent <= MAX_DEEP, "too deep function call nesting");
     return;
   }
   int rs1 = BITS(inst, 19, 15);
