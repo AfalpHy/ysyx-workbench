@@ -32,6 +32,7 @@ module NPC (
   // memory
   wire mem_ren, mem_wen;
   wire [31:0] mem_rdata;
+  wire complete;
 
   assign snpc = pc + 4;
   assign dnpc = pc + imm;
@@ -62,7 +63,7 @@ module NPC (
   );
 
   RegHeap reg_heap (
-      .clk(clk),
+      .clk(complete),
 
       .rst(rst),
       .rs1(rs1),
@@ -90,7 +91,8 @@ module NPC (
       .waddr(alu_result),
       .wdata(src2),
 
-      .rdata(mem_rdata)
+      .rdata(mem_rdata),
+      .complete(complete)
   );
 
   IFU ifu (
