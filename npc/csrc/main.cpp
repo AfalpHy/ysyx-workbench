@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
     } else if (option == "elf") {
       elf_files.push_back(tmp.substr(pos + 1));
     } else if (option == "ftrace-log") {
+      cout<<"here"<<endl;
       extern FILE *ftrace_log;
       ftrace_log = fopen(tmp.substr(pos + 1).c_str(), "w");
       Assert(ftrace_log, "open log file failed");
