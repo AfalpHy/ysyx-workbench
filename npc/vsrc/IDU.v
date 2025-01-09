@@ -103,7 +103,7 @@ module IDU (
   wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
 
   assign npc_sel[0] = JAL | branch;
-  assign npc_sel[1] = JALR;
+  assign npc_sel[1] = JALR | branch;
   
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
