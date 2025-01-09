@@ -85,8 +85,8 @@ extern "C" void pmem_write(word_t addr, word_t data, int len) {
     return;
   }
 
-  uint8_t *pmem_addr = (uint8_t *)pmem;
-  pmem_addr += (addr - 0x80000000);
+  uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
+  // pmem_addr += (addr - 0x80000000);
   switch (len) {
   case 1:
     *pmem_addr = data;
