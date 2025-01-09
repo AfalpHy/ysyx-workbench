@@ -45,6 +45,7 @@ module NPC (
   end
 
   always @(posedge clk) begin
+    $display("pc");
     if (rst) pc <= 32'h8000_0000;
     else pc <= npc;
   end

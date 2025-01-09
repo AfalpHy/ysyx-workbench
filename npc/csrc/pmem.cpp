@@ -1,5 +1,4 @@
 #include "device.h"
-#include "isa.h"
 #include "verilated_dpi.h"
 #include <common.h>
 #include <sys/time.h>

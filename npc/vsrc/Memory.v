@@ -32,6 +32,7 @@ module Memory (
   integer tmp;
 
   always @(posedge clk) begin
+    $display("memory");
     if (ren) begin
       if (suffix_b) begin
         tmp = pmem_read(raddr, 1);
