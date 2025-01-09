@@ -31,17 +31,19 @@ module Memory (
 
   integer tmp;
 
-  always @( posedge ren) begin
+  always @(posedge clk or posedge ren) begin
     $display("memory read");
-    if (suffix_b) begin
-      tmp = pmem_read(raddr, 1);
-      if (sext) tmp = tmp | ({32{tmp[7]}} << 8);
-      rdata = tmp;
-    end else if (suffix_h) begin
-      tmp = pmem_read(raddr, 2);
-      if (sext) tmp = tmp | ({32{tmp[15]}} << 16);
-      rdata = tmp;
-    end else rdata = pmem_read(raddr, 4);
+    if (ren) begin
+      if (suffix_b) begin
+        tmp = pmem_read(raddr, 1);
+        if (sext) tmp = tmp | ({32{tmp[7]}} << 8);
+        rdata = tmp;
+      end else if (suffix_h) begin
+        tmp = pmem_read(raddr, 2);
+        if (sext) tmp = tmp | ({32{tmp[15]}} << 16);
+        rdata = tmp;
+      end else rdata = pmem_read(raddr, 4);
+    end
   end
 
   always @(negedge clk) begin
