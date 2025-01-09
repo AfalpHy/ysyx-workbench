@@ -50,21 +50,26 @@ void init_mem() {
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
+// only trace inst memory access
+bool print_mtrace = false;
+
 word_t paddr_read(paddr_t addr, int len) {
   word_t result;
   if (likely(in_pmem(addr))) {
     result = pmem_read(addr, len);
 #ifdef CONFIG_MTRACE
-    log_write("read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", addr, len,
-              result);
+    if (print_mtrace)
+      log_write("read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", addr,
+                len, result);
 #endif
     return result;
   }
 #ifdef CONFIG_DEVICE
   result = mmio_read(addr, len);
 #ifdef CONFIG_MTRACE
-  log_write("read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", addr, len,
-            result);
+  if (print_mtrace)
+    log_write("read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", addr,
+              len, result);
 #endif
   return result;
 #endif
@@ -75,8 +80,9 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
 #ifdef CONFIG_MTRACE
-  log_write("write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", (word_t)addr,
-            len, data);
+  if (print_mtrace)
+    log_write("write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
+              (word_t)addr, len, data);
 #endif
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);

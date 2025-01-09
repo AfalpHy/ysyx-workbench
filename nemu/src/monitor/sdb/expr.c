@@ -119,10 +119,10 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        extern bool test_expr;
-        if (!test_expr)
-          Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i,
-              rules[i].regex, position, substr_len, substr_len, substr_start);
+        // extern bool test_expr;
+        // if (!test_expr)
+        //   Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i,
+        //       rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -257,7 +257,8 @@ static word_t eval(int left, int right, bool *success) {
     }
 
     if (tokens[op].type == TK_DEREF) {
-      return vaddr_read(eval(left + 1, right, success), 8);
+      return vaddr_read(eval(left + 1, right, success),
+                        MUXDEF(CONFIG_ISA64, 8, 4));
     }
 
     word_t val1 = eval(left, op - 1, success);
