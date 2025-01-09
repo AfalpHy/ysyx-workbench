@@ -31,7 +31,7 @@ module Memory (
 
   integer tmp;
 
-  always @(posedge clk) begin
+  always @(posedge clk or posedge ren) begin
     if (ren) begin
       if (suffix_b) begin
         tmp = pmem_read(raddr, 1);
@@ -43,6 +43,9 @@ module Memory (
         rdata = tmp;
       end else rdata = pmem_read(raddr, 4);
     end
+  end
+
+  always @(negedge clk) begin
     if (wen) pmem_write(waddr, wdata, suffix_b ? 1 : (suffix_h ? 2 : 4));
   end
 endmodule
