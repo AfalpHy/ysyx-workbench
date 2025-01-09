@@ -40,7 +40,7 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
   uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
   switch (len) {
   case 1:
-    result = *pmem_addr;
+    result = *(uint8_t*)pmem_addr;
   case 2:
     result = *(uint16_t *)pmem_addr;
   case 4:
