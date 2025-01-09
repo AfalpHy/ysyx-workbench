@@ -52,7 +52,7 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
 #ifdef MTRACE
   if (print_mtrace)
     fprintf(log_fp,
-            "current pc" FMT_PADDR "read addr:\t" FMT_PADDR
+            "current pc" FMT_PADDR " read addr:\t" FMT_PADDR
             "\tlen:%d\tdata:" FMT_WORD "\n",
             *pc, addr, len, result);
 #endif
