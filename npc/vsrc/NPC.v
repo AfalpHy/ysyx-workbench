@@ -45,10 +45,8 @@ module NPC (
   end
 
   always @(posedge clk) begin
-    $display("pc");
     if (rst) pc <= 32'h8000_0000;
     else pc <= npc;
-    $display("%h %h %h %h",pc,imm,dnpc,snpc);
   end
 
   MuxKey #(4, 2, 32) mux_npc (
