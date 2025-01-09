@@ -257,7 +257,8 @@ static word_t eval(int left, int right, bool *success) {
     }
 
     if (tokens[op].type == TK_DEREF) {
-      return vaddr_read(eval(left + 1, right, success), 8);
+      return vaddr_read(eval(left + 1, right, success),
+                        MUXDEF(CONFIG_ISA64, 8, 4));
     }
 
     word_t val1 = eval(left, op - 1, success);
