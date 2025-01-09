@@ -33,17 +33,17 @@ module Memory (
 
   always @(posedge clk) begin
     if (ren) begin
-      if (suffix_b) begin
-        tmp = pmem_read(raddr, 1);
-        $display("here1");
-        if (sext) tmp = tmp | ({32{tmp[7]}} << 8);
-        rdata = tmp;
-      end else if (suffix_h) begin
-        tmp = pmem_read(raddr, 2);
-        $display("here2");
-        if (sext) tmp = tmp | ({32{tmp[15]}} << 16);
-        rdata = tmp;
-      end else rdata = pmem_read(raddr, 4);
+      // if (suffix_b) begin
+      //   tmp = pmem_read(raddr, 1);
+      //   $display("here1");
+      //   if (sext) tmp = tmp | ({32{tmp[7]}} << 8);
+      //   rdata = tmp;
+      // end else if (suffix_h) begin
+      //   tmp = pmem_read(raddr, 2);
+      //   $display("here2");
+      //   if (sext) tmp = tmp | ({32{tmp[15]}} << 16);
+      //   rdata = tmp;
+      // end else rdata = pmem_read(raddr, 4);
     end
     if (wen) pmem_write(waddr, wdata, suffix_b ? 1 : (suffix_h ? 2 : 4));
   end
