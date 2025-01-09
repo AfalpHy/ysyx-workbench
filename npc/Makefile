@@ -1,7 +1,7 @@
 TOPNAME = NPC
 INC_PATH ?= $(NPC_HOME)/include
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc --trace\
+VERILATOR_CFLAGS += -MMD --build -cc --trace --timing\
 				-O3 --x-assign fast --x-initial fast --noassert
 
 BUILD_DIR = ./build
