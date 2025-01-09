@@ -92,7 +92,11 @@ void cpu_exec(uint32_t num) {
     fprintf(log_fp, "%s", one_inst_str(&iringbuf[iringbuf_index]));
 #endif
 
+    // only print inst memory access
+    print_mtrace = true;
     single_cycle();
+    print_mtrace = false;
+
     total_inst_num++;
 
     if (diff_test_on) {
