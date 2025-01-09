@@ -25,7 +25,8 @@ module RegHeap (
   end
 
   // add or wen make imm of IDU right, which is weird, it's supposed to be figure out in future 
-  always @(posedge clk or wen or wdata) begin
+  always @(posedge clk or wen) begin
+    $display("reg");
     if (rst) for (int i = 0; i < 32; i = i + 1) regs[i] <= 0;
     else if (wen && rd != 0) regs[rd] <= wdata;
   end
