@@ -32,6 +32,7 @@ module MuxKeyInternal #(NR_KEY = 2, KEY_LEN = 1, DATA_LEN = 1, HAS_DEFAULT = 0) 
     end
     if (!HAS_DEFAULT) out = lut_out;
     else out = (hit ? lut_out : default_out);
+    $display("%h",out);
   end
 endmodule
 

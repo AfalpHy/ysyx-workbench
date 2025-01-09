@@ -42,7 +42,6 @@ module Memory (
         if (sext) tmp = tmp | ({32{tmp[15]}} << 16);
         rdata = tmp;
       end else rdata = pmem_read(raddr, 4);
-          $display("%h",rdata);
     end
     if (wen) pmem_write(waddr, wdata, suffix_b ? 1 : (suffix_h ? 2 : 4));
   end
