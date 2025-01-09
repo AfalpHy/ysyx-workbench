@@ -14,8 +14,9 @@ module NPC (
   wire [31:0] inst;
   wire [31:0] imm;
   wire imm_for_alu;
-  wire sext_b;
-  wire sext_h;
+  wire suffix_b;
+  wire suffix_h;
+  wire sext;
 
   // reg
   wire [4:0] rs1, rs2, rd;
@@ -25,9 +26,8 @@ module NPC (
   wire [1:0] reg_wdata_sel;
 
   // alu
-  wire [4:0] alu_opcode;
+  wire [6:0] alu_opcode;
   wire [31:0] alu_operand1, alu_operand2, alu_result;
-  wire zero;
 
   // memory
   wire mem_ren, mem_wen;
@@ -52,7 +52,7 @@ module NPC (
   MuxKey #(4, 2, 32) mux_npc (
       npc,
       npc_sel,
-      {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, zero ? snpc : dnpc}
+      {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, alu_result[0] ? dnpc : snpc}
   );
 
   MuxKey #(4, 2, 32) mux_reg_wdata (
@@ -63,23 +63,33 @@ module NPC (
 
   RegHeap reg_heap (
       .clk(clk),
+
       .rst(rst),
       .rs1(rs1),
       .rs2(rs2),
-      .rd(rd),
-      .wen(reg_wen),
+      .rd (rd),
+
+      .wen  (reg_wen),
       .wdata(reg_wdata),
+
       .src1(src1),
       .src2(src2)
   );
 
   Memory memory (
-      .clk  (clk),
+      .clk(clk),
+
+      .suffix_b(suffix_b),
+      .suffix_h(suffix_h),
+      .sext(sext),
+
       .ren  (mem_ren),
       .raddr(alu_result),
+
       .wen  (mem_wen),
       .waddr(alu_result),
       .wdata(src2),
+
       .rdata(mem_rdata)
   );
 
@@ -92,26 +102,34 @@ module NPC (
 
   IDU idu (
       .inst(inst),
+
       .npc_sel(npc_sel),
+
       .imm(imm),
       .imm_for_alu(imm_for_alu),
+
+      .suffix_b(suffix_b),
+      .suffix_h(suffix_h),
+      .sext(sext),
+
       .rs1(rs1),
       .rs2(rs2),
       .rd(rd),
       .reg_wen(reg_wen),
       .reg_wdata_sel(reg_wdata_sel),
+
       .mem_ren(mem_ren),
       .mem_wen(mem_wen),
+
       .alu_opcode(alu_opcode),
       .halt(halt)
   );
 
   ALU alu (
-      .opcode(alu_opcode),
-      .opearnd1(alu_operand1),
+      .opcode  (alu_opcode),
+      .operand1(alu_operand1),
       .operand2(alu_operand2),
-      .result(alu_result),
-      .zero(zero)
+      .result  (alu_result)
   );
 
 
