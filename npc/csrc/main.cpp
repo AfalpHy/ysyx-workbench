@@ -21,6 +21,8 @@ int status = 0;
 bool diff_test_on = false;
 uint64_t begin_us;
 
+FILE *log_fp = nullptr;
+
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
   Assert(file.is_open(), "load img failed");
@@ -52,7 +54,10 @@ int main(int argc, char **argv) {
     for (pos++; pos < tmp.length() && tmp[pos] != '='; pos++) {
       option.push_back(tmp[pos]);
     }
-    if (option == "img") {
+    if (option == "log") {
+      log_fp = fopen(tmp.substr(pos + 1).c_str(), "w");
+      Assert(log_fp, "open log file failed");
+    } else if (option == "img") {
       img = tmp.substr(pos + 1);
     } else if (option == "diff_so") {
       ref_so = tmp.substr(pos + 1);

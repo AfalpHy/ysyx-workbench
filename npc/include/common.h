@@ -29,6 +29,7 @@ typedef uint32_t paddr_t;
 extern word_t *regs, *pmem;
 extern word_t *pc;
 extern const char *regs_name[];
+extern FILE* log_fp;
 
 #define Assert(cond, format, ...)                                              \
   if (!cond)                                                                   \
