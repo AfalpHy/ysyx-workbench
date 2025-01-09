@@ -53,7 +53,7 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
-sim: all
+sim: all clean
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
 
