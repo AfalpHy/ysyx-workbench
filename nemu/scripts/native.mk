@@ -39,7 +39,6 @@ ifneq ($(IMG),)
 override ARGS += --elf=$(addsuffix .elf, $(basename $(IMG)))
 endif
 endif
-run: ARGS := $(ARGS) --batch
 
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
@@ -47,7 +46,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
 	$(call git_commit, "run NEMU")
-	$(NEMU_EXEC)
+	$(BINARY) $(ARGS) --batch $(IMG)
 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
