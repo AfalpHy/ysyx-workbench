@@ -18,7 +18,7 @@
  */
 #include "common.h"
 #include "isa.h"
-#include "memory.h"
+#include "pmem.h"
 #include <regex.h>
 #include <stdint.h>
 #include <stdio.h>

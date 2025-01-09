@@ -1,7 +1,7 @@
 #include "exec.h"
 #include "expr.h"
 #include "isa.h"
-#include "memory.h"
+#include "pmem.h"
 #include "watchpoint.h"
 #include <iostream>
 #include <readline/history.h>

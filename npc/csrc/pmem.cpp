@@ -14,6 +14,7 @@
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 
 word_t *pmem = nullptr;
+bool print_mtrace = false;
 
 extern uint64_t begin_us;
 
@@ -22,30 +23,37 @@ extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
 }
 
 extern "C" word_t pmem_read(paddr_t addr, int len) {
+  word_t result;
   if (addr == RTC_ADDR) { // 时钟
     struct timeval now;
     gettimeofday(&now, NULL);
     uint64_t us = now.tv_sec * 1000000 + now.tv_usec;
-    return us - begin_us;
+    result = us - begin_us;
   } else if (addr == KBD_ADDR) {
-    return 0;
+    result = 0;
   } else if (addr == VGACTL_ADDR) {
-    return vgactl_port_base[0];
+    result = vgactl_port_base[0];
   } else if (addr == SYNC_ADDR) {
-    return vgactl_port_base[1];
+    result = vgactl_port_base[1];
   }
 
   uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
   switch (len) {
   case 1:
-    return *pmem_addr;
+    result = *pmem_addr;
   case 2:
-    return *(uint16_t *)pmem_addr;
+    result = *(uint16_t *)pmem_addr;
   case 4:
-    return *(word_t *)pmem_addr;
+    result = *(word_t *)pmem_addr;
   default:
-    return *(word_t *)pmem_addr;
+    result = *(word_t *)pmem_addr;
   }
+#ifdef MTRACE
+  if (print_mtrace)
+    fprintf(log_fp, "read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
+            addr, len, result);
+#endif
+  return result;
 }
 
 // extern "C" void pmem_write(word_t addr, word_t data, int len) {

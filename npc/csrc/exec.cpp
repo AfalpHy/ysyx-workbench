@@ -1,7 +1,8 @@
 #include "VNPC.h"
 #include "difftest.h"
 #include "disasm.h"
-#include "memory.h"
+#include "ftrace.h"
+#include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"
 
@@ -20,8 +21,14 @@ typedef struct {
 #define MAX_IRINGBUF_LEN 20
 static DisasmInst iringbuf[MAX_IRINGBUF_LEN];
 
+char *one_inst_str(const DisasmInst *di) {
+  static char buff[256];
+  sprintf(buff, FMT_WORD ":%08x\t\t%s\n", di->pc, di->inst, di->str);
+  return buff;
+}
+
 static void display_one_inst(const DisasmInst *di) {
-  printf(FMT_WORD ":%08x\t%s\n", di->pc, di->inst, di->str);
+  printf("%s", one_inst_str(di));
 }
 
 void iringbuf_display() {
@@ -82,8 +89,18 @@ void cpu_exec(uint32_t num) {
     if (print_num <= 10) {
       display_one_inst(&iringbuf[iringbuf_index]);
     }
+#ifdef ITRACE
+    fprintf(log_fp, "%s", one_inst_str(&iringbuf[iringbuf_index]));
+#endif
 
+    // only print inst memory access
+    print_mtrace = true;
     single_cycle();
+    print_mtrace = false;
+
+#ifdef FTRACE
+    ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
+#endif
     total_inst_num++;
 
     if (diff_test_on) {
