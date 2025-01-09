@@ -55,11 +55,6 @@ module NPC (
       {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, alu_result[0] ? dnpc : snpc}
   );
 
-  MuxKey #(4, 2, 32) mux_reg_wdata (
-      reg_wdata,
-      reg_wdata_sel,
-      {2'b00, alu_result, 2'b01, snpc, 2'b10, dnpc, 2'b11, mem_rdata}
-  );
 
   RegHeap reg_heap (
       .clk(clk),
@@ -74,6 +69,11 @@ module NPC (
 
       .src1(src1),
       .src2(src2)
+  );
+  MuxKey #(4, 2, 32) mux_reg_wdata (
+      reg_wdata,
+      reg_wdata_sel,
+      {2'b00, alu_result, 2'b01, snpc, 2'b10, dnpc, 2'b11, mem_rdata}
   );
 
   Memory memory (
