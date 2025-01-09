@@ -35,7 +35,7 @@ else
 override CXXFLAGS += -DRV32E=1
 endif
 
-ARGS = -log=$(shell pwd)/build/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf
+ARGS = -log=$(shell dirname $(IMG))/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf
 
 ifdef DIFF_TEST
 override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
