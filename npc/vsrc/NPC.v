@@ -52,7 +52,7 @@ module NPC (
   MuxKey #(4, 2, 32) mux_npc (
       npc,
       npc_sel,
-      {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, alu_result[0] ? snpc : dnpc}
+      {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, alu_result[0] ? dnpc : snpc}
   );
 
   MuxKey #(4, 2, 32) mux_reg_wdata (
