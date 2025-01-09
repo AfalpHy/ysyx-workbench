@@ -6,6 +6,10 @@ module IDU (
     output [31:0] imm,
     output imm_for_alu,
 
+    output suffix_b,
+    output suffix_h,
+    output sext,
+  
     output [4:0] rs1,
     output [4:0] rs2,
     output [4:0] rd,
@@ -15,7 +19,7 @@ module IDU (
     output mem_ren,
     output mem_wen,
 
-    output [4:0] alu_opcode,
+    output [6:0] alu_opcode,
     output halt
 );
 
@@ -116,6 +120,9 @@ module IDU (
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
   assign imm_for_alu = I_type | S_type;
+  assign suffix_b = LB | LBU | SB;
+  assign suffix_h = LH | LHU | SH;
+  assign sext = LB | LH;
 
   assign rs1 = LUI ? 0 : inst[19:15]; // LUI always use x0 means 0 + imm
   assign rs2 = inst[24:20];
@@ -129,6 +136,14 @@ module IDU (
   assign mem_wen = store;
 
   assign halt = EBREAK;
+
+  assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
+  assign alu_opcode[1] = XORI | XOR | BEQ;
+  assign alu_opcode[2] = ORI | OR | BNE;
+  assign alu_opcode[3] = ANDI | AND | BLTU | SLTIU | SLTU;
+  assign alu_opcode[4] = SLLI | SLL | BGEU;
+  assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
+  assign alu_opcode[6] = SRAI | SRA | BGE;
 
 endmodule
 
