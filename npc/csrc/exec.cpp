@@ -1,7 +1,7 @@
 #include "VNPC.h"
 #include "difftest.h"
 #include "disasm.h"
-#include "memory.h"
+#include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"
 

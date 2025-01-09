@@ -3,14 +3,15 @@
 #include "disasm.h"
 #include "exec.h"
 #include "expr.h"
+#include "ftrace.h"
 #include "isa.h"
-#include "memory.h"
 #include "sdb.h"
 #include "watchpoint.h"
 #include <VNPC.h>
 #include <fstream>
 #include <iostream>
 #include <sys/time.h>
+#include <vector>
 
 using namespace std;
 
@@ -40,6 +41,7 @@ int main(int argc, char **argv) {
 
   string img;
   string ref_so;
+  vector<string> elf_files;
   for (int i = 0; i < argc; i++) {
     string tmp = argv[i];
     string option;
@@ -56,6 +58,8 @@ int main(int argc, char **argv) {
       ref_so = tmp.substr(pos + 1);
     } else if (option == "b") {
       sdb_set_batch_mode();
+    } else if (option == "elf") {
+      elf_files.push_back(tmp.substr(pos + 1));
     }
   }
   // expr
@@ -72,6 +76,11 @@ int main(int argc, char **argv) {
     init_difftest(ref_so.c_str(), size);
     diff_test_on = true;
   }
+
+#ifdef FTRACE
+  init_elf(elf_files);
+#endif
+
   sdb_mainloop();
   if (status != 0 || isa_reg_str2val("a0") != 0) {
     status = -1;

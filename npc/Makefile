@@ -20,14 +20,14 @@ CXXFLAGS += $(INCFLAGS)
 LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
 ifdef RV32IM
-override CXXFLAGS += -DRV32IM
+override CXXFLAGS += -DRV32IM=1
 else ifdef RV64IM
-override CXXFLAGS += -DRV64IM
+override CXXFLAGS += -DRV64IM=1
 else
-override CXXFLAGS += -DRV32E
+override CXXFLAGS += -DRV32E=1
 endif
 
-ARGS = -img=$(IMG) -elf=$(basename $(IMG)).elf
+ARGS = -log=$(shell pwd)/build/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf
 
 ifdef DIFF_TEST
 override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so

@@ -18,6 +18,7 @@ typedef uint32_t paddr_t;
 #define FMT_WORD "0x%08x"
 #define FMT_WORD_D "0x%010u"
 #endif
+#define FMT_PADDR FMT_WORD
 
 #if defined(RV32IM) || defined(RV64IM)
 #define REGS_NUM 32
@@ -33,5 +34,18 @@ extern const char *regs_name[];
   if (!cond)                                                                   \
     printf(format "\n", ##__VA_ARGS__);                                        \
   assert(cond);
+
+#define CHOOSE2nd(a, b, ...) b
+#define MUX_WITH_COMMA(contain_comma, a, b) CHOOSE2nd(contain_comma a, b)
+#define MUX_MACRO_PROPERTY(p, macro, a, b)                                     \
+  MUX_WITH_COMMA(concat(p, macro), a, b)
+// define placeholders for some property
+#define __P_DEF_0 X,
+#define __P_DEF_1 X,
+// define some selection functions based on the properties of BOOLEAN macro
+#define MUXDEF(macro, X, Y) MUX_MACRO_PROPERTY(__P_DEF_, macro, X, Y)
+#define BITMASK(bits) ((1ull << (bits)) - 1)
+#define BITS(x, hi, lo)                                                        \
+  (((x) >> (lo)) & BITMASK((hi) - (lo) + 1)) // similar to x[hi:lo] in verilog
 
 #endif
