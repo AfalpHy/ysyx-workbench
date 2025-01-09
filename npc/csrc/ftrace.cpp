@@ -102,7 +102,7 @@ static bool is_call(word_t addr) {
   return false;
 }
 
-#define MAX_DEEP 128
+#define MAX_DEEP 4096
 static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
 static int indent = 0;
 
