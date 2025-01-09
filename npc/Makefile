@@ -27,6 +27,14 @@ else
 override CXXFLAGS += -DRV32E=1
 endif
 
+ifdef ITRACE
+override CXXFLAGS += -DIRACE
+else ifdef RV64IM
+override CXXFLAGS += -DRV64IM=1
+else
+override CXXFLAGS += -DRV32E=1
+endif
+
 ARGS = -log=$(shell pwd)/build/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf
 
 ifdef DIFF_TEST
