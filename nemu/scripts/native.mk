@@ -31,10 +31,6 @@ ifdef TEST_EXPR
 override ARGS += --test-expr
 endif
 
-ifdef BATCH
-override ARGS += --batch
-endif
-
 # Command to execute NEMU
 IMG ?=
 ifeq ($(CONFIG_FTRACE),y)
@@ -50,7 +46,7 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
 	$(call git_commit, "run NEMU")
-	$(NEMU_EXEC)
+	$(NEMU_EXEC) --batch
 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
