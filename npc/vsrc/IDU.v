@@ -119,7 +119,7 @@ module IDU (
   wire [31:0] S_imm = S_type ? {{20{inst[31]}}, inst[31:25], inst[11:7]} : 0;
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
-  assign imm_for_alu = I_type | S_type;
+  assign imm_for_alu = LUI | I_type | S_type;
   assign suffix_b = LB | LBU | SB;
   assign suffix_h = LH | LHU | SH;
   assign sext = LB | LH;
