@@ -11,7 +11,6 @@ module IFU (
 );
 
   always @(posedge clk) begin
-    $display("ifu");
     if (!rst) inst = pmem_read(pc, 4);
   end
 

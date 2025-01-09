@@ -47,7 +47,6 @@ module Memory (
   end
 
   always @(negedge clk) begin
-    $display("memory");
     if (wen) pmem_write(waddr, wdata, suffix_b ? 1 : (suffix_h ? 2 : 4));
   end
 endmodule
