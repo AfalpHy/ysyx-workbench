@@ -1,6 +1,7 @@
 #include "VNPC.h"
 #include "difftest.h"
 #include "disasm.h"
+#include "ftrace.h"
 #include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"
@@ -97,6 +98,9 @@ void cpu_exec(uint32_t num) {
     single_cycle();
     print_mtrace = false;
 
+#ifdef FTRACE
+    ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
+#endif
     total_inst_num++;
 
     if (diff_test_on) {
