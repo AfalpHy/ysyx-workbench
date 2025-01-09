@@ -28,7 +28,7 @@ override CXXFLAGS += -DRV32E=1
 endif
 
 ifdef ITRACE
-override CXXFLAGS += -DIRACE
+override CXXFLAGS += -DITRACE
 endif
 
 ARGS = -log=$(shell dirname $(IMG))/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf
