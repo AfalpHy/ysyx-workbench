@@ -29,10 +29,10 @@ typedef uint32_t paddr_t;
 extern word_t *regs, *pmem;
 extern word_t *pc;
 extern const char *regs_name[];
-extern FILE* log_fp;
+extern FILE *log_fp;
 
 #define Assert(cond, format, ...)                                              \
-  if (!cond)                                                                   \
+  if (!(cond))                                                                 \
     printf(format "\n", ##__VA_ARGS__);                                        \
   assert(cond);
 
