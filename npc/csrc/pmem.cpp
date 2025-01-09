@@ -56,48 +56,51 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
   return result;
 }
 
-// extern "C" void pmem_write(word_t addr, word_t data, int len) {
-//   if (addr == SERIAL_PORT) { //串口
-//     skip_current_ref = true;
-//     putchar(data);
-//     return;
-//   } else if (addr >= FB_ADDR) {
-//     skip_current_ref = true;
-//     uint8_t *fb_addr = (uint8_t *)vmem + (addr - FB_ADDR);
-//     switch (wrtype) {
-//     case 0:
-//       *fb_addr = data;
-//       break;
-//     case 1:
-//       *(uint16_t *)fb_addr = data;
-//       break;
-//     case 2:
-//       *(uint32_t *)fb_addr = data;
-//       break;
-//     default:
-//       *(word_t *)fb_addr = data;
-//       break;
-//     }
-//     return;
-//   } else if (addr == SYNC_ADDR) {
-//     skip_current_ref = true;
-//     vgactl_port_base[1] = data;
-//     return;
-//   }
+extern "C" void pmem_write(word_t addr, word_t data, int len) {
+  if (addr == SERIAL_PORT) {
+    putchar(data);
+    return;
+  } else if (addr >= FB_ADDR) {
+    uint8_t *fb_addr = (uint8_t *)vmem + (addr - FB_ADDR);
+    switch (len) {
+    case 1:
+      *fb_addr = data;
+      break;
+    case 2:
+      *(uint16_t *)fb_addr = data;
+      break;
+    case 4:
+      *(uint32_t *)fb_addr = data;
+      break;
+    default:
+      *(word_t *)fb_addr = data;
+      break;
+    }
+    return;
+  } else if (addr == SYNC_ADDR) {
+    vgactl_port_base[1] = data;
+    return;
+  }
 
-//   uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
-//   switch (len) {
-//   case 1:
-//     *pmem_addr = data;
-//     break;
-//   case 2:
-//     *(uint16_t *)pmem_addr = data;
-//     break;
-//   case 4:
-//     *(uint32_t *)pmem_addr = data;
-//     break;
-//   default:
-//     *(word_t *)pmem_addr = data;
-//     break;
-//   }
-// }
+  uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
+  switch (len) {
+  case 1:
+    *pmem_addr = data;
+    break;
+  case 2:
+    *(uint16_t *)pmem_addr = data;
+    break;
+  case 4:
+    *(uint32_t *)pmem_addr = data;
+    break;
+  default:
+    *(word_t *)pmem_addr = data;
+    break;
+  }
+
+#ifdef MTRACE
+  if (print_mtrace)
+    fprintf(log_fp, "write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
+            addr, len, data);
+#endif
+}

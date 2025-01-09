@@ -79,6 +79,10 @@ module NPC (
   Memory memory (
       .clk(clk),
 
+      .suffix_b(suffix_b),
+      .suffix_h(suffix_h),
+      .sext(sext),
+
       .ren  (mem_ren),
       .raddr(alu_result),
 

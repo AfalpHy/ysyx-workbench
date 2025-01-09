@@ -1,12 +1,17 @@
 import "DPI-C" function void set_memory_ptr(input logic [31:0] ptr[]);
 
-// import "DPI-C" function void pmem_write(
-//   int addr,
-//   int data
-// );
+import "DPI-C" function void pmem_write(
+  int addr,
+  int data,
+  int len
+);
 
 module Memory (
     input clk,
+
+    input suffix_b,
+    input suffix_h,
+    input sext,
 
     input ren,
     input [31:0] raddr,
@@ -24,9 +29,20 @@ module Memory (
     set_memory_ptr(memory);
   end
 
+  integer tmp;
 
   always @(posedge clk) begin
-    if (ren) rdata = pmem_read(raddr, 4);
-    if (wen) memory[waddr-'h8000_0000] <= wdata;
+    if (ren) begin
+      if (suffix_b) begin
+        tmp = pmem_read(raddr, 1);
+        if (sext) tmp = tmp | ({32{tmp[7]}} << 8);
+        rdata = tmp;
+      end else if (suffix_h) begin
+        tmp = pmem_read(raddr, 2);
+        if (sext) tmp = tmp | ({32{tmp[15]}} << 16);
+        rdata = tmp;
+      end else rdata = pmem_read(raddr, 4);
+    end
+    if (wen) pmem_write(waddr, wdata, suffix_b ? 1 : (suffix_h ? 2 : 4));
   end
 endmodule
