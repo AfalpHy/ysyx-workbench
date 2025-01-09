@@ -33,6 +33,10 @@ ifdef DIFF_TEST
 override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
+ifdef BATCH
+override ARGS += -b 
+endif
+
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
@@ -45,12 +49,11 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
-sim: ARGS += -b
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
 
-gdb: CXXFLAGS += -g -DITRACE -DMTRACE -DFTRACE
+gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
 gdb: all 
 	$(call git_commit, "sim RTL")

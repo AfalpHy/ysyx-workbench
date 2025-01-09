@@ -43,7 +43,7 @@ static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
-static char *elf_file[128];
+static char *elf_files[128];
 static int elf_num = 0;
 
 static long load_img() {
@@ -92,7 +92,7 @@ static int parse_args(int argc, char *argv[]) {
         test_expr = true;
         break;
       }
-      case 'e': elf_file[elf_num++] = optarg; break;
+      case 'e': elf_files[elf_num++] = optarg; break;
       case 'f': {
         extern FILE *ftrace_log;
         ftrace_log = fopen(optarg, "w");
@@ -127,8 +127,8 @@ void init_monitor(int argc, char *argv[]) {
   init_log(log_file);
 
 #ifdef CONFIG_FTRACE
-  void init_elf(const char *elf_file[], int num);
-  init_elf((const char **)elf_file, elf_num);
+  void init_elf(const char *elf_files[], int num);
+  init_elf((const char **)elf_files, elf_num);
 #endif
 
   /* Initialize memory. */
