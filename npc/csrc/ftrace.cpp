@@ -123,7 +123,7 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
     strcpy(call_chain[indent], fun_name);
     indent++;
     if(indent > MAX_DEEP){
-      printf("hhh");
+      printf("hhh\n");
       assert(0);
     }
     // Assert(indent <= MAX_DEEP, "too deep function call nesting");
