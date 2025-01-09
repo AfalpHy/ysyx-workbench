@@ -22,6 +22,11 @@ extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
 }
 
 extern "C" word_t pmem_read(paddr_t addr, int len) {
+
+#ifdef MTRACE
+  fprintf(log_fp, "read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
+          addr, len, 1);
+#endif
   if (addr == RTC_ADDR) { // 时钟
     struct timeval now;
     gettimeofday(&now, NULL);

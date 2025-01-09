@@ -31,7 +31,15 @@ ifdef ITRACE
 override CXXFLAGS += -DITRACE
 endif
 
-ARGS = -log=$(shell dirname $(IMG))/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf
+ifdef MTRACE
+override CXXFLAGS += -DMTRACE
+endif
+
+ifdef FTRACE
+override CXXFLAGS += -DFTRACE
+endif
+
+ARGS = -log=$(shell dirname $(IMG))/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf -ftarce-log=$(shell dirname $(IMG))/npc-ftrace-log.txt
 
 ifdef DIFF_TEST
 override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
