@@ -4,9 +4,10 @@ module ALU (
     input  [31:0] operand2,
     output [31:0] result
 );
-
+  wire carry;
   wire [31:0] add_opearnd2 = opcode[0] ? ~operand2 + 1 : operand2;
-  wire [31:0] add_result = operand1 + add_opearnd2;
+  wire [31:0] add_result;
+  assign {carry, add_result} = operand1 + add_opearnd2;
   wire [31:0] xor_result = opcode[1] ? operand1 ^ operand2 : 0;
   wire [31:0] or_result = opcode[2] ? operand1 | operand2 : 0;
   wire [31:0] and_result = opcode[3] ? operand1 & operand2 : 0;
@@ -15,8 +16,8 @@ module ALU (
   wire [31:0] arithmetic_right_shift_result = opcode[6] ? $signed(operand1) >>> operand2[4:0] : 0;
   wire eq = operand1 == operand2;
   wire ne = operand1 != operand2;
-  wire ltu = add_result[31];
-  wire geu = ~add_result[31];
+  wire ltu = carry;
+  wire geu = ~carry;
   // look sign of result if operand1 and operand2 have the same sign
   wire lt = operand1[31] == operand2[31] ? add_result[31] : operand1[31];
   // look sign of result if operand1 and operand2 have the same sign
