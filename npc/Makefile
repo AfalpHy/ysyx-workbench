@@ -27,6 +27,10 @@ else
 override CXXFLAGS += -DRV32E=1
 endif
 
+ifdef TRACE
+override CXXFLAGS += -DITRACE -DMTRACE -DFTRACE
+endif
+
 ifdef ITRACE
 override CXXFLAGS += -DITRACE
 endif
