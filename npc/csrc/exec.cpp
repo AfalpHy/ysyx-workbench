@@ -23,6 +23,7 @@ static DisasmInst iringbuf[MAX_IRINGBUF_LEN];
 char *one_inst_str(const DisasmInst *di) {
   static char buff[128];
   sprintf(buff, FMT_WORD ":%08x\t%s\n", di->pc, di->inst, di->str);
+  return buff;
 }
 
 static void display_one_inst(const DisasmInst *di) {
