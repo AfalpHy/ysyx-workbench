@@ -39,7 +39,7 @@ ifneq ($(IMG),)
 override ARGS += --elf=$(addsuffix .elf, $(basename $(IMG)))
 endif
 endif
-run: ARGS += --batch
+run: ARGS := $(ARGS) --batch
 
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
