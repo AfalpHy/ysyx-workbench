@@ -37,15 +37,17 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
     result = vgactl_port_base[1];
   }
 
-  uint8_t *pmem_addr = (uint8_t *)pmem;
-  pmem_addr += (addr - 0x80000000);
+  uint8_t *pmem_addr = (uint8_t *)pmem + (addr - 0x80000000);
   switch (len) {
   case 1:
-    result = (uint8_t)*pmem_addr;
+    result = *pmem_addr;
+    break;
   case 2:
     result = *(uint16_t *)pmem_addr;
+    break;
   case 4:
     result = *(word_t *)pmem_addr;
+    break;
   default:
     result = *(word_t *)pmem_addr;
   }
