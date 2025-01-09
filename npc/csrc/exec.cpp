@@ -21,8 +21,8 @@ typedef struct {
 static DisasmInst iringbuf[MAX_IRINGBUF_LEN];
 
 char *one_inst_str(const DisasmInst *di) {
-  static char buff[128];
-  snprintf(buff, 128, FMT_WORD ":%08x\t%s\n", di->pc, di->inst, di->str);
+  static char buff[256];
+  sprintf(buff, FMT_WORD ":%08x\t%s\n", di->pc, di->inst, di->str);
   return buff;
 }
 
