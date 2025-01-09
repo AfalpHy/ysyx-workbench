@@ -25,7 +25,7 @@ static void display_one_inst(const DisasmInst *di) {
 }
 
 void iringbuf_display() {
-  for (auto i = 0; i < 10; i++) {
+  for (auto i = 0; i < MAX_IRINGBUF_LEN; i++) {
     int iringbuf_index = (total_inst_num + i) % MAX_IRINGBUF_LEN;
     const auto &buf = iringbuf[iringbuf_index];
     if (strcmp(buf.str, "")) {
@@ -34,7 +34,7 @@ void iringbuf_display() {
   }
 }
 
-static int check_ref() {
+static int check_regs() {
   word_t ref_reg[REGS_NUM];
   ref_difftest_regcpy((void *)ref_reg, DIFFTEST_TO_DUT);
   for (int i = 0; i < REGS_NUM; i++) {
@@ -88,7 +88,7 @@ void cpu_exec(uint32_t num) {
 
     if (diff_test_on) {
       ref_difftest_exec(1);
-      if (check_ref() != 0) {
+      if (check_regs() != 0) {
         status = -1;
         return;
       }
