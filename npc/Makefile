@@ -27,14 +27,10 @@ else
 override CXXFLAGS += -DRV32E
 endif
 
-ARGS = -img=$(IMG)
+ARGS = -img=$(IMG) -elf=$(basename $(IMG)).elf
 
 ifdef DIFF_TEST
 override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
-endif
-
-ifdef BATCH
-override ARGS += -b 
 endif
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
@@ -49,11 +45,12 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
+sim: ARGS += -b
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
 
-gdb: CXXFLAGS += -g
+gdb: CXXFLAGS += -g -DITRACE -DMTRACE -DFTRACE
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
 gdb: all 
 	$(call git_commit, "sim RTL")
