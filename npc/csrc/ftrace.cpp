@@ -125,7 +125,7 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
     
     if(!(indent<=MAX_DEEP))
       printf("too deep function call nesting\n");
-    assert(indent<=MAX_DEEP);
+    assert(indent<=128);
     // if(indent > MAX_DEEP){
     //   printf("hhh\n");
     //   assert(0);
