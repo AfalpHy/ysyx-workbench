@@ -4,10 +4,8 @@ module ALU (
     input  [31:0] operand2,
     output [31:0] result
 );
-  wire carry;
   wire [31:0] add_opearnd2 = opcode[0] ? ~operand2 + 1 : operand2;
-  wire [31:0] add_result;
-  assign {carry, add_result} = operand1 + add_opearnd2;
+  wire [31:0] add_result = operand1 + add_opearnd2;
   wire [31:0] xor_result = opcode[1] ? operand1 ^ operand2 : 0;
   wire [31:0] or_result = opcode[2] ? operand1 | operand2 : 0;
   wire [31:0] and_result = opcode[3] ? operand1 & operand2 : 0;
