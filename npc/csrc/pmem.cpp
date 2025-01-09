@@ -51,10 +51,8 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
   }
 #ifdef MTRACE
   if (print_mtrace)
-    fprintf(log_fp,
-            "current pc" FMT_PADDR " read addr:\t" FMT_PADDR
-            "\tlen:%d\tdata:" FMT_WORD "\n",
-            *pc, addr, len, result);
+    fprintf(log_fp, "read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
+            addr, len, result);
 #endif
   return result;
 }
@@ -104,9 +102,7 @@ extern "C" void pmem_write(word_t addr, word_t data, int len) {
 
 #ifdef MTRACE
   if (print_mtrace)
-    fprintf(log_fp,
-            "current pc" FMT_PADDR " write addr:\t" FMT_PADDR
-            "\tlen:%d\tdata:" FMT_WORD "\n",
-            *pc, addr, len, data);
+    fprintf(log_fp, "write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
+            addr, len, data);
 #endif
 }
