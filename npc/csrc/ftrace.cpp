@@ -102,7 +102,7 @@ static bool is_call(word_t addr) {
   return false;
 }
 
-#define MAX_DEEP 4096
+#define MAX_DEEP 128
 static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
 static int indent = 0;
 
@@ -122,6 +122,7 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
     fprintf(ftrace_log, "call %s [" FMT_PADDR "]\n", fun_name, addr);
     strcpy(call_chain[indent], fun_name);
     indent++;
+    Assert(indent <= MAX_DEEP, "too deep function call nesting");
     return;
   }
   int rs1 = BITS(inst, 19, 15);
