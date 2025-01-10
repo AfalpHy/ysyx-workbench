@@ -44,21 +44,22 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
   // else if (addr == VGACTL_ADDR) {
   //   result = vgactl_port_base[0];
   // }
-
-  uint8_t *pmem_addr = (uint8_t *)pmem;
-  pmem_addr += (addr - 0x80000000);
-  switch (len) {
-  case 1:
-    result = *pmem_addr;
-    break;
-  case 2:
-    result = *(uint16_t *)pmem_addr;
-    break;
-  case 4:
-    result = *(word_t *)pmem_addr;
-    break;
-  default:
-    result = *(word_t *)pmem_addr;
+  else {
+    uint8_t *pmem_addr = (uint8_t *)pmem;
+    pmem_addr += (addr - 0x80000000);
+    switch (len) {
+    case 1:
+      result = *pmem_addr;
+      break;
+    case 2:
+      result = *(uint16_t *)pmem_addr;
+      break;
+    case 4:
+      result = *(word_t *)pmem_addr;
+      break;
+    default:
+      result = *(word_t *)pmem_addr;
+    }
   }
 #ifdef MTRACE
   if (print_mtrace)
