@@ -1,14 +1,10 @@
 #include <am.h>
-#include <nemu.h>
 
 void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  // must read (rtc_addr + 4) first because time reg will be updated only when offset equals 4
-  uint64_t high = inl(RTC_ADDR + 4) << 32;
-  high += 1;
-  uptime->us = high | inl(RTC_ADDR);
+  uptime->us = 0;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {
