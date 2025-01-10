@@ -37,9 +37,9 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   int boundary_w = ((x + w) <= width) ? x + w : width;
   int boundary_h = ((y + h) <= height) ? y + h : height;
 
-  while (y++ < boundary_h) {
+  for (int i = y; i < boundary_h; i++) {
     uint32_t write_addr = FB_ADDR + fb_offset;
-    while (x++ < boundary_w) {
+    for (int j = x; j < boundary_w; j++) {
       outl(write_addr, *pixels++);
       write_addr += sizeof(uint32_t);
     }
