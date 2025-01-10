@@ -81,7 +81,7 @@ void *memmove(void *dst, const void *src, size_t n) {
   char *pos1 = (char *)dst;
   const char *pos2 = (const char *)src;
   if (pos1 > pos2 && pos1 < pos2 + n) {
-    for (size_t i = n - 1; i >= 0; i--) {
+    for (int i = n - 1; i >= 0; i--) {
       pos1[i] = pos2[i];
     }
     return dst;
