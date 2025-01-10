@@ -36,7 +36,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
 
   int boundary_w = ((x + w) <= width) ? x + w : width;
   int boundary_h = ((y + h) <= height) ? y + h : height;
-  printf("%d %d\n",boundary_w,boundary_h);
+
   for (int i = 0; i < boundary_h; i++) {
     uint32_t write_addr = FB_ADDR + fb_offset;
     for (int j = 0; j < boundary_w; j++) {
@@ -46,6 +46,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
     fb_offset += width * sizeof(uint32_t);
   }
   if (ctl->sync) {
+    printf("here\n");
     outl(SYNC_ADDR, 1);
   }
 }
