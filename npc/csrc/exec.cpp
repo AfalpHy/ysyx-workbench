@@ -11,6 +11,7 @@ extern int status;
 extern bool diff_test_on;
 
 int total_inst_num = 0;
+bool skip_ref_inst = false;
 
 typedef struct {
   paddr_t pc;
@@ -43,7 +44,7 @@ void iringbuf_display() {
 
 static int check_regs() {
   word_t ref_reg[REGS_NUM];
-  ref_difftest_regcpy((void *)ref_reg, DIFFTEST_TO_DUT);
+  ref_difftest_regcpy((void *)ref_reg, pc, DIFFTEST_TO_DUT);
   for (int i = 0; i < REGS_NUM; i++) {
     if (ref_reg[i] != regs[i]) {
       std::cerr << total_inst_num << " instrutions has been executed"
@@ -104,10 +105,15 @@ void cpu_exec(uint32_t num) {
     total_inst_num++;
 
     if (diff_test_on) {
-      ref_difftest_exec(1);
-      if (check_regs() != 0) {
-        status = -1;
-        return;
+      if (skip_ref_inst) {
+        ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
+        skip_ref_inst = false;
+      } else {
+        ref_difftest_exec(1);
+        if (check_regs() != 0) {
+          status = -1;
+          return;
+        }
       }
     }
     if (top.halt) {

@@ -29,16 +29,18 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
   }
 }
 
-__EXPORT void difftest_regcpy(void *dut, bool direction) {
+__EXPORT void difftest_regcpy(void *dut, void*pc, bool direction) {
   word_t *reg = dut;
   if (direction == DIFFTEST_TO_REF) {
     for (int i = 0; i < regs_num; i++) {
       cpu.gpr[i] = *(reg + i);
     }
+    cpu.pc = *(paddr_t *)pc;
   } else {
     for (int i = 0; i < regs_num; i++) {
       *(reg + i) = cpu.gpr[i];
     }
+    *(paddr_t *)pc = cpu.pc;
   }
 }
 
@@ -53,6 +55,4 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 __EXPORT void difftest_init(int port) {
   void init_mem();
   init_mem();
-  /* Perform ISA dependent initialization. */
-  init_isa();
 }

@@ -18,6 +18,8 @@ bool print_mtrace = false;
 
 extern uint64_t begin_us;
 
+extern bool skip_ref_inst;
+
 extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
   pmem = (word_t *)(((VerilatedDpiOpenVar *)r)->datap());
 }
@@ -28,7 +30,7 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
   check_bound(addr);
 
   word_t result;
-  if (addr == RTC_ADDR || addr == RTC_ADDR + 4) { // 时钟
+  if (addr == RTC_ADDR || addr == RTC_ADDR + 4) {
     static uint64_t us;
     if (addr == RTC_ADDR + 4) {
       struct timeval now;
@@ -38,8 +40,10 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
     } else {
       result = us & 0xFFFFFFFF;
     }
+    skip_ref_inst = true;    
   } else if (addr == KBD_ADDR) {
     result = 0;
+    skip_ref_inst = true;
   }
   // else if (addr == VGACTL_ADDR) {
   //   result = vgactl_port_base[0];
@@ -76,6 +80,7 @@ extern "C" void pmem_write(word_t addr, word_t data, int len) {
             addr, len, data);
 #endif
   if (addr == SERIAL_PORT) {
+    skip_ref_inst = true;
     putchar(data);
     return;
   }
