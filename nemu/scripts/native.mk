@@ -38,9 +38,11 @@ endif
 # Command to execute NEMU
 IMG ?=
 ifeq ($(CONFIG_FTRACE),y)
-override ARGS += --ftrace-log=$(BUILD_DIR)/nemu-ftrace-log.txt
 ifneq ($(IMG),)
 override ARGS += --elf=$(addsuffix .elf, $(basename $(IMG)))
+override ARGS += --ftrace-log=$(shell dirname $(IMG))/nemu-ftrace-log.txt
+else
+override ARGS += --ftrace-log=$(BUILD_DIR)/nemu-ftrace-log.txt
 endif
 endif
 
