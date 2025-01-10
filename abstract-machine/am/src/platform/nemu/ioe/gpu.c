@@ -1,17 +1,9 @@
 #include <am.h>
 #include <nemu.h>
 
-#include <klib.h>
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 
 void __am_gpu_init() {
-  // uint32_t screen_size = inl(VGACTL_ADDR);
-  // int width = screen_size >> 16;
-  // int height = screen_size & 0xffff;
-  // for (int i = 0; i < width * height; i++) {
-  //   outl(FB_ADDR + i * 4, i);
-  // }
-  // outl(SYNC_ADDR, 1);
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
