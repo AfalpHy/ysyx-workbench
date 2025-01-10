@@ -28,27 +28,40 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   uint32_t screen_size = inl(VGACTL_ADDR);
   int width = screen_size >> 16;
-  int height = screen_size & 0xffff;
-
   int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;
   uint32_t *pixels = ctl->pixels;
-  uint32_t fb_offset = (y * width + x) * sizeof(uint32_t);
-
-  int boundary_w = ((x + w) <= width) ? x + w : width;
-  int boundary_h = ((y + h) <= height) ? y + h : height;
-
-  while (y++ < boundary_h) {
-    uint32_t write_addr = FB_ADDR + fb_offset;
-    while (x++ < boundary_w) {
-      outl(write_addr, *pixels++);
-      write_addr += sizeof(uint32_t);
+  uint32_t fb_offset = (y * width + x) * 4;
+  for (int i = 0; i < h; i++) {
+    uint32_t current_fb_offset = fb_offset;
+    for (int j = 0; j < w; j++) {
+      outl(FB_ADDR + fb_offset, *pixels);
+      pixels++;
+      fb_offset += 4;
     }
-    fb_offset += width * sizeof(uint32_t);
+    fb_offset = current_fb_offset + width * 4;
   }
   if (ctl->sync) {
-    printf("here\n");
     outl(SYNC_ADDR, 1);
   }
+  // int x = ctl->x, y = ctl->y, w = ctl->w, h = ctl->h;
+  // uint32_t *pixels = ctl->pixels;
+  // uint32_t fb_offset = (y * width + x) * sizeof(uint32_t);
+
+  // int boundary_w = ((x + w) <= width) ? x + w : width;
+  // int boundary_h = ((y + h) <= height) ? y + h : height;
+
+  // while (y++ < boundary_h) {
+  //   uint32_t write_addr = FB_ADDR + fb_offset;
+  //   while (x++ < boundary_w) {
+  //     outl(write_addr, *pixels++);
+  //     write_addr += sizeof(uint32_t);
+  //   }
+  //   fb_offset += width * sizeof(uint32_t);
+  // }
+  // if (ctl->sync) {
+  //   printf("here\n");
+  //   outl(SYNC_ADDR, 1);
+  // }
 }
 
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
