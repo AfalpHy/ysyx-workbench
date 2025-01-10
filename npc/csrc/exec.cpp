@@ -80,6 +80,7 @@ void cpu_exec(uint32_t num) {
   }
   uint32_t print_num = num;
   while (num-- > 0) {
+#ifdef ITRACE
     uint32_t inst = pmem_read(*pc, 4);
     int iringbuf_index = total_inst_num % MAX_IRINGBUF_LEN;
     iringbuf[iringbuf_index].pc = *pc;
@@ -89,7 +90,6 @@ void cpu_exec(uint32_t num) {
     if (print_num <= 10) {
       display_one_inst(&iringbuf[iringbuf_index]);
     }
-#ifdef ITRACE
     fprintf(log_fp, "%s", one_inst_str(&iringbuf[iringbuf_index]));
 #endif
 
