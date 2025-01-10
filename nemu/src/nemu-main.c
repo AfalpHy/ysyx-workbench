@@ -28,7 +28,6 @@ int main(int argc, char *argv[]) {
   am_init_monitor();
 #else
   init_monitor(argc, argv);
-#endif
 
   if (test_expr) {
     word_t expr(char *e, bool *success);
@@ -56,6 +55,7 @@ int main(int argc, char *argv[]) {
     fclose(fp);
     test_expr = false;
   }
+#endif
 
   /* Start engine. */
   engine_start();
