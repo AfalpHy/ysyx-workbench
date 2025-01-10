@@ -22,20 +22,28 @@ extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
   pmem = (word_t *)(((VerilatedDpiOpenVar *)r)->datap());
 }
 
+void check_bound(paddr_t addr) {}
+
 extern "C" word_t pmem_read(paddr_t addr, int len) {
+  check_bound(addr);
+
   word_t result;
   if (addr == RTC_ADDR) { // 时钟
-    struct timeval now;
-    gettimeofday(&now, NULL);
-    uint64_t us = now.tv_sec * 1000000 + now.tv_usec;
-    result = us - begin_us;
+    static uint64_t us;
+    if (addr == RTC_ADDR + 4) {
+      struct timeval now;
+      gettimeofday(&now, NULL);
+      us = now.tv_sec * 1000000 + now.tv_usec - begin_us;
+      result = us >> 32;
+    } else {
+      result = us & 0xFFFFFFFF;
+    }
   } else if (addr == KBD_ADDR) {
     result = 0;
-  } else if (addr == VGACTL_ADDR) {
-    result = vgactl_port_base[0];
-  } else if (addr == SYNC_ADDR) {
-    result = vgactl_port_base[1];
   }
+  // else if (addr == VGACTL_ADDR) {
+  //   result = vgactl_port_base[0];
+  // }
 
   uint8_t *pmem_addr = (uint8_t *)pmem;
   pmem_addr += (addr - 0x80000000);
@@ -61,30 +69,36 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
 }
 
 extern "C" void pmem_write(word_t addr, word_t data, int len) {
+#ifdef MTRACE
+  if (print_mtrace)
+    fprintf(log_fp, "write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
+            addr, len, data);
+#endif
   if (addr == SERIAL_PORT) {
     putchar(data);
     return;
-  } else if (addr >= FB_ADDR) {
-    uint8_t *fb_addr = (uint8_t *)vmem + (addr - FB_ADDR);
-    switch (len) {
-    case 1:
-      *fb_addr = data;
-      break;
-    case 2:
-      *(uint16_t *)fb_addr = data;
-      break;
-    case 4:
-      *(uint32_t *)fb_addr = data;
-      break;
-    default:
-      *(word_t *)fb_addr = data;
-      break;
-    }
-    return;
-  } else if (addr == SYNC_ADDR) {
-    vgactl_port_base[1] = data;
-    return;
   }
+  //  else if (addr >= FB_ADDR) {
+  //   uint8_t *fb_addr = (uint8_t *)vmem;
+  //   fb_addr += (addr - FB_ADDR);
+  //   switch (len) {
+  //   case 1:
+  //     *fb_addr = data;
+  //     return;
+  //   case 2:
+  //     *(uint16_t *)fb_addr = data;
+  //     return;
+  //   case 4:
+  //     *(uint32_t *)fb_addr = data;
+  //     return;
+  //   default:
+  //     *(word_t *)fb_addr = data;
+  //     return;
+  //   }
+  // } else if (addr == SYNC_ADDR) {
+  //   vgactl_port_base[1] = data;
+  //   return;
+  // }
 
   uint8_t *pmem_addr = (uint8_t *)pmem;
   pmem_addr += (addr - 0x80000000);
@@ -102,10 +116,4 @@ extern "C" void pmem_write(word_t addr, word_t data, int len) {
     *(word_t *)pmem_addr = data;
     break;
   }
-
-#ifdef MTRACE
-  if (print_mtrace)
-    fprintf(log_fp, "write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
-            addr, len, data);
-#endif
 }
