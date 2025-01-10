@@ -106,7 +106,10 @@ static int indent = 0;
 
 void ftrace(word_t pc, word_t addr, uint32_t inst, bool jalr) {
   char *fun_name = get_fun_name(addr);
-  Assert(fun_name, "ftrace get function name failed");
+  Assert(fun_name,
+         "ftrace get function name failed, pc:" FMT_PADDR " addr:" FMT_PADDR
+         " inst:0x%08x",
+         pc, addr, inst);
   if (is_call(addr)) {
     fprintf(ftrace_log, "[" FMT_PADDR "]", pc);
     for (int i = 0; i < indent; i++) {
