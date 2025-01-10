@@ -52,7 +52,7 @@ void init_map() {
   p_space = io_space;
 }
 
-void free_map() { free(io_space); }
+void free_map() { printf("here\n"); free(io_space); }
 
 word_t map_read(paddr_t addr, int len, IOMap *map) {
   assert(len >= 1 && len <= 8);
