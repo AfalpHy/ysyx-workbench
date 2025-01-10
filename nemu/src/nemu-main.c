@@ -62,7 +62,9 @@ int main(int argc, char *argv[]) {
 
 #ifdef CONFIG_DEVICE
   extern void free_map();
+  extern void free_vga();
   free_map();
+  free_vga();
 #endif
 
   return is_exit_status_bad();
