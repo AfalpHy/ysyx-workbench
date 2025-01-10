@@ -75,7 +75,6 @@ extern "C" void pmem_write(word_t addr, word_t data, int len) {
             addr, len, data);
 #endif
   if (addr == SERIAL_PORT) {
-    printf("here\n");
     putchar(data);
     return;
   }
