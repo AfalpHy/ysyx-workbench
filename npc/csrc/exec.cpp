@@ -88,16 +88,21 @@ void cpu_exec(uint32_t num) {
     iringbuf[iringbuf_index].inst = inst;
     disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str), *pc,
                 (uint8_t *)&inst, 4);
+    auto str = one_inst_str(&iringbuf[iringbuf_index]);
     if (print_num <= 10) {
-      display_one_inst(&iringbuf[iringbuf_index]);
+      printf(% s, str);
     }
-    fprintf(log_fp, "%s", one_inst_str(&iringbuf[iringbuf_index]));
+    fprintf(log_fp, "%s", str);
 #endif
 
+#ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
     single_cycle();
     print_mtrace = false;
+#else
+    single_cycle();
+#endif
 
 #ifdef FTRACE
     ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
