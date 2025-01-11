@@ -46,7 +46,8 @@ void init_wp_pool() {
 
 WP *new_wp() {
   if (free_ == NULL) {
-    Assert(0, "There are no free watchpoints");
+    printf("There are no free watchpoints\n");
+    return NULL;
   }
 
   WP *result = free_;
@@ -121,7 +122,7 @@ bool check_wp() {
 
 void print_wp() {
   for (WP *wp = head; wp != NULL; wp = wp->next) {
-    printf("watchpoint's index: %d\texpr: %s\tcurrent value: " FMT_WORD_D "\n",
+    printf("watchpoint's index: %d\texpr: %s\ncurrent value: " FMT_WORD_D "\n\n",
            wp->NO, wp->expr, wp->val);
   }
 }
