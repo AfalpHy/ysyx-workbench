@@ -1,6 +1,6 @@
 #include <am.h>
 #include <nemu.h>
-
+#include<klib.h>
 #define AUDIO_FREQ_ADDR      (AUDIO_ADDR + 0x00)
 #define AUDIO_CHANNELS_ADDR  (AUDIO_ADDR + 0x04)
 #define AUDIO_SAMPLES_ADDR   (AUDIO_ADDR + 0x08)
@@ -33,7 +33,8 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   uint32_t write_size = ctl->buf.end - ctl->buf.start;
   // suppose every write align 4 byte
   if (write_size & 3) {
-    panic("audio write has not align 4 vyte");
+    printf("%d",write_size);
+    panic("audio write has not align 4 byte");
   }
   // keep waitting if exceed the buf size
   while (inl(AUDIO_COUNT_ADDR) + write_size > sbuf_size) {
