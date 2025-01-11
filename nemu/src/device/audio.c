@@ -32,7 +32,6 @@ static uint32_t *audio_base = NULL;
 static SDL_AudioSpec s;
 
 static void audioCallback(void *userdata, uint8_t *stream, int len) {
-  // (void)userdata;
   static int index = 0;
   int real_len = len;
   if (audio_base[5] < len)
