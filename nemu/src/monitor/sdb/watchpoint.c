@@ -32,7 +32,7 @@ static WP *head = NULL, *free_ = NULL;
 
 void init_wp_pool() {
   int i;
-  for (i = 0; i < NR_WP; i ++) {
+  for (i = 0; i < NR_WP; i++) {
     wp_pool[i].NO = i;
     wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
     wp_pool[i].used = false;
@@ -76,7 +76,6 @@ void free_wp(uint64_t order) {
     printf("The watchpoint needn't to free\n");
     return;
   }
-  wp->next = NULL;
   wp->used = false;
   if (wp == head) {
     head = head->next;
@@ -98,6 +97,7 @@ void free_wp(uint64_t order) {
     }
     tmp->next = wp;
   }
+  wp->next = NULL;
 }
 
 bool check_wp() {
@@ -121,8 +121,7 @@ bool check_wp() {
 
 void print_wp() {
   for (WP *wp = head; wp != NULL; wp = wp->next) {
-    printf("watchpoint's index:\t%d\n", wp->NO);
-    printf("watchpoint's expr:\t%s\n", wp->expr);
-    printf("watchpoint's current value:\t" FMT_WORD_D "\n", wp->val);
+    printf("watchpoint's index: %d\texpr: %s\tcurrent value: " FMT_WORD_D "\n",
+           wp->NO, wp->expr, wp->val);
   }
 }
