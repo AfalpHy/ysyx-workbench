@@ -121,8 +121,7 @@ bool check_wp() {
 
 void print_wp() {
   for (WP *wp = head; wp != NULL; wp = wp->next) {
-    printf("watchpoint's index:\t%d\n", wp->NO);
-    printf("watchpoint's expr:\t%s\n", wp->expr);
-    printf("watchpoint's current value:\t" FMT_WORD_D "\n\n", wp->val);
+    printf("watchpoint's index:\t%d\texpr:%s\tcurrent value:" FMT_WORD_D "\n",
+           wp->NO, wp->expr, wp->val);
   }
 }
