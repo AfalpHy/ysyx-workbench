@@ -46,7 +46,7 @@ void init_wp_pool() {
 
 WP *new_wp() {
   if (free_ == NULL) {
-    printf("There are no free watchpoints");
+    printf("There are no free watchpoints\n");
     return NULL;
   }
 
