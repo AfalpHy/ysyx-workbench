@@ -29,7 +29,7 @@ enum {
 
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
-static SDL_AudioSpec *s = NULL;
+static SDL_AudioSpec s;
 
 static void audioCallback(void *userdata, uint8_t *stream, int len) {
   // (void)userdata;
@@ -49,18 +49,18 @@ static void audioCallback(void *userdata, uint8_t *stream, int len) {
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   if (is_write) {
     if (offset == 0) {
-      s->freq = audio_base[0];
+      s.freq = audio_base[0];
     } else if (offset == 4) {
-      s->channels = audio_base[1];
+      s.channels = audio_base[1];
     } else if (offset == 8) {
-      s->samples = audio_base[2];
+      s.samples = audio_base[2];
     } else if (offset == 16) {
       if (audio_base[4]) {
         SDL_InitSubSystem(SDL_INIT_AUDIO);
-        s = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
-        s->format = AUDIO_S16SYS;
-        s->callback = audioCallback;
-        Assert(SDL_OpenAudio(s, NULL) == 0, "%s", SDL_GetError());
+        // s = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
+        s.format = AUDIO_S16SYS;
+        s.callback = audioCallback;
+        Assert(SDL_OpenAudio(&s, NULL) == 0, "%s", SDL_GetError());
         SDL_PauseAudio(0);
       }
     } else {
