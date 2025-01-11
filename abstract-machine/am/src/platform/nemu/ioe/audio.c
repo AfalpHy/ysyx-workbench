@@ -34,14 +34,18 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   static int index = 0;
   uint32_t write_size = ctl->buf.end - ctl->buf.start;
   // keep waitting if exceed the buf size
-  // while (inl(AUDIO_COUNT_ADDR) + write_size > sbuf_size) {
-  // }
-  uint8_t *data = ctl->buf.start;
-  // int word_len = write_size / =4;
-  for (; data < (uint8_t *)ctl->buf.end; data++) {
-    outb(AUDIO_SBUF_ADDR + index, *data);
-    if (++index == sbuf_size)
-      index = 0;
+  while (inl(AUDIO_COUNT_ADDR) + write_size > sbuf_size) {
   }
+  uint32_t *word_data = ctl->buf.start;
+  int word_len = write_size / 4;
+  for(int i = 0;i<word_len;i++){
+    outw(AUDIO_ADDR + index, *word_data++);
+    index+=4; 
+  }
+  // for (; data < (uint8_t *)ctl->buf.end; data++) {
+  //   outb(AUDIO_SBUF_ADDR + index, *data);
+  //   if (++index == sbuf_size)
+  //     index = 0;
+  // }
   outl(AUDIO_COUNT_ADDR, inl(AUDIO_COUNT_ADDR) + write_size);
 }
