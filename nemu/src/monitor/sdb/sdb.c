@@ -124,8 +124,10 @@ static int cmd_w(char *args) {
     printf("eval expr failed, please check the expr\n");
   } else {
     WP *wp = new_wp();
-    strcpy(wp->expr, args);
-    wp->val = result;
+    if (wp != NULL) {
+      strcpy(wp->expr, args);
+      wp->val = result;
+    }
   }
 #else
   printf("watchpoint function is closed");
