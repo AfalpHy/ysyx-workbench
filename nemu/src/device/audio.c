@@ -48,27 +48,25 @@ static void audioCallback(void *userdata, uint8_t *stream, int len) {
 
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
   if (is_write) {
-    // wirte reg
-    if (len == 4) {
-      if (offset == 0) {
-        s->freq = audio_base[0];
-      } else if (offset == 4) {
-        s->channels = audio_base[1];
-      } else if (offset == 8) {
-        s->samples = audio_base[2];
-      } else if (offset == 16) {
-        if (audio_base[4]) {
-          SDL_InitSubSystem(SDL_INIT_AUDIO);
-          s = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
-          s->format = AUDIO_S16SYS;
-          s->callback = audioCallback;
-          Assert(SDL_OpenAudio(s, NULL) == 0, "%s", SDL_GetError());
-          SDL_PauseAudio(0);
-        }
-      } else {
-        Assert(0, "can't write this addr");
+    if (offset == 0) {
+      s->freq = audio_base[0];
+    } else if (offset == 4) {
+      s->channels = audio_base[1];
+    } else if (offset == 8) {
+      s->samples = audio_base[2];
+    } else if (offset == 16) {
+      if (audio_base[4]) {
+        SDL_InitSubSystem(SDL_INIT_AUDIO);
+        s = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
+        s->format = AUDIO_S16SYS;
+        s->callback = audioCallback;
+        Assert(SDL_OpenAudio(s, NULL) == 0, "%s", SDL_GetError());
+        SDL_PauseAudio(0);
       }
+    } else {
+      Assert(0, "can't write this addr");
     }
+
   } else {
     if (offset == 12) {
       audio_base[3] = CONFIG_SB_SIZE;
