@@ -10,7 +10,10 @@
 
 static uint32_t sbuf_size = 0;
 
-void __am_audio_init() { sbuf_size = inl(AUDIO_SBUF_SIZE_ADDR); }
+void __am_audio_init() {
+  sbuf_size = inl(AUDIO_SBUF_SIZE_ADDR);
+  outb(AUDIO_INIT_ADDR, 1);
+}
 
 void __am_audio_config(AM_AUDIO_CONFIG_T *cfg) {
   cfg->present = true;
