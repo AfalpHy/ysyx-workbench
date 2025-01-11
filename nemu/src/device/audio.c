@@ -38,9 +38,9 @@ static void audioCallback(void *userdata, uint8_t *stream, int len) {
   if (audio_base[5] < len)
     real_len = audio_base[5];
 
-  memcpy(stream, sbuf + index, real_len);
+  SDL_memcpy(stream, sbuf + index, real_len);
   if (len > real_len)
-    memset(stream + real_len, 0, len - real_len);
+    SDL_memset(stream + real_len, 0, len - real_len);
 
   audio_base[5] -= real_len;
   index = (index + len) % CONFIG_SB_SIZE;
