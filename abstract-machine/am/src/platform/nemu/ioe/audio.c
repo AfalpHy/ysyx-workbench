@@ -12,7 +12,6 @@ static uint32_t sbuf_size = 0;
 
 void __am_audio_init() {
   sbuf_size = inl(AUDIO_SBUF_SIZE_ADDR);
-  outb(AUDIO_INIT_ADDR, 1);
 }
 
 void __am_audio_config(AM_AUDIO_CONFIG_T *cfg) {
@@ -24,6 +23,7 @@ void __am_audio_ctrl(AM_AUDIO_CTRL_T *ctrl) {
   outl(AUDIO_FREQ_ADDR, ctrl->freq);
   outl(AUDIO_CHANNELS_ADDR, ctrl->channels);
   outl(AUDIO_SAMPLES_ADDR, ctrl->samples);
+  outb(AUDIO_INIT_ADDR, 1);
 }
 
 void __am_audio_status(AM_AUDIO_STATUS_T *stat) {
