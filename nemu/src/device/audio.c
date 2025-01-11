@@ -57,7 +57,6 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
     } else if (offset == 16) {
       if (audio_base[4]) {
         SDL_InitSubSystem(SDL_INIT_AUDIO);
-        // s = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
         s.format = AUDIO_S16SYS;
         s.callback = audioCallback;
         Assert(SDL_OpenAudio(&s, NULL) == 0, "%s", SDL_GetError());
@@ -66,7 +65,6 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
     } else {
       Assert(0, "can't write this addr");
     }
-
   } else {
     if (offset == 12) {
       audio_base[3] = CONFIG_SB_SIZE;
