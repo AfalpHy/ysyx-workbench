@@ -37,69 +37,69 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   while (inl(AUDIO_COUNT_ADDR) + write_size > sbuf_size) {
   }
   // align to 4 byte
-  int len2align = 4 - (index & 3);
-  int append = len2align < write_size ? len2align : write_size;
-  uint32_t write_addr = AUDIO_SBUF_ADDR + index;
-  uint8_t *data = ctl->buf.start;
-  switch (append) {
-  case 1:
-    outb(write_addr++, *data++);
-    break;
-  case 2:
-    outb(write_addr++, *data++);
-    outb(write_addr++, *data++);
-    break;
-  case 3:
-    outb(write_addr++, *data++);
-    outb(write_addr++, *data++);
-    outb(write_addr++, *data++);
-    break;
-  default:
-    break;
-  }
-  uint32_t sbuf_end = AUDIO_SBUF_ADDR + sbuf_size;
-  if (write_addr == sbuf_end) {
-    write_addr = AUDIO_SBUF_ADDR;
-  }
-
-  // remaining data size to write
-  int need_wirte_size = write_size - append;
-  while (need_wirte_size >= 4) {
-    outw(write_addr, *(uint32_t *)data);
-    write_addr += 4;
-    data += 4;
-    need_wirte_size -= 4;
-    if (write_addr == sbuf_end) {
-      write_addr = AUDIO_SBUF_ADDR;
-    }
-  }
-
-  switch (need_wirte_size) {
-  case 1:
-    outb(write_addr++, *data++);
-    break;
-  case 2:
-    outb(write_addr++, *data++);
-    outb(write_addr++, *data++);
-    break;
-  case 3:
-    outb(write_addr++, *data++);
-    outb(write_addr++, *data++);
-    outb(write_addr++, *data++);
-    break;
-  default:
-    break;
-  }
-
-  index += write_size;
-  // wraparound
-  index &= (sbuf_size - 1);
-
-  // for (uint8_t *data = ctl->buf.start; data < (uint8_t *)ctl->buf.end;
-  // data++) {
-  //   outb(AUDIO_SBUF_ADDR + index, *data);
-  //   if (++index == sbuf_size)
-  //     index = 0;
+  // int len2align = 4 - (index & 3);
+  // int append = len2align < write_size ? len2align : write_size;
+  // uint32_t write_addr = AUDIO_SBUF_ADDR + index;
+  // uint8_t *data = ctl->buf.start;
+  // switch (append) {
+  // case 1:
+  //   outb(write_addr++, *data++);
+  //   break;
+  // case 2:
+  //   outb(write_addr++, *data++);
+  //   outb(write_addr++, *data++);
+  //   break;
+  // case 3:
+  //   outb(write_addr++, *data++);
+  //   outb(write_addr++, *data++);
+  //   outb(write_addr++, *data++);
+  //   break;
+  // default:
+  //   break;
   // }
+  // uint32_t sbuf_end = AUDIO_SBUF_ADDR + sbuf_size;
+  // if (write_addr == sbuf_end) {
+  //   write_addr = AUDIO_SBUF_ADDR;
+  // }
+
+  // // remaining data size to write
+  // int need_wirte_size = write_size - append;
+  // while (need_wirte_size >= 4) {
+  //   outw(write_addr, *(uint32_t *)data);
+  //   write_addr += 4;
+  //   data += 4;
+  //   need_wirte_size -= 4;
+  //   if (write_addr == sbuf_end) {
+  //     write_addr = AUDIO_SBUF_ADDR;
+  //   }
+  // }
+
+  // switch (need_wirte_size) {
+  // case 1:
+  //   outb(write_addr++, *data++);
+  //   break;
+  // case 2:
+  //   outb(write_addr++, *data++);
+  //   outb(write_addr++, *data++);
+  //   break;
+  // case 3:
+  //   outb(write_addr++, *data++);
+  //   outb(write_addr++, *data++);
+  //   outb(write_addr++, *data++);
+  //   break;
+  // default:
+  //   break;
+  // }
+
+  // index += write_size;
+  // // wraparound
+  // index &= (sbuf_size - 1);
+
+  for (uint8_t *data = ctl->buf.start; data < (uint8_t *)ctl->buf.end;
+  data++) {
+    outb(AUDIO_SBUF_ADDR + index, *data);
+    if (++index == sbuf_size)
+      index = 0;
+  }
   outl(AUDIO_COUNT_ADDR, inl(AUDIO_COUNT_ADDR) + write_size);
 }
