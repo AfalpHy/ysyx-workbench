@@ -62,12 +62,16 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
         Assert(SDL_OpenAudio(&s, NULL) == 0, "%s", SDL_GetError());
         SDL_PauseAudio(0);
       }
+    } else if (offset == 20) {
     } else {
       Assert(0, "can't write this addr");
     }
   } else {
     if (offset == 12) {
       audio_base[3] = CONFIG_SB_SIZE;
+    } else if (offset == 20) {
+    } else {
+      Assert(0, "can't read this addr");
     }
   }
 }
