@@ -29,8 +29,51 @@ enum {
 
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
+static SDL_AudioSpec *s = NULL;
+
+static void audioCallback(void *userdata, uint8_t *stream, int len) {
+  // (void)userdata;
+  static int index = 0;
+  int real_len = len;
+  if (audio_base[5] < len)
+    real_len = audio_base[5];
+
+  memcpy(stream, sbuf + index, real_len);
+  if (len > real_len)
+    memset(stream + real_len, 0, len - real_len);
+
+  audio_base[5] -= real_len;
+  index = (index + len) % CONFIG_SB_SIZE;
+}
 
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
+  if (is_write) {
+    // wirte reg
+    if (len == 4) {
+      if (offset == 0) {
+        s->freq = audio_base[0];
+      } else if (offset == 4) {
+        s->channels = audio_base[1];
+      } else if (offset == 8) {
+        s->samples = audio_base[2];
+      } else if (offset == 16) {
+        if (audio_base[4]) {
+          SDL_InitSubSystem(SDL_INIT_AUDIO);
+          s = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
+          s->format = AUDIO_S16SYS;
+          s->callback = audioCallback;
+          Assert(SDL_OpenAudio(s, NULL) == 0, "%s", SDL_GetError());
+          SDL_PauseAudio(0);
+        }
+      } else {
+        Assert(0, "can't write this addr");
+      }
+    }
+  } else {
+    if (offset == 12) {
+      audio_base[3] = CONFIG_SB_SIZE;
+    }
+  }
 }
 
 void init_audio() {
@@ -44,5 +87,4 @@ void init_audio() {
 
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
-  SDL_InitSubSystem(SDL_INIT_AUDIO);
 }
