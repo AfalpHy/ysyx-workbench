@@ -55,6 +55,7 @@ static void audio_io_handler(uint32_t offset, int len, bool is_write) {
       s.samples = audio_base[2];
     } else if (offset == 16) {
       if (audio_base[4]) {
+        SDL_InitSubSystem(SDL_INIT_AUDIO);
         s.format = AUDIO_S16SYS;
         s.callback = audioCallback;
         Assert(SDL_OpenAudio(&s, NULL) == 0, "%s", SDL_GetError());
@@ -85,5 +86,4 @@ void init_audio() {
 
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
-        SDL_InitSubSystem(SDL_INIT_AUDIO);
 }
