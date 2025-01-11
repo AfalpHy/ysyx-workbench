@@ -126,7 +126,6 @@ static int cmd_w(char *args) {
     WP *wp = new_wp();
     strcpy(wp->expr, args);
     wp->val = result;
-    wp->used = true;
   }
 #else
   printf("watchpoint function is closed");
