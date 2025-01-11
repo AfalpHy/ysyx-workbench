@@ -12,7 +12,7 @@ void __am_audio_init() {
 }
 
 void __am_audio_config(AM_AUDIO_CONFIG_T *cfg) {
-  cfg->present = inl();
+  // cfg->present = inl();
 }
 
 void __am_audio_ctrl(AM_AUDIO_CTRL_T *ctrl) {
