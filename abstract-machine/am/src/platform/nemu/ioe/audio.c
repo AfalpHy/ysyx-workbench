@@ -32,8 +32,8 @@ void __am_audio_play(AM_AUDIO_PLAY_T *ctl) {
   static int index = 0;
   uint32_t write_size = ctl->buf.end - ctl->buf.start;
   // keep waitting if exceed the buf size
-  // while (inl(AUDIO_COUNT_ADDR) + write_size > sbuf_size) {
-  // }
+  while (inl(AUDIO_COUNT_ADDR) + write_size > sbuf_size) {
+  }
   for (uint8_t *data = ctl->buf.start; data < (uint8_t *)ctl->buf.end; data++) {
     outb(AUDIO_SBUF_ADDR + index, *data);
     if (++index == sbuf_size)
