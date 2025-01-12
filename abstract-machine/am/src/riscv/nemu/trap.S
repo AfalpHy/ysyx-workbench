@@ -39,6 +39,8 @@ f(30) f(31)
 
 .align 3
 .globl __am_asm_trap
+# tell as or ld to generate fun type for symbol table of elf
+.type __am_asm_trap, @function 
 __am_asm_trap:
   addi sp, sp, -CONTEXT_SIZE
 
