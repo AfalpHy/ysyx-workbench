@@ -15,6 +15,7 @@ Context* __am_irq_handle(Context *c) {
       } else {
         ev.event = EVENT_SYSCALL;
       }
+      // set return pc by software(hardware keep the pc that trigger the ecall)
       c->mepc += 4;
       break;
     }
