@@ -8,7 +8,19 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      default: ev.event = EVENT_ERROR; break;
+    // Environment call from M-mode use NO.11
+    case 11: {
+      if (c->GPR1 == -1) {
+        ev.event = EVENT_YIELD;
+      } else {
+        ev.event = EVENT_SYSCALL;
+      }
+      c->mepc += 4;
+      break;
+    }
+    default:
+      ev.event = EVENT_ERROR;
+      break;
     }
 
     c = user_handler(ev, c);

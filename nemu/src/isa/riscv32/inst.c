@@ -65,6 +65,42 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   }
 }
 
+word_t read_csr(word_t csr) {
+  switch (csr) {
+  case 0x300:
+    return cpu.mstatus;
+  case 0x305:
+    return cpu.mtvec;
+  case 0x341:
+    return cpu.mepc;
+  case 0x342:
+    return cpu.mcause;
+  default:
+    Assert(0, "others csr are not supported");
+    return 0;
+  }
+}
+
+void write_csr(word_t csr, word_t data) {
+  switch (csr) {
+  case 0x300:
+    cpu.mstatus = data;
+    break;
+  case 0x305:
+    cpu.mtvec = data;
+    break;
+  case 0x341:
+    cpu.mepc = data;
+    break;
+  case 0x342:
+    cpu.mcause = data;
+    break;
+  default:
+    Assert(0, "others csr are not supported");
+    return;
+  }
+}
+
 static int decode_exec(Decode *s) {
   s->dnpc = s->snpc;
 
@@ -140,8 +176,14 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, R(rd) = src1 / src2);
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, R(rd) = (sword_t)src1 % (sword_t)src2);
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = src1 % src2);
-  
+
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, R(rd) = read_csr(imm); write_csr(imm, src1));
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) | src1));
+  INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) & ~src1));
+  // Environment call from M-mode use NO.11
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc);
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
 
