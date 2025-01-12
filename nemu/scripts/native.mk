@@ -46,6 +46,15 @@ override ARGS += --ftrace-log=$(BUILD_DIR)/nemu-ftrace-log.txt
 endif
 endif
 
+ifeq ($(CONFIG_ETRACE),y)
+ifneq ($(IMG),)
+override ARGS += --etrace-log=$(shell dirname $(IMG))/nemu-etrace-log.txt
+else
+override ARGS += --etrace-log=$(BUILD_DIR)/nemu-etrace-log.txt
+endif
+endif
+
+
 NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 run-env: $(BINARY) $(DIFF_REF_SO)
