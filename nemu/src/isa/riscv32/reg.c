@@ -28,11 +28,27 @@ void isa_reg_display() {
     printf("%d\t%s\t" FMT_WORD_D "\t" FMT_WORD "\n", i, regs[i], gpr(i),
            gpr(i));
   }
+  printf("mstatus\t" FMT_WORD_D "\t" FMT_WORD "\n", cpu.mstatus, cpu.mstatus);
+  printf("mtvec\t" FMT_WORD_D "\t" FMT_WORD "\n", cpu.mtvec, cpu.mtvec);
+  printf("mepc\t" FMT_WORD_D "\t" FMT_WORD "\n", cpu.mepc, cpu.mepc);
+  printf("mcause\t" FMT_WORD_D "\t" FMT_WORD "\n", cpu.mcause, cpu.mcause);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
   if (strcmp(s, "pc") == 0) {
     return cpu.pc;
+  }
+  if (strcmp(s, "mstatus") == 0) {
+    return cpu.mstatus;
+  }
+  if (strcmp(s, "mtvec") == 0) {
+    return cpu.mtvec;
+  }
+  if (strcmp(s, "mepc") == 0) {
+    return cpu.mepc;
+  }
+  if (strcmp(s, "mcause") == 0) {
+    return cpu.mcause;
   }
   for (int i = 0; i < 32; i++) {
     if (strcmp(regs[i], s) == 0) {
