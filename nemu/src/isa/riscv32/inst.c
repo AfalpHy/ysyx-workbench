@@ -22,7 +22,7 @@
 #define Mr vaddr_read
 #define Mw vaddr_write
 
-void ftrace(word_t, word_t, uint32_t, bool);
+void ftrace(word_t, word_t, uint32_t, bool, bool);
 
 enum {
   TYPE_I, TYPE_U, TYPE_S,
@@ -120,9 +120,9 @@ static int decode_exec(Decode *s) {
   INSTPAT_START();
   INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui    , U, R(rd) = imm);
   INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc  , U, R(rd) = s->pc + imm);
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->snpc; s->dnpc = s->pc + imm; IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0)); Assert(s->dnpc % 4 == 0, "target address is not aligned to a four-byte boundary"));
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->snpc; s->dnpc = s->pc + imm; IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 0)); Assert(s->dnpc % 4 == 0, "target address is not aligned to a four-byte boundary"));
   
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->snpc; s->dnpc = (src1 + imm) & ~1; IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 1)); Assert(s->dnpc % 4 == 0, "target address is not aligned to a four-byte boundary"));
+  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->snpc; s->dnpc = (src1 + imm) & ~1; IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 1, 0)); Assert(s->dnpc % 4 == 0, "target address is not aligned to a four-byte boundary"));
 
   INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, if (src1 == src2) s->dnpc = s->pc + imm);
   INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne    , B, if (src1 != src2) s->dnpc = s->pc + imm);
@@ -181,9 +181,9 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) | src1));
   INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) & ~src1));
   // Environment call from M-mode use NO.11
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc), IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 0)));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc);
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc, IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 1)));
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
 

@@ -104,7 +104,7 @@ bool is_call(word_t addr) {
 static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
 static int indent = 0;
 
-void ftrace(word_t pc, word_t addr, uint32_t inst, bool jalr) {
+void ftrace(word_t pc, word_t addr, uint32_t inst, bool jalr, bool mret) {
   char *fun_name = get_fun_name(addr);
   Assert(fun_name,
          "ftrace get function name failed, pc:" FMT_PADDR " addr:" FMT_PADDR
@@ -122,7 +122,7 @@ void ftrace(word_t pc, word_t addr, uint32_t inst, bool jalr) {
   }
   int rs1 = BITS(inst, 19, 15);
   int rd = BITS(inst, 11, 7);
-  if (jalr && (rs1 == 1) && rd == 0) {
+  if (mret || (jalr && (rs1 == 1) && rd == 0)) {
     indent -= 1;
     while (indent >= 0) {
       if (strcmp(call_chain[indent - 1], fun_name) != 0) {
