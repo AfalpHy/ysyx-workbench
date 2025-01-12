@@ -78,10 +78,11 @@ static int parse_args(int argc, char *argv[]) {
     {"test-expr"  , no_argument      , NULL, 't'},
     {"elf"        , required_argument, NULL, 'e'},
     {"ftrace-log" , required_argument, NULL, 'f'},
+    {"etrace-log" , required_argument, NULL, 'E'},
     {0            , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhtl:d:p:e:f:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhtl:d:p:e:f:E:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
@@ -99,6 +100,12 @@ static int parse_args(int argc, char *argv[]) {
         Assert(ftrace_log, "open ftrace log failed");
         break;
       }
+      case 'E': {
+        extern FILE *etrace_log;
+        etrace_log = fopen(optarg, "w");
+        Assert(etrace_log, "open etrace log failed");
+        break;
+      }
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -107,6 +114,9 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
         printf("\t-t,--test-expr          test the expr function\n");
+        printf("\t-e,--elf                read elf file\n");
+        printf("\t-f,--ftrace-log         open ftrace log file\n");
+        printf("\t-E,--etrace-log         open etrace log file\n");
         printf("\n");
         exit(0);
     }

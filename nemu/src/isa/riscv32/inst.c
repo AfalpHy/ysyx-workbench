@@ -101,6 +101,17 @@ void write_csr(word_t csr, word_t data) {
   }
 }
 
+FILE* etrace_log = NULL;
+
+void etrace(word_t pc, bool ecall){
+  if (ecall) {
+    fprintf(etrace_log, FMT_PADDR ":ecall\tnum:%d\n", pc,
+            (int32_t)MUXDEF(CONFIG_RVE, gpr(15), gpr(17)));
+  } else {
+    fprintf(etrace_log, FMT_PADDR ":mret\n", pc);
+  }
+}
+
 static int decode_exec(Decode *s) {
   s->dnpc = s->snpc;
 
@@ -181,9 +192,9 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) | src1));
   INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) & ~src1));
   // Environment call from M-mode use NO.11
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc), IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 0)));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc), IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 0)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 1)));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc, IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 1)));
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc, IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 1)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 0)));
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
 
