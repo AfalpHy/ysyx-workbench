@@ -39,6 +39,8 @@ f(30) f(31)
 
 .align 3
 .globl __am_asm_trap
+# tell as to generate fun type for symbol table of elf
+.type __am_asm_trap, @function 
 __am_asm_trap:
   addi sp, sp, -CONTEXT_SIZE
 
@@ -69,3 +71,5 @@ __am_asm_trap:
 
   addi sp, sp, CONTEXT_SIZE
   mret
+# tell as to generate size for symbol table of elf
+.size __am_asm_trap, . - __am_asm_trap
