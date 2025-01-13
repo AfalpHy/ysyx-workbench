@@ -55,13 +55,35 @@ int printf(const char *fmt, ...) {
   return len;
 }
 
+enum { FLAG_LONG = 1, FLAG_LONG_LONG };
+
 int vsprintf(char *out, const char *fmt, va_list ap) {
   char *tmp = out;
-  bool after_zero = false;
-  int width = 0;
+  int flag = 0;
   while (*fmt) {
-    if (*fmt == '%' || after_zero) {
+    int width = 0;
+    if (*fmt == '%') {
       switch (*++fmt) {
+      case 'l':
+        if (*++fmt == 'l') {
+          flag = FLAG_LONG_LONG;
+          fmt++;
+        } else {
+          flag = FLAG_LONG;
+        }
+        break;
+      case '0': {
+        char ch = *++fmt;
+        while (ch >= '0' && ch <= '9') {
+          width = width * 10 + ch - '0';
+          ch = *++fmt;
+        }
+        break;
+      }
+      default:
+        break;
+      }
+      switch (*fmt++) {
       case 'c':
         *out++ = (char)va_arg(ap, int);
         break;
@@ -73,33 +95,29 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         break;
       }
       case 'd': {
-        int d = va_arg(ap, int);
-        int len = num2str(out, d, true, width, 0);
+        int64_t num;
+        if (flag == FLAG_LONG) {
+          num = va_arg(ap, long);
+        } else if (flag == FLAG_LONG_LONG) {
+          num = va_arg(ap, long long);
+        } else {
+          num = va_arg(ap, int);
+        }
+        int len = num2str(out, num, true, width, 0);
         out += len;
         break;
       }
       case 'x': {
-        uint32_t d = va_arg(ap, uint32_t);
-        int len = num2str(out, d, false, width, 1);
-        out += len;
-        break;
-      }
-      case 'l': {
-        char ch = *++fmt;
-        if(ch == 'l'){
-          ch = *++fmt; 
-        }
-        if (ch == 'd') {
-          long long ld = va_arg(ap,long long);
-          int len = num2str(out, ld, true, width, 0);
-          out += len;
-        } else if (ch == 'x') {
-          unsigned long lx = va_arg(ap, unsigned long);
-          int len = num2str(out, lx, false, width, 1);
-          out += len;
+        uint64_t num;
+        if (flag == FLAG_LONG) {
+          num = va_arg(ap, unsigned long);
+        } else if (flag == FLAG_LONG_LONG) {
+          num = va_arg(ap, unsigned long long);
         } else {
-          assert(0); //  unsupport
+          num = va_arg(ap, unsigned int);
         }
+        int len = num2str(out, num, false, width, 1);
+        out += len;
         break;
       }
       case 'p': {
@@ -112,24 +130,9 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         out += len;
         break;
       }
-      case '0': {
-        char ch = *++fmt;
-        while (ch >= '0' && ch <= '9') {
-          width = width * 10 + ch - '0';
-          ch = *++fmt;
-        }
-        fmt--;
-        after_zero = true;
-        // skip reset
-        continue;
-      }
       default:
         assert(0); // unsupport
       }
-      fmt++;
-      // reset
-      after_zero = false;
-      width = 0;
     } else {
       *out++ = *fmt++;
     }
