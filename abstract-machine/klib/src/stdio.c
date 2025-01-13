@@ -49,7 +49,7 @@ int printf(const char *fmt, ...) {
   char *tmp = buff;
   int len = vsprintf(buff, fmt, ap);
   va_end(ap);
-  assert(*tmp);
+  assert(*buff);
   while (*tmp) {
     putch(*tmp++);
   }
