@@ -60,6 +60,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   char *tmp = out;
   bool after_zero = false;
   int width = 0;
+  assert(*fmt);
   while (*fmt) {
     if (*fmt == '%' || after_zero) {
       switch (*++fmt) {
