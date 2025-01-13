@@ -87,9 +87,10 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
       case 'l': {
         char ch = *++fmt;
         int size = 8;
-        if (ch != 'l') {
-          size = 4;
+        if (ch == 'l') {
           ch = *++fmt;
+        } else {
+          size = 4;
         }
         if (ch == 'd') {
           int64_t ld;
