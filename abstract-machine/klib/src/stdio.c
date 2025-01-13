@@ -8,43 +8,39 @@
 
 static char buff[8192];
 
-static void get_num(char **out, uint64_t num, bool is_sign, int width,
-                    int radix) {
-  uint64_t tmp = num;
-  if (is_sign) {
-    if ((int64_t)tmp < 0) {
-      *(*out)++ = '-';
-      tmp = ~tmp + 1;
-    }
+static int num2str(char *out, uint64_t num, bool is_sign, int width,
+                   int radix) {
+  char *tmp = out;
+  if (is_sign && (int64_t)num < 0) {
+    *out++ = '-';
+    num = ~num + 1;
   }
   char num_buff[20];
   int index = 0;
   do {
-    if (radix == 0) { // 10进制
-      num_buff[index++] = tmp % 10 + '0';
-      tmp /= 10;
-    } else if (radix == 1) { // 16进制
-      char c = tmp % 16;
+    if (radix == 0) { // dec
+      num_buff[index++] = num % 10 + '0';
+      num /= 10;
+    } else if (radix == 1) { // hex
+      char c = num % 16;
       if (c >= 10) {
         c = c - 10 + 'a';
       } else {
         c += '0';
       }
       num_buff[index++] = c;
-      tmp /= 16;
+      num /= 16;
     }
-  } while (tmp != 0);
-  if (radix == 1) {
-    *(*out)++ = '0';
-    *(*out)++ = 'x';
-  }
-  // 填充前置0
+  } while (num != 0);
+
+  // fill 0
   while (width-- > index) {
-    *(*out)++ = '0';
+    *out++ = '0';
   }
   while (index > 0) {
-    *(*out)++ = num_buff[--index];
+    *out++ = num_buff[--index];
   }
+  return out - tmp;
 }
 
 int printf(const char *fmt, ...) {
@@ -60,46 +56,57 @@ int printf(const char *fmt, ...) {
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
-  char *result = out;
-  int d;
-  int64_t ld;
-  char c;
-  char *s;
+  char *tmp = out;
+  bool after_zero = false;
   int width = 0;
-  bool skip = false;
   while (*fmt) {
-    if (*fmt != '%' && !skip) {
-      *out++ = *fmt;
-    } else {
-      skip = false;
+    if (*fmt == '%' || after_zero) {
       switch (*++fmt) {
-      case 's':
-        s = va_arg(ap, char *);
-        strcpy(out, s);
-        out += strlen(s);
-        break;
-      case 'd':
-        d = va_arg(ap, int);
-        get_num(&out, d, true, width, 0);
-        width = 0;
-        break;
       case 'c':
-        c = (char)va_arg(ap, int);
-        *out++ = c;
+        *out++ = (char)va_arg(ap, int);
         break;
-      case 'p': {
-        uintptr_t p = (uintptr_t)va_arg(ap, void *);
-        get_num(&out, p, false, width, 1);
-        width = 0;
+      case 's': {
+        char *s = va_arg(ap, char *);
+        while (*s) {
+          *out++ = *s++;
+        }
+        break;
+      }
+      case 'd': {
+        int d = va_arg(ap, int);
+        int len = num2str(out, d, true, width, 0);
+        out += len;
+        break;
+      }
+      case 'x': {
+        uint32_t d = va_arg(ap, uint32_t);
+        int len = num2str(out, d, true, width, 1);
+        out += len;
         break;
       }
       case 'l': {
         char ch = *++fmt;
         if (ch == 'd') {
-          ld = va_arg(ap, int64_t);
-          get_num(&out, ld, true, width, 0);
-          width = 0;
+          int64_t ld = va_arg(ap, int64_t);
+          int len = num2str(out, ld, true, width, 0);
+          out += len;
+        } else if (ch == 'x') {
+          uint64_t lx = va_arg(ap, uint64_t);
+          int len = num2str(out, lx, true, width, 0);
+          out += len;
+        } else {
+          assert(0); //  unsupport
         }
+        break;
+      }
+      case 'p': {
+        uintptr_t p = (uintptr_t)va_arg(ap, void *);
+        *out++ = '0';
+        *out++ = 'x';
+        int real_width =
+            sizeof(uintptr_t) * 2 > width ? sizeof(uintptr_t) * 2 : width;
+        int len = num2str(out, p, false, real_width, 1);
+        out += len;
         break;
       }
       case '0': {
@@ -108,18 +115,23 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           width = width * 10 + ch - '0';
           ch = *++fmt;
         }
-        fmt -= 2;
-        skip = true;
-        break;
+        fmt--;
+        after_zero = true;
+        // skip reset
+        continue;
       }
       default:
-        break;
+        assert(0); // unsupport
       }
+      // reset
+      after_zero = false;
+      width = 0;
+    } else {
+      *out++ = *fmt++;
     }
-    fmt++;
   }
   *out = '\0';
-  return strlen(result) + 1;
+  return out - tmp + 1;
 }
 
 int sprintf(char *out, const char *fmt, ...) {
