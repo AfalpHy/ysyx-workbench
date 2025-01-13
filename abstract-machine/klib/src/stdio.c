@@ -38,7 +38,7 @@ static int num2str(char *out, uint64_t num, bool is_sign, int width,
     *out++ = '0';
   }
   // putch(index-'0');
-    putch(index+'0');
+  putch(index + '0');
   while (index > 0) {
     *out++ = num_buff[--index];
   }
@@ -89,7 +89,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
       case 'l': {
         char ch = *++fmt;
         if (ch == 'd') {
-          int64_t ld = va_arg(ap, int32_t);
+          int64_t ld = va_arg(ap, int64_t);
           int len = num2str(out, ld, true, width, 0);
           out += len;
         } else if (ch == 'x') {
