@@ -90,6 +90,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         if (ch == 'd') {
           int64_t ld = va_arg(ap, int64_t);
           int len = num2str(out, ld, true, width, 0);
+          putch(len+'0');
           out += len;
         } else if (ch == 'x') {
           uint64_t lx = va_arg(ap, uint64_t);
