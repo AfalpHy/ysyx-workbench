@@ -38,10 +38,10 @@ static int num2str(char *out, uint64_t num, bool is_sign, int width,
     *out++ = '0';
   }
   // putch(index-'0');
+    putch(index+'0');
   while (index > 0) {
     *out++ = num_buff[--index];
   }
-    putch(index+'0');
   return out - tmp;
 }
 
