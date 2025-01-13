@@ -86,9 +86,14 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
       }
       case 'l': {
         char ch = *++fmt;
+        int size = 8;
+        if (ch != 'l') {
+          size = 4;
+          ch = *++fmt;
+        }
         if (ch == 'd') {
           int64_t ld;
-          if (sizeof(void *) == 4) {
+          if (size == 4) {
             ld = va_arg(ap, int);
           } else {
             ld = va_arg(ap, int64_t);
@@ -97,7 +102,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           out += len;
         } else if (ch == 'x') {
           uint64_t lx;
-          if (sizeof(void *) == 4) {
+          if (size == 4) {
             lx = va_arg(ap, uint32_t);
           } else {
             lx = va_arg(ap, uint64_t);
