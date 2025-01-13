@@ -86,28 +86,12 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
       }
       case 'l': {
         char ch = *++fmt;
-        int size = 8;
-        if (ch == 'l') {
-          ch = *++fmt;
-        } else {
-          size = 4;
-        }
         if (ch == 'd') {
-          int64_t ld;
-          if (size == 4) {
-            ld = va_arg(ap, int);
-          } else {
-            ld = va_arg(ap, int64_t);
-          }
+          long ld = va_arg(ap, long);
           int len = num2str(out, ld, true, width, 0);
           out += len;
         } else if (ch == 'x') {
-          uint64_t lx;
-          if (size == 4) {
-            lx = va_arg(ap, uint32_t);
-          } else {
-            lx = va_arg(ap, uint64_t);
-          }
+          unsigned long lx = va_arg(ap, unsigned long);
           int len = num2str(out, lx, false, width, 1);
           out += len;
         } else {
