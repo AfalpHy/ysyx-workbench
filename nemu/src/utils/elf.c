@@ -105,11 +105,15 @@ static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
 static int indent = 0;
 
 void ftrace(word_t pc, word_t addr, uint32_t inst, bool jalr, bool mret) {
+  char *current_fun_name = get_fun_name(pc);
   char *fun_name = get_fun_name(addr);
-  Assert(fun_name,
+  Assert(current_fun_name && fun_name,
          "ftrace get function name failed, pc:" FMT_PADDR " addr:" FMT_PADDR
          " inst:0x%08x",
          pc, addr, inst);
+  if (strcmp(current_fun_name, fun_name) == 0) {
+    return;
+  }
   if (is_call(addr)) {
     fprintf(ftrace_log, "[" FMT_PADDR "]", pc);
     for (int i = 0; i < indent; i++) {
