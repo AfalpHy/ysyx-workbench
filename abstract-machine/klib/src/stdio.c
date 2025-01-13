@@ -86,8 +86,11 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
       }
       case 'l': {
         char ch = *++fmt;
+        if(ch == 'l'){
+          ch = *++fmt; 
+        }
         if (ch == 'd') {
-          long ld = va_arg(ap, long);
+          long long ld = va_arg(ap,long long);
           int len = num2str(out, ld, true, width, 0);
           out += len;
         } else if (ch == 'x') {
