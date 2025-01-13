@@ -44,6 +44,7 @@ static int num2str(char *out, uint64_t num, bool is_sign, int width,
 }
 
 int printf(const char *fmt, ...) {
+  memset(buff,0,8192);
   va_list ap;
   va_start(ap, fmt);
   char *tmp = buff;
