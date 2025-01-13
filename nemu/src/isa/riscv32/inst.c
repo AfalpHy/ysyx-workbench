@@ -192,9 +192,9 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) | src1));
   INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc  , I, R(rd) = read_csr(imm); write_csr(imm, read_csr(imm) & ~src1));
   // Environment call from M-mode use NO.11
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc), IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 0)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 1)));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc); IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 0)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 1)));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc, IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 1)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 0)));
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc; IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 1)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 0)));
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
 
