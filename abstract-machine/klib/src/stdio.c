@@ -49,7 +49,6 @@ int printf(const char *fmt, ...) {
   char *tmp = buff;
   int len = vsprintf(buff, fmt, ap);
   va_end(ap);
-  assert(len);
   while (*tmp) {
     putch(*tmp++);
   }
@@ -60,9 +59,6 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   char *tmp = out;
   bool after_zero = false;
   int width = 0;
-  putch(*(fmt+1));
-  assert(*fmt);
-  
   while (*fmt) {
     if (*fmt == '%' || after_zero) {
       switch (*++fmt) {
