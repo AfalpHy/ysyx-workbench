@@ -60,7 +60,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   char *tmp = out;
   bool after_zero = false;
   int width = 0;
-  putch(*fmt);
+  putch(*(fmt+1));
   assert(*fmt);
   
   while (*fmt) {
