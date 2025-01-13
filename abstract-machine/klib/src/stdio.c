@@ -35,6 +35,7 @@ static int num2str(char *out, uint64_t num, bool is_sign, int width,
 
   // fill 0
   while (width-- > index) {
+    putch('a');
     *out++ = '0';
   }
   while (index > 0) {
@@ -44,7 +45,6 @@ static int num2str(char *out, uint64_t num, bool is_sign, int width,
 }
 
 int printf(const char *fmt, ...) {
-  memset(buff,0,8192);
   va_list ap;
   va_start(ap, fmt);
   char *tmp = buff;
