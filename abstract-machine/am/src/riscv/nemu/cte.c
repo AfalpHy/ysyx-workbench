@@ -44,7 +44,12 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  Context* c = (Context*)kstack.end-1;
+  Context *c = (Context *)kstack.end - 1;
+#if __riscv_xlen == 64
+  c->mstatus = 0xa000001800;
+#else
+  c->mstatus = 0x1800;
+#endif
   c->mepc = (uintptr_t)entry;
   return c;
 }
