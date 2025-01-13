@@ -94,6 +94,8 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         }
         break;
       }
+      // TODO: va_arg use long or long long sometimes could lead to UB when the
+      // arg is int
       case 'd': {
         int64_t num;
         if (flag == FLAG_LONG) {
