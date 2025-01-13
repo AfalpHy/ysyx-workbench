@@ -92,7 +92,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           out += len;
         } else if (ch == 'x') {
           uint64_t lx = va_arg(ap, uint64_t);
-          int len = num2str(out, lx, false, width, 0);
+          int len = num2str(out, lx, false, width, 1);
           out += len;
         } else {
           assert(0); //  unsupport
