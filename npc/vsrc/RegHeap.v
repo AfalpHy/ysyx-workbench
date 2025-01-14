@@ -37,6 +37,7 @@ module RegHeap (
   end
 
   always @(negedge clk) begin
+    $display("%h",mstatus);
     if (rst) begin
       for (int i = 0; i < 32; i = i + 1) regs[i] <= 0;
       mstatus <= 32'h1800;
