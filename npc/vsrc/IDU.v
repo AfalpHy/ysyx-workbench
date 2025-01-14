@@ -1,10 +1,10 @@
 module IDU (
     input [31:0] inst,
 
-    output [1:0] npc_sel,
+    output [2:0] npc_sel,
 
     output [31:0] imm,
-    output imm_for_alu,
+    output [1:0] alu_operand2_sel,
 
     output suffix_b,
     output suffix_h,
@@ -13,13 +13,21 @@ module IDU (
     output [4:0] rs1,
     output [4:0] rs2,
     output [4:0] rd,
-    output reg_wen,
-    output [1:0] reg_wdata_sel,
+    output r_wen,
+    output [2:0] r_wdata_sel,
+
+    output [1:0] csr_s_sel,
+    output csr_d1_sel,
+    output csr_d2_sel,
+    output csr_wen1,
+    output csr_wen2,
+    output csr_wdata1_sel,
+    output csr_wdata2_sel,
 
     output mem_ren,
     output mem_wen,
 
-    output [6:0] alu_opcode,
+    output [7:0] alu_opcode,
     output halt
 );
 
@@ -99,8 +107,15 @@ module IDU (
   // wire DIVU   = op & funct3_101 & funct7_00000_01;
   // wire REM    = op & funct3_110 & funct7_00000_01;
   // wire REMU   = op & funct3_111 & funct7_00000_01;
-  
+
+  wire system = opcode == 7'b11_100_11;
+  wire CSRRW  = system & funct3_001;
+  wire CSRRS  = system & funct3_010;
+  wire CSRRC  = system & funct3_011;
+
+  wire ECALL  = inst[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
   wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
+  wire MRET   = inst[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
@@ -108,7 +123,7 @@ module IDU (
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
   wire B_type = branch;
-  wire I_type = JALR | load | op_imm;
+  wire I_type = JALR | load | op_imm | CSRRW | CSRRS | CSRRC;
   wire S_type = store;
   wire R_type = op;
 
@@ -119,18 +134,28 @@ module IDU (
   wire [31:0] S_imm = S_type ? {{20{inst[31]}}, inst[31:25], inst[11:7]} : 0;
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
-  assign imm_for_alu = LUI | I_type | S_type;
+  assign alu_operand2_sel[0] = LUI | I_type | S_type;
+  assign alu_operand2_sel[1] = CSRRS | CSRRC;
   assign suffix_b = LB | LBU | SB;
   assign suffix_h = LH | LHU | SH;
   assign sext = LB | LH;
 
   assign rs1 = LUI ? 0 : inst[19:15]; // LUI always use x0 means 0 + imm
-  assign rs2 = inst[24:20];
+  assign rs2 = CSRRW ? 0 : inst[24:20]; // CSRRW always use x0 means imm + 0
   assign rd  = inst[11:7];
 
-  assign reg_wen          = U_type | J_type | I_type | R_type;
-  assign reg_wdata_sel[0] = JAL | JALR | load;
-  assign reg_wdata_sel[1] = AUIPC | load;
+  assign r_wen          = U_type | J_type | I_type | R_type;
+  assign r_wdata_sel[0] = JAL | JALR | load;
+  assign r_wdata_sel[1] = AUIPC | load;
+
+  assign csr_s_sel[0] = ECALL;
+  assign csr_s_sel[1] = MRET;
+  assign csr_d1_sel = ECALL;
+  assign csr_d2_sel = ECALL;
+  assign csr_wen1 = CSRRW | CSRRS | CSRRC | ECALL;
+  assign csr_wen2 = ECALL;
+  assign csr_wdata1_sel = ECALL;
+  assign csr_wdata2_sel = ECALL;
 
   assign mem_ren = load;
   assign mem_wen = store;
@@ -139,11 +164,12 @@ module IDU (
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
   assign alu_opcode[1] = XORI | XOR | BEQ;
-  assign alu_opcode[2] = ORI | OR | BNE;
+  assign alu_opcode[2] = ORI | OR | BNE | CSRRS;
   assign alu_opcode[3] = ANDI | AND | BLTU | SLTIU | SLTU;
   assign alu_opcode[4] = SLLI | SLL | BGEU;
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
+  assign alu_opcode[7] = CSRRC;
 
 endmodule
 

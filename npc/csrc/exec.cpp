@@ -90,7 +90,7 @@ void cpu_exec(uint32_t num) {
                 (uint8_t *)&inst, 4);
     auto str = one_inst_str(&iringbuf[iringbuf_index]);
     if (print_num <= 10) {
-      printf(% s, str);
+      printf("%s", str);
     }
     fprintf(log_fp, "%s", str);
 #endif
