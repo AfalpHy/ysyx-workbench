@@ -119,7 +119,8 @@ module IDU (
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
-  
+  assign npc_sel[2] = ECALL | MRET;
+
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
   wire B_type = branch;
