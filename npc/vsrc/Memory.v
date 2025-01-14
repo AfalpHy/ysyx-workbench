@@ -23,7 +23,7 @@ module Memory (
     output reg [31:0] rdata
 );
 
-  reg [31:0] memory['h100_0000-1:0];
+  reg [31:0] memory['h1000_0000-1:0];
 
   initial begin
     set_memory_ptr(memory);

@@ -35,8 +35,9 @@ void fflush_trace() {
 }
 bool interrupt = false;
 void sigint_handler(int sig) { interrupt = true; }
-void sigsegv(int sig) {
+void sigsegv_handler(int sig) {
   fflush_trace();
+  printf("signal fault\n");
   exit(1);
 }
 
@@ -53,7 +54,7 @@ int load_img(const string &filepath) {
 
 int main(int argc, char **argv) {
   signal(SIGINT, sigint_handler);
-  signal(SIGSEGV, sigsegv);
+  signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
