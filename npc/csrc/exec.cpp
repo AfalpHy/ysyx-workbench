@@ -134,6 +134,7 @@ void cpu_exec(uint32_t num) {
     }
     extern bool interrupt;
     if (top.halt || interrupt) {
+      printf("%ld inst have been executed\n", total_inst_num);
       return;
     }
     if (check_wp()) {
