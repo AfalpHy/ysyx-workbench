@@ -104,6 +104,7 @@ module ysyx_25010008_NPC (
 
       .alu_opcode(alu_opcode),
       .alu_operand2_sel(alu_operand2_sel),
+      .alu_result(alu_result),
 
       .mem_rdata(mem_rdata),
 

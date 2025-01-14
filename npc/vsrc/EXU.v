@@ -19,13 +19,14 @@ module ysyx_25010008_EXU (
 
     output [31:0] npc,
 
+    output [31:0] alu_result,
+
     output [31:0] r_wdata,
     output [31:0] csr_wdata1,
     output [31:0] csr_wdata2
 );
 
   wire [31:0] alu_operand2;
-  wire [31:0] alu_result;
 
   wire [31:0] snpc = pc + 4;
   wire [31:0] dnpc = pc + imm;
