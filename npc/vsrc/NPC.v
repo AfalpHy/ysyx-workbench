@@ -59,6 +59,8 @@ module NPC (
   always @(negedge clk) begin
     if (rst) pc <= 32'h8000_0000;
     else pc <= npc;
+    if(inst[6:0] == 7'b11_100_11)
+    $display("%h %h %h",alu_operand1,alu_operand2, alu_result);
   end
 
   MuxKey #(3, 2, 12) mux_csr_s (
