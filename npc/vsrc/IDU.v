@@ -119,7 +119,8 @@ module IDU (
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
-  
+  assign npc_sel[2] = ECALL | MRET;
+
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
   wire B_type = branch;
@@ -134,7 +135,7 @@ module IDU (
   wire [31:0] S_imm = S_type ? {{20{inst[31]}}, inst[31:25], inst[11:7]} : 0;
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
-  assign alu_operand2_sel[0] = LUI | I_type | S_type;
+  assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
   assign alu_operand2_sel[1] = CSRRS | CSRRC;
   assign suffix_b = LB | LBU | SB;
   assign suffix_h = LH | LHU | SH;
@@ -147,6 +148,7 @@ module IDU (
   assign r_wen          = U_type | J_type | I_type | R_type;
   assign r_wdata_sel[0] = JAL | JALR | load;
   assign r_wdata_sel[1] = AUIPC | load;
+  assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
 
   assign csr_s_sel[0] = ECALL;
   assign csr_s_sel[1] = MRET;

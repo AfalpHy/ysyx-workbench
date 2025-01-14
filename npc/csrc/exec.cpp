@@ -10,7 +10,7 @@ extern VNPC top;
 extern int status;
 extern bool diff_test_on;
 
-int total_inst_num = 0;
+uint64_t total_inst_num = 0;
 bool skip_ref_inst = false;
 
 typedef struct {
@@ -44,14 +44,15 @@ void iringbuf_display() {
 
 static int check_regs() {
   word_t ref_reg[REGS_NUM];
-  ref_difftest_regcpy((void *)ref_reg, pc, DIFFTEST_TO_DUT);
+  paddr_t ref_pc;
+  ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   for (int i = 0; i < REGS_NUM; i++) {
-    if (ref_reg[i] != regs[i]) {
+    if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
       std::cerr << total_inst_num << " instrutions has been executed"
                 << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
-                << std::endl;
+                << " ref pc:" << ref_pc << " npc:" << *pc << std::endl;
       return -1;
     }
   }
@@ -92,7 +93,8 @@ void cpu_exec(uint32_t num) {
     if (print_num <= 10) {
       printf("%s", str);
     }
-    fprintf(log_fp, "%s", str);
+    if (total_inst_num < 10000) // avoid trace file too big
+      fprintf(log_fp, "%s", str);
 #endif
 
 #ifdef MTRACE
@@ -104,10 +106,17 @@ void cpu_exec(uint32_t num) {
     single_cycle();
 #endif
 
+    total_inst_num++;
+
+#if defined(ITRACE) || defined(MTRACE)
+    if (total_inst_num <= 10000) // avoid trace file too big
+      fprintf(log_fp, "%ld insts have been executed\n\n",
+              total_inst_num); // make trace more clear
+#endif
+
 #ifdef FTRACE
     ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
 #endif
-    total_inst_num++;
 
     if (diff_test_on) {
       if (skip_ref_inst) {
@@ -116,12 +125,17 @@ void cpu_exec(uint32_t num) {
       } else {
         ref_difftest_exec(1);
         if (check_regs() != 0) {
+          extern void isa_reg_display();
+          isa_reg_display();
+          iringbuf_display();
           status = -1;
           return;
         }
       }
     }
-    if (top.halt) {
+    extern bool interrupt;
+    if (top.halt || interrupt) {
+      printf("\n%ld inst have been executed\n", total_inst_num);
       return;
     }
     if (check_wp()) {

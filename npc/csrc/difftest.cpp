@@ -40,5 +40,4 @@ void init_difftest(const char *ref_so_file, int img_size) {
 
   ref_difftest_init(0);
   ref_difftest_memcpy(0x80000000, pmem, img_size, DIFFTEST_TO_REF);
-  ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
 }
