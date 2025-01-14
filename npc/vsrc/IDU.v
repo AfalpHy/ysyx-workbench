@@ -161,7 +161,7 @@ module IDU (
   assign mem_ren = load;
   assign mem_wen = store;
 
-  assign halt = EBREAK;
+  assign halt = EBREAK|ECALL;
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
   assign alu_opcode[1] = XORI | XOR | BEQ;
