@@ -92,7 +92,7 @@ void cpu_exec(uint32_t num) {
     if (print_num <= 10) {
       printf("%s", str);
     }
-    fprintf(log_fp, "inst index:%ld\t%s", total_inst_num + 1, str);
+    fprintf(log_fp, "%s", str);
 #endif
 
 #ifdef MTRACE
@@ -104,14 +104,16 @@ void cpu_exec(uint32_t num) {
     single_cycle();
 #endif
 
+    total_inst_num++;
+
 #if defined(ITRACE) || defined(MTRACE)
-    fprintf(log_fp, "\n"); // make trace more clear
+    fprintf(log_fp, "%ld inst executed\n",
+            total_inst_num); // make trace more clear
 #endif
 
 #ifdef FTRACE
     ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
 #endif
-    total_inst_num++;
 
     if (diff_test_on) {
       if (skip_ref_inst) {
