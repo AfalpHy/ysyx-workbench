@@ -34,7 +34,11 @@ void fflush_trace() {
   }
 }
 bool interrupt = false;
-void signal_handler(int sig) { interrupt = true; }
+void sigint_handler(int sig) { interrupt = true; }
+void sigsegv(int sig) {
+  fflush_trace();
+  exit(1);
+}
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
@@ -48,8 +52,8 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
-  signal(SIGINT, signal_handler);
-  signal(SIGSEGV,signal_handler);
+  signal(SIGINT, sigint_handler);
+  signal(SIGSEGV, sigsegv);
   struct timeval now;
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
