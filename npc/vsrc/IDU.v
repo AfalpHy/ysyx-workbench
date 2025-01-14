@@ -134,7 +134,7 @@ module IDU (
   wire [31:0] S_imm = S_type ? {{20{inst[31]}}, inst[31:25], inst[11:7]} : 0;
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
-  assign alu_operand2_sel[0] = LUI | op_imm | S_type;
+  assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
   assign alu_operand2_sel[1] = CSRRS | CSRRC;
   assign suffix_b = LB | LBU | SB;
   assign suffix_h = LH | LHU | SH;
