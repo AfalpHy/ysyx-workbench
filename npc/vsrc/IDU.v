@@ -147,6 +147,7 @@ module IDU (
   assign r_wen          = U_type | J_type | I_type | R_type;
   assign r_wdata_sel[0] = JAL | JALR | load;
   assign r_wdata_sel[1] = AUIPC | load;
+  assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
 
   assign csr_s_sel[0] = ECALL;
   assign csr_s_sel[1] = MRET;
