@@ -8,7 +8,20 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      default: ev.event = EVENT_ERROR; break;
+    // Environment call from M-mode use NO.11
+    case 11: {
+      if (c->GPR1 == -1) {
+        ev.event = EVENT_YIELD;
+      } else {
+        ev.event = EVENT_SYSCALL;
+      }
+      // set return pc by software(hardware keep the pc that trigger the ecall)
+      c->mepc += 4;
+      break;
+    }
+    default:
+      ev.event = EVENT_ERROR;
+      break;
     }
 
     c = user_handler(ev, c);
@@ -31,7 +44,15 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  Context *c = (Context *)kstack.end - 1;
+#if __riscv_xlen == 64
+  c->mstatus = 0xa000001800;
+#else
+  c->mstatus = 0x1800;
+#endif
+  c->mepc = (uintptr_t)entry;
+  c->GPRx = (uintptr_t)arg;
+  return c;
 }
 
 void yield() {
