@@ -59,8 +59,8 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
     }
   }
 #ifdef MTRACE
-  extern uint64_t total_inst_num;
-  if (print_mtrace && total_inst_num < 10000)
+  extern uint64_t total_insts_num;
+  if (print_mtrace && total_insts_num < 10000)
     fprintf(log_fp, "read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
             addr, len, result);
 #endif
@@ -69,8 +69,8 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
 
 extern "C" void pmem_write(word_t addr, word_t data, int len) {
 #ifdef MTRACE
-  extern uint64_t total_inst_num;
-  if (print_mtrace && total_inst_num < 10000)
+  extern uint64_t total_insts_num;
+  if (print_mtrace && total_insts_num < 10000)
     fprintf(log_fp, "write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
             addr, len, data);
 #endif
