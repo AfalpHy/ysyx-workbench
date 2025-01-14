@@ -26,12 +26,12 @@ FILE *log_fp = nullptr;
 extern FILE *ftrace_log;
 
 void fflush_trace() {
-  if (log_fp) {
-    fflush(log_fp);
-  }
-  if (ftrace_log) {
-    fflush(ftrace_log);
-  }
+  // if (log_fp) {
+  //   fflush(log_fp);
+  // }
+  // if (ftrace_log) {
+  //   fflush(ftrace_log);
+  // }
   exit(1);
 }
 
