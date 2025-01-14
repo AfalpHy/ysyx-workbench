@@ -82,7 +82,7 @@ module NPC (
   MuxKey #(3, 2, 32) mux_alu_operand2 (
       alu_operand2,
       alu_operand2_sel,
-      {2'b00, src2, 2'b01, imm, 2'b11, csr_src}
+      {2'b00, src2, 2'b01, imm, 2'b10, csr_src}
   );
 
   MuxKey #(5, 3, 32) mux_npc (
