@@ -44,9 +44,10 @@ void iringbuf_display() {
 
 static int check_regs() {
   word_t ref_reg[REGS_NUM];
-  ref_difftest_regcpy((void *)ref_reg, pc, DIFFTEST_TO_DUT);
+  paddr_t ref_pc;
+  ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   for (int i = 0; i < REGS_NUM; i++) {
-    if (ref_reg[i] != regs[i]) {
+    if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
       std::cerr << total_inst_num << " instrutions has been executed"
                 << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
@@ -125,16 +126,6 @@ void cpu_exec(uint32_t num) {
         //   std::cout << std::hex << *pc << std::endl;
         // }
       } else {
-        if (total_inst_num >= 50001748) {
-          std::cout << std::hex << *pc << std::endl;
-        }
-        ref_difftest_exec(1);
-        if (total_inst_num >= 50001748) {
-          std::cout << std::hex << *pc << std::endl;
-        }
-        if (total_inst_num >= 50001750) {
-          std::cout << std::hex << *pc << std::endl;
-        }
         if (check_regs() != 0) {
           extern void isa_reg_display();
           isa_reg_display();
