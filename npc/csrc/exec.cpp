@@ -129,6 +129,9 @@ void cpu_exec(uint32_t num) {
           std::cout << std::hex << *pc << std::endl;
         }
         ref_difftest_exec(1);
+        if (total_inst_num >= 50001748) {
+          std::cout << std::hex << *pc << std::endl;
+        }
         if (check_regs() != 0) {
           extern void isa_reg_display();
           isa_reg_display();
