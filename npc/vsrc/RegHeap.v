@@ -37,7 +37,6 @@ module RegHeap (
   end
 
   always @(negedge clk) begin
-    $display("%h",mstatus);
     if (rst) begin
       for (int i = 0; i < 32; i = i + 1) regs[i] <= 0;
       mstatus <= 32'h1800;
@@ -45,7 +44,10 @@ module RegHeap (
       if (wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
       if (csr_wen1) begin
         case (csr_d1)
-          12'h300: mstatus <= csr_wdata1;
+          12'h300: begin
+            mstatus <= csr_wdata1;
+            $display("%h", csr_wdata1);
+          end
           12'h305: mtvec <= csr_wdata1;
           12'h341: mepc <= csr_wdata1;
           12'h342: mcause <= csr_wdata1;
@@ -54,7 +56,10 @@ module RegHeap (
       end
       if (csr_wen2) begin
         case (csr_d2)
-          12'h300: mstatus <= csr_wdata2;
+          12'h300: begin
+            mstatus <= csr_wdata2;
+            $display("%h", csr_wdata2);
+          end
           12'h305: mtvec <= csr_wdata2;
           12'h341: mepc <= csr_wdata2;
           12'h342: mcause <= csr_wdata2;
