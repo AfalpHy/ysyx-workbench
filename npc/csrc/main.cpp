@@ -37,7 +37,7 @@ bool interrupt = false;
 void sigint_handler(int sig) { interrupt = true; }
 void sigsegv_handler(int sig) {
   fflush_trace();
-  printf("signal fault\n");
+  printf("receive SIGSEGV\n");
   exit(1);
 }
 
