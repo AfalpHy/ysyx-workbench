@@ -32,6 +32,7 @@ void fflush_trace() {
   if (ftrace_log) {
     fflush(ftrace_log);
   }
+  exit(1);
 }
 
 void sigint_handler(int sig) { fflush_trace(); }
