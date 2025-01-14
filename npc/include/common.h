@@ -35,6 +35,10 @@ extern FILE *log_fp;
   if (!(cond)) {                                                               \
     extern void fflush_trace();                                                \
     fflush_trace();                                                            \
+    extern void isa_reg_display();                                             \
+    isa_reg_display();                                                         \
+    extern void iringbuf_display();                                            \
+    iringbuf_display();                                                        \
     printf(format "\n", ##__VA_ARGS__);                                        \
   }                                                                            \
   assert(cond);
