@@ -1,5 +1,5 @@
 module ALU (
-    input  [ 6:0] opcode,
+    input  [ 7:0] opcode,
     input  [31:0] operand1,
     input  [31:0] operand2,
     output [31:0] result
@@ -12,6 +12,7 @@ module ALU (
   wire [31:0] logic_left_shift_result = opcode[4] ? operand1 << operand2[4:0] : 0;
   wire [31:0] logic_right_shift_result = opcode[5] ? operand1 >> operand2[4:0] : 0;
   wire [31:0] arithmetic_right_shift_result = opcode[6] ? $signed(operand1) >>> operand2[4:0] : 0;
+  wire [31:0] bitwise_not_and = opcode[7]? ~operand1 & operand2 : 0;
   wire eq = operand1 == operand2;
   wire ne = operand1 != operand2;
   wire ltu = operand1 < operand2;
@@ -23,6 +24,6 @@ module ALU (
 
   wire cmp_result = (eq & opcode[1]) | (ne & opcode[2]) | (ltu & opcode[3]) | (geu & opcode[4]) | (lt & opcode[5]) |(ge & opcode[6]);
 
-  assign result = opcode[6:1] == 0 ? add_result : (opcode[0]? {{31{1'b0}}, cmp_result} : (xor_result | or_result | and_result | logic_left_shift_result | logic_right_shift_result | arithmetic_right_shift_result));
+  assign result = opcode[7:1] == 0 ? add_result : (opcode[0]? {{31{1'b0}}, cmp_result} : (xor_result | or_result | and_result | logic_left_shift_result | logic_right_shift_result | arithmetic_right_shift_result | bitwise_not_and));
 
 endmodule

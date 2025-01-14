@@ -8,25 +8,33 @@ module NPC (
   // pc
   reg [31:0] pc;
   wire [31:0] npc, snpc, dnpc;
-  wire [1:0] npc_sel;
+  wire [2:0] npc_sel;
 
   // instruction
   wire [31:0] inst;
   wire [31:0] imm;
-  wire imm_for_alu;
+  wire [1:0] alu_operand2_sel;
   wire suffix_b;
   wire suffix_h;
   wire sext;
 
-  // reg
+  // gpr
   wire [4:0] rs1, rs2, rd;
   wire [31:0] src1, src2;
-  wire reg_wen;
-  wire [31:0] reg_wdata;
-  wire [1:0] reg_wdata_sel;
+  wire r_wen;
+  wire [2:0] r_wdata_sel;
+  wire [31:0] r_wdata;
+  // csr
+  wire [11:0] csr_s, csr_d1, csr_d2;
+  wire [1:0] csr_s_sel;
+  wire csr_d1_sel, csr_d2_sel;
+  wire [31:0] csr_src;
+  wire csr_wen1, csr_wen2;
+  wire csr_wdata1_sel, csr_wdata2_sel;
+  wire [31:0] csr_wdata1, csr_wdata2;
 
   // alu
-  wire [6:0] alu_opcode;
+  wire [7:0] alu_opcode;
   wire [31:0] alu_operand1, alu_operand2, alu_result;
 
   // memory
@@ -36,8 +44,12 @@ module NPC (
   assign snpc = pc + 4;
   assign dnpc = pc + imm;
 
+  assign csr_d1 = csr_d1_sel ? 12'h342 : imm[11:0];  // mcause or other assigned one
+  assign csr_d2 = csr_d2_sel ? 12'h341 : 0;  // mpec or null
+  assign csr_wdata1 = csr_wdata1_sel ? 32'd11 : alu_result;  // 11 for ecall
+  assign csr_wdata2 = csr_wdata2_sel ? pc : 0;  // pc for ecall
+
   assign alu_operand1 = src1;
-  assign alu_operand2 = imm_for_alu ? imm : src2;
 
   // set pointer of pc for cpp
   initial begin
@@ -49,31 +61,65 @@ module NPC (
     else pc <= npc;
   end
 
-  MuxKey #(4, 2, 32) mux_npc (
-      npc,
-      npc_sel,
-      {2'b00, snpc, 2'b01, dnpc, 2'b10, alu_result & (~32'b1), 2'b11, alu_result[0] ? dnpc : snpc}
+  MuxKey #(3, 2, 12) mux_csr_s (
+      csr_s,
+      csr_s_sel,
+      {2'b00, imm[11:0], 2'b01, 12'h305, 2'b10, 12'h341}
   );
 
-  MuxKey #(4, 2, 32) mux_reg_wdata (
-      reg_wdata,
-      reg_wdata_sel,
-      {2'b00, alu_result, 2'b01, snpc, 2'b10, dnpc, 2'b11, mem_rdata}
+  MuxKey #(3, 2, 32) mux_alu_operand2 (
+      alu_operand2,
+      alu_operand2_sel,
+      {2'b00, src2, 2'b01, imm, 2'b10, csr_src}
+  );
+
+  MuxKey #(5, 3, 32) mux_npc (
+      npc,
+      npc_sel,
+      {
+        3'b000,
+        snpc,
+        3'b001,
+        dnpc,
+        3'b010,
+        alu_result & (~32'b1),
+        3'b011,
+        alu_result[0] ? dnpc : snpc,
+        3'b100,
+        csr_src
+      }
+  );
+
+  MuxKey #(5, 3, 32) mux_reg_wdata (
+      r_wdata,
+      r_wdata_sel,
+      {3'b000, alu_result, 3'b001, snpc, 3'b010, dnpc, 3'b011, mem_rdata, 3'b100, csr_src}
   );
 
   RegHeap reg_heap (
       .clk(clk),
-
       .rst(rst),
+
       .rs1(rs1),
       .rs2(rs2),
       .rd (rd),
 
-      .wen  (reg_wen),
-      .wdata(reg_wdata),
+      .wen  (r_wen),
+      .wdata(r_wdata),
+
+      .csr_s (csr_s),
+      .csr_d1(csr_d1),
+      .csr_d2(csr_d2),
+
+      .csr_wen1  (csr_wen1),
+      .csr_wdata1(csr_wdata1),
+
+      .csr_wen2  (csr_wen2),
+      .csr_wdata2(csr_wdata2),
 
       .src1(src1),
-      .src2(src2)
+      .src2(src2),
+      .csr_src(csr_src)
   );
 
   Memory memory (
@@ -106,7 +152,7 @@ module NPC (
       .npc_sel(npc_sel),
 
       .imm(imm),
-      .imm_for_alu(imm_for_alu),
+      .alu_operand2_sel(alu_operand2_sel),
 
       .suffix_b(suffix_b),
       .suffix_h(suffix_h),
@@ -115,8 +161,16 @@ module NPC (
       .rs1(rs1),
       .rs2(rs2),
       .rd(rd),
-      .reg_wen(reg_wen),
-      .reg_wdata_sel(reg_wdata_sel),
+      .r_wen(r_wen),
+      .r_wdata_sel(r_wdata_sel),
+
+      .csr_s_sel(csr_s_sel),
+      .csr_d1_sel(csr_d1_sel),
+      .csr_d2_sel(csr_d2_sel),
+      .csr_wen1(csr_wen1),
+      .csr_wen2(csr_wen2),
+      .csr_wdata1_sel(csr_wdata1_sel),
+      .csr_wdata2_sel(csr_wdata2_sel),
 
       .mem_ren(mem_ren),
       .mem_wen(mem_wen),
