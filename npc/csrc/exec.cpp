@@ -122,9 +122,9 @@ void cpu_exec(uint32_t num) {
         ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
         skip_ref_inst = false;
       } else {
-        if(total_inst_num >= 0x50001748){
+        // if(total_inst_num >= 0x50001748){
           std::cout<<std::hex<<*pc<<std::endl;
-        }
+        // }
         ref_difftest_exec(1);
         if (check_regs() != 0) {
           extern void isa_reg_display();
