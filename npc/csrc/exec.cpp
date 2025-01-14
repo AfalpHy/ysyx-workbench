@@ -10,7 +10,7 @@ extern VNPC top;
 extern int status;
 extern bool diff_test_on;
 
-int total_inst_num = 0;
+uint64_t total_inst_num = 0;
 bool skip_ref_inst = false;
 
 typedef struct {
@@ -92,7 +92,7 @@ void cpu_exec(uint32_t num) {
     if (print_num <= 10) {
       printf("%s", str);
     }
-    fprintf(log_fp, "%s", str);
+    fprintf(log_fp, "inst index:%ld\t%s", total_inst_num + 1, str);
 #endif
 
 #ifdef MTRACE
