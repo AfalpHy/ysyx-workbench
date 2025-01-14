@@ -32,10 +32,9 @@ void fflush_trace() {
   if (ftrace_log) {
     fflush(ftrace_log);
   }
-  exit(1);
 }
-
-void sigint_handler(int sig) { fflush_trace(); }
+bool interrupt = false;
+void sigint_handler(int sig) { interrupt = true; }
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);

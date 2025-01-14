@@ -127,7 +127,8 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    if (top.halt) {
+    extern bool interrupt;
+    if (top.halt || interrupt) {
       return;
     }
     if (check_wp()) {
