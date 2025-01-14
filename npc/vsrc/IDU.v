@@ -1,4 +1,4 @@
-module IDU (
+module ysyx_25010008_IDU (
     input [31:0] inst,
 
     output [2:0] npc_sel,

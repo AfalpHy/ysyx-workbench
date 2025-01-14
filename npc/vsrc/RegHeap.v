@@ -1,6 +1,6 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 
-module RegHeap (
+module ysyx_25010008_RegHeap (
     input clk,
     input rst,
 
@@ -63,7 +63,7 @@ module RegHeap (
     end
   end
 
-  MuxKeyWithDefault #(4, 12, 32) mux_csr_src (
+   ysyx_25010008_MuxKeyWithDefault #(4, 12, 32) mux_csr_src (
       .out(csr_src),
       .key(csr_s),
       .default_out(32'b0),

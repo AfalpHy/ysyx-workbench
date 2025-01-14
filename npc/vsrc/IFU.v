@@ -3,7 +3,7 @@ import "DPI-C" function int pmem_read(
   int len
 );
 
-module IFU (
+module ysyx_25010008_IFU (
     input clk,
     input rst,
     input [31:0] pc,

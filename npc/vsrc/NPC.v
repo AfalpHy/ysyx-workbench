@@ -1,6 +1,6 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
 
-module NPC (
+module ysyx_25010008_NPC (
     input  clk,
     input  rst,
     output halt
@@ -61,19 +61,19 @@ module NPC (
     else pc <= npc;
   end
 
-  MuxKey #(3, 2, 12) mux_csr_s (
+  ysyx_25010008_MuxKey #(3, 2, 12) mux_csr_s (
       csr_s,
       csr_s_sel,
       {2'b00, imm[11:0], 2'b01, 12'h305, 2'b10, 12'h341}
   );
 
-  MuxKey #(3, 2, 32) mux_alu_operand2 (
+  ysyx_25010008_MuxKey #(3, 2, 32) mux_alu_operand2 (
       alu_operand2,
       alu_operand2_sel,
       {2'b00, src2, 2'b01, imm, 2'b10, csr_src}
   );
 
-  MuxKey #(5, 3, 32) mux_npc (
+  ysyx_25010008_MuxKey #(5, 3, 32) mux_npc (
       npc,
       npc_sel,
       {
@@ -90,13 +90,13 @@ module NPC (
       }
   );
 
-  MuxKey #(5, 3, 32) mux_reg_wdata (
+  ysyx_25010008_MuxKey #(5, 3, 32) mux_reg_wdata (
       r_wdata,
       r_wdata_sel,
       {3'b000, alu_result, 3'b001, snpc, 3'b010, dnpc, 3'b011, mem_rdata, 3'b100, csr_src}
   );
 
-  RegHeap reg_heap (
+  ysyx_25010008_RegHeap reg_heap (
       .clk(clk),
       .rst(rst),
 
@@ -122,7 +122,7 @@ module NPC (
       .csr_src(csr_src)
   );
 
-  Memory memory (
+  ysyx_25010008_Memory memory (
       .clk(clk),
 
       .suffix_b(suffix_b),
@@ -139,14 +139,14 @@ module NPC (
       .rdata(mem_rdata)
   );
 
-  IFU ifu (
+  ysyx_25010008_IFU ifu (
       .clk (clk),
       .rst (rst),
       .pc  (pc),
       .inst(inst)
   );
 
-  IDU idu (
+  ysyx_25010008_IDU idu (
       .inst(inst),
 
       .npc_sel(npc_sel),
@@ -179,7 +179,7 @@ module NPC (
       .halt(halt)
   );
 
-  ALU alu (
+  ysyx_25010008_ALU alu (
       .opcode  (alu_opcode),
       .operand1(alu_operand1),
       .operand2(alu_operand2),

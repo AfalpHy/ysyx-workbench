@@ -1,4 +1,4 @@
-TOPNAME = NPC
+TOPNAME = ysyx_25010008_NPC
 INC_PATH ?= $(NPC_HOME)/include
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc --trace\
