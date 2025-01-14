@@ -1,4 +1,4 @@
-module ALU (
+module ysyx_25010008_ALU (
     input  [ 7:0] opcode,
     input  [31:0] operand1,
     input  [31:0] operand2,

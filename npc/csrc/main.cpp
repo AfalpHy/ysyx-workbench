@@ -7,7 +7,7 @@
 #include "isa.h"
 #include "sdb.h"
 #include "watchpoint.h"
-#include <VNPC.h>
+#include <Vysyx_25010008_NPC.h>
 #include <fstream>
 #include <iostream>
 #include <signal.h>
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-VNPC top;
+Vysyx_25010008_NPC top;
 
 int status = 0;
 bool diff_test_on = false;

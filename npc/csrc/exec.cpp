@@ -1,4 +1,4 @@
-#include "VNPC.h"
+#include "Vysyx_25010008_NPC.h"
 #include "difftest.h"
 #include "disasm.h"
 #include "ftrace.h"
@@ -6,7 +6,7 @@
 #include "string.h"
 #include "watchpoint.h"
 
-extern VNPC top;
+extern Vysyx_25010008_NPC top;
 extern int status;
 extern bool diff_test_on;
 

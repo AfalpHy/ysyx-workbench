@@ -6,7 +6,7 @@ import "DPI-C" function void pmem_write(
   int len
 );
 
-module Memory (
+module ysyx_25010008_Memory (
     input clk,
 
     input suffix_b,
