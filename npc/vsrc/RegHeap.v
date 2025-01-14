@@ -44,10 +44,7 @@ module RegHeap (
       if (wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
       if (csr_wen1) begin
         case (csr_d1)
-          12'h300: begin
-             mstatus <= csr_wdata1;
-            $display("%h %h %h",csr_src, src1,csr_wdata1);
-          end
+          12'h300: mstatus <= csr_wdata1;
           12'h305: mtvec <= csr_wdata1;
           12'h341: mepc <= csr_wdata1;
           12'h342: mcause <= csr_wdata1;
