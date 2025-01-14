@@ -16,9 +16,9 @@ module ysyx_25010008_IDU (
     output r_wen,
     output [2:0] r_wdata_sel,
 
-    output [1:0] csr_s_sel,
-    output csr_d1_sel,
-    output csr_d2_sel,
+    output [11:0] csr_s,
+    output [11:0] csr_d1,
+    output [11:0] csr_d2,
     output csr_wen1,
     output csr_wen2,
     output csr_wdata1_sel,
@@ -150,10 +150,9 @@ module ysyx_25010008_IDU (
   assign r_wdata_sel[1] = AUIPC | load;
   assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
 
-  assign csr_s_sel[0] = ECALL;
-  assign csr_s_sel[1] = MRET;
-  assign csr_d1_sel = ECALL;
-  assign csr_d2_sel = ECALL;
+  assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : imm[11:0]);
+  assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
+  assign csr_d2 = ECALL ? 12'h341 : imm[11:0];
   assign csr_wen1 = CSRRW | CSRRS | CSRRC | ECALL;
   assign csr_wen2 = ECALL;
   assign csr_wdata1_sel = ECALL;
