@@ -107,7 +107,7 @@ void cpu_exec(uint32_t num) {
     total_inst_num++;
 
 #if defined(ITRACE) || defined(MTRACE)
-    fprintf(log_fp, "%ld inst executed\n",
+    fprintf(log_fp, "%ld insts have been executed\n\n",
             total_inst_num); // make trace more clear
 #endif
 
