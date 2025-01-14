@@ -124,9 +124,9 @@ void cpu_exec(uint32_t num) {
       } else {
         ref_difftest_exec(1);
         if (check_regs() != 0) {
-          iringbuf_display();
           extern void isa_reg_display();
           isa_reg_display();
+          iringbuf_display();
           status = -1;
           return;
         }
