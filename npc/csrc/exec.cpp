@@ -10,7 +10,7 @@ extern Vysyx_25010008_NPC top;
 extern int status;
 extern bool diff_test_on;
 
-uint64_t total_inst_num = 0;
+uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
 
 typedef struct {
@@ -34,7 +34,7 @@ static void display_one_inst(const DisasmInst *di) {
 
 void iringbuf_display() {
   for (auto i = 0; i < MAX_IRINGBUF_LEN; i++) {
-    int iringbuf_index = (total_inst_num + i) % MAX_IRINGBUF_LEN;
+    int iringbuf_index = (total_insts_num + i) % MAX_IRINGBUF_LEN;
     const auto &buf = iringbuf[iringbuf_index];
     if (strcmp(buf.str, "")) {
       display_one_inst(&buf);
@@ -48,7 +48,7 @@ static int check_regs() {
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   for (int i = 0; i < REGS_NUM; i++) {
     if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
-      std::cerr << total_inst_num << " instrutions has been executed"
+      std::cerr << total_insts_num << " instrutions have been executed"
                 << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
@@ -84,7 +84,7 @@ void cpu_exec(uint32_t num) {
   while (num-- > 0) {
 #ifdef ITRACE
     uint32_t inst = pmem_read(*pc, 4);
-    int iringbuf_index = total_inst_num % MAX_IRINGBUF_LEN;
+    int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
     iringbuf[iringbuf_index].pc = *pc;
     iringbuf[iringbuf_index].inst = inst;
     disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str), *pc,
@@ -93,7 +93,7 @@ void cpu_exec(uint32_t num) {
     if (print_num <= 10) {
       printf("%s", str);
     }
-    if (total_inst_num < 10000) // avoid trace file too big
+    if (total_insts_num < 10000) // avoid trace file too big
       fprintf(log_fp, "%s", str);
 #endif
 
@@ -106,12 +106,12 @@ void cpu_exec(uint32_t num) {
     single_cycle();
 #endif
 
-    total_inst_num++;
+    total_insts_num++;
 
 #if defined(ITRACE) || defined(MTRACE)
-    if (total_inst_num <= 10000) // avoid trace file too big
-      fprintf(log_fp, "%ld insts have been executed\n\n",
-              total_inst_num); // make trace more clear
+    if (total_insts_num <= 10000) // avoid trace file too big
+      fprintf(log_fp, "%ld instructions have been executed\n\n",
+              total_insts_num); // make trace more clear
 #endif
 
 #ifdef FTRACE
@@ -135,7 +135,7 @@ void cpu_exec(uint32_t num) {
     }
     extern bool interrupt;
     if (top.halt || interrupt) {
-      printf("\n%ld inst have been executed\n", total_inst_num);
+      printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
     }
     if (check_wp()) {

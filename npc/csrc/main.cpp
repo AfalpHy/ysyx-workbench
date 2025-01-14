@@ -116,5 +116,7 @@ int main(int argc, char **argv) {
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
+  extern uint64_t total_insts_num;
+  printf("\n%ld\n",total_insts_num);
   return status;
 }
