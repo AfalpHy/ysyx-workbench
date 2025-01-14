@@ -121,9 +121,9 @@ void cpu_exec(uint32_t num) {
       if (skip_ref_inst) {
         ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
         skip_ref_inst = false;
-        if (total_inst_num >= 50001748) {
-          std::cout << std::hex << *pc << std::endl;
-        }
+        // if (total_inst_num >= 50001748) {
+        //   std::cout << std::hex << *pc << std::endl;
+        // }
       } else {
         if (total_inst_num >= 50001748) {
           std::cout << std::hex << *pc << std::endl;
