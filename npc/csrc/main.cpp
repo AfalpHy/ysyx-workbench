@@ -10,6 +10,7 @@
 #include <VNPC.h>
 #include <fstream>
 #include <iostream>
+#include <signal.h>
 #include <sys/time.h>
 #include <vector>
 
@@ -22,6 +23,18 @@ bool diff_test_on = false;
 uint64_t begin_us;
 
 FILE *log_fp = nullptr;
+extern FILE *ftrace_log;
+
+void fflush_trace() {
+  if (log_fp) {
+    fflush(log_fp);
+  }
+  if (ftrace_log) {
+    fflush(ftrace_log);
+  }
+}
+
+void sigint_handler(int sig) { fflush_trace(); }
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
@@ -35,6 +48,7 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
+  signal(SIGINT, sigint_handler);
   struct timeval now;
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
@@ -66,7 +80,6 @@ int main(int argc, char **argv) {
     } else if (option == "elf") {
       elf_files.push_back(tmp.substr(pos + 1));
     } else if (option == "ftrace-log") {
-      extern FILE *ftrace_log;
       ftrace_log = fopen(tmp.substr(pos + 1).c_str(), "w");
       Assert(ftrace_log, "open log file failed");
     }

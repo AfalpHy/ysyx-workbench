@@ -32,8 +32,11 @@ extern const char *regs_name[];
 extern FILE *log_fp;
 
 #define Assert(cond, format, ...)                                              \
-  if (!(cond))                                                                 \
+  if (!(cond)) {                                                               \
+    extern void fflush_trace();                                                \
+    fflush_trace();                                                            \
     printf(format "\n", ##__VA_ARGS__);                                        \
+  }                                                                            \
   assert(cond);
 
 #define CHOOSE2nd(a, b, ...) b
