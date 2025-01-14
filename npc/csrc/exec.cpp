@@ -92,7 +92,8 @@ void cpu_exec(uint32_t num) {
     if (print_num <= 10) {
       printf("%s", str);
     }
-    fprintf(log_fp, "%s", str);
+    if (total_inst_num < 10000) // avoid trace file too big
+      fprintf(log_fp, "%s", str);
 #endif
 
 #ifdef MTRACE
@@ -107,8 +108,9 @@ void cpu_exec(uint32_t num) {
     total_inst_num++;
 
 #if defined(ITRACE) || defined(MTRACE)
-    fprintf(log_fp, "%ld insts have been executed\n\n",
-            total_inst_num); // make trace more clear
+    if (total_inst_num < 10000) // avoid trace file too big
+      fprintf(log_fp, "%ld insts have been executed\n\n",
+              total_inst_num); // make trace more clear
 #endif
 
 #ifdef FTRACE
