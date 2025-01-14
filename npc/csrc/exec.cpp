@@ -52,7 +52,7 @@ static int check_regs() {
                 << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
-                << std::endl;
+                << " ref pc:" << ref_pc << " npc:" << *pc << std::endl;
       return -1;
     }
   }
