@@ -40,7 +40,7 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
     } else {
       result = us & 0xFFFFFFFF;
     }
-    skip_ref_inst = true;    
+    skip_ref_inst = true;
   } else if (addr == KBD_ADDR) {
     result = 0;
     skip_ref_inst = true;
@@ -66,7 +66,8 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
     }
   }
 #ifdef MTRACE
-  if (print_mtrace)
+  extern uint64_t total_inst_num;
+  if (print_mtrace && total_inst_num < 10000)
     fprintf(log_fp, "read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
             addr, len, result);
 #endif
@@ -75,7 +76,8 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
 
 extern "C" void pmem_write(word_t addr, word_t data, int len) {
 #ifdef MTRACE
-  if (print_mtrace)
+  extern uint64_t total_inst_num;
+  if (print_mtrace && total_inst_num < 10000)
     fprintf(log_fp, "write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
             addr, len, data);
 #endif
