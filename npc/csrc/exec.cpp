@@ -104,6 +104,10 @@ void cpu_exec(uint32_t num) {
     single_cycle();
 #endif
 
+#if defined(ITRACE) || defined(MTRACE)
+    fprintf(log_fp, "\n"); // make trace more clear
+#endif
+
 #ifdef FTRACE
     ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
 #endif
