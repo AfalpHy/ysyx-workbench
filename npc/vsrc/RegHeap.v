@@ -47,6 +47,7 @@ module RegHeap (
           12'h300: begin
             mstatus <= csr_wdata1;
             $display("%h", csr_wdata1);
+            $finish();
           end
           12'h305: mtvec <= csr_wdata1;
           12'h341: mepc <= csr_wdata1;
@@ -59,6 +60,7 @@ module RegHeap (
           12'h300: begin
             mstatus <= csr_wdata2;
             $display("%h", csr_wdata2);
+            $finish();
           end
           12'h305: mtvec <= csr_wdata2;
           12'h341: mepc <= csr_wdata2;
