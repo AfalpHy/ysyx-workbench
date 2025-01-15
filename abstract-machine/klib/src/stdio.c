@@ -133,7 +133,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         break;
       }
       default:
-        putch(*fmt);
+        putch(*--fmt);
         assert(0); // unsupport
       }
     } else {
