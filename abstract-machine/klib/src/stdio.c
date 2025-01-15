@@ -9,7 +9,7 @@
 static char buff[8192];
 
 static int num2str(char *out, uint64_t num, bool is_sign, int width,
-                   int radix) {
+                   bool fill_zero, int radix) {
   char *tmp = out;
   if (is_sign && (int64_t)num < 0) {
     *out++ = '-';
@@ -35,7 +35,7 @@ static int num2str(char *out, uint64_t num, bool is_sign, int width,
 
   // fill 0
   while (width-- > index) {
-    *out++ = '0';
+    *out++ = fill_zero ? '0' : ' ';
   }
   while (index > 0) {
     *out++ = num_buff[--index];
@@ -62,6 +62,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   int flag = 0;
   while (*fmt) {
     int width = 0;
+    bool fill_zero = false;
     if (*fmt == '%') {
       switch (*++fmt) {
       case 'l':
@@ -72,7 +73,18 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           flag = FLAG_LONG;
         }
         break;
-      case '0': {
+      case '0':
+        fill_zero = true;
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9': {
+        width = *fmt - '0';
         char ch = *++fmt;
         while (ch >= '0' && ch <= '9') {
           width = width * 10 + ch - '0';
@@ -105,7 +117,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         } else {
           num = va_arg(ap, int);
         }
-        int len = num2str(out, num, true, width, 0);
+        int len = num2str(out, num, true, width, fill_zero, 0);
         out += len;
         break;
       }
@@ -118,7 +130,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         } else {
           num = va_arg(ap, unsigned int);
         }
-        int len = num2str(out, num, false, width, 1);
+        int len = num2str(out, num, false, width, fill_zero, 1);
         out += len;
         break;
       }
@@ -128,7 +140,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
         *out++ = 'x';
         int real_width =
             sizeof(uintptr_t) * 2 > width ? sizeof(uintptr_t) * 2 : width;
-        int len = num2str(out, p, false, real_width, 1);
+        int len = num2str(out, p, false, real_width, fill_zero, 1);
         out += len;
         break;
       }
