@@ -76,7 +76,7 @@ extern "C" void pmem_write(word_t addr, word_t data, int len) {
 #endif
   if (addr == SERIAL_PORT) {
     skip_ref_inst = true;
-    putc(data, stderr);
+    putc(data, stdout);
     return;
   }
 
