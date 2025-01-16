@@ -89,7 +89,7 @@ module ysyx_25010008_NPC (
       .halt(halt)
   );
 
-  ysyx_25010008_EXU edu (
+  ysyx_25010008_EXU exu (
       .pc(pc),
       .npc_sel(npc_sel),
 
