@@ -46,13 +46,17 @@ static int check_regs() {
   word_t ref_reg[REGS_NUM];
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
+  if (*pc != ref_pc) {
+    std::cerr << " ref pc:" << ref_pc << " npc:" << *pc << std::endl;
+    return -1;
+  }
   for (int i = 0; i < REGS_NUM; i++) {
     if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
       std::cerr << total_insts_num << " instrutions have been executed"
                 << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
-                << " ref pc:" << ref_pc << " npc:" << *pc << std::endl;
+                << std::endl;
       return -1;
     }
   }

@@ -50,7 +50,7 @@ module ysyx_25010008_NPC (
     set_done(done);
   end
 
-  always @(posedge clk) begin
+  always @(negedge clk) begin
     $display(fetch, mem_ren, done);
     if (rst) begin
       pc <= 32'h8000_0000;
