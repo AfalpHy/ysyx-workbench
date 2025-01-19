@@ -173,7 +173,7 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
-  always @(posedge clk) begin
+  always @(negedge clk) begin
     // avoid read two times
     if(mem_ren) begin
       mem_ren = 0;

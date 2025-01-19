@@ -47,7 +47,9 @@ static int check_regs() {
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   if (*pc != ref_pc) {
-    std::cerr << " ref pc:" << ref_pc << " npc:" << *pc << std::endl;
+    std::cerr << total_insts_num << " instrutions have been executed"
+              << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
+              << std::endl;
     return -1;
   }
   for (int i = 0; i < REGS_NUM; i++) {
