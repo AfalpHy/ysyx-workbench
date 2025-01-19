@@ -109,13 +109,11 @@ void cpu_exec(uint32_t num) {
     while (!(*done)) {
       single_cycle();
     }
-    single_cycle(); // execute one more cycle to complete this inst
     print_mtrace = false;
 #else
     while (!(*done)) {
       single_cycle();
     }
-    single_cycle(); // execute one more cycle to complete this inst
 #endif
 
     total_insts_num++;

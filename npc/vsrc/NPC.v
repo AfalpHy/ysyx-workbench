@@ -56,18 +56,16 @@ module ysyx_25010008_NPC (
       pc <= 32'h8000_0000;
       fetch <= 1;
       ivalid <= 0;
-      done <= 0;
+      done = 0;
     end else if (fetch) begin
       fetch  <= 0;
       ivalid <= 1;
-      if (!mem_ren) done <= 1;
-    end else if (mem_ren) begin  // memory read delay one cycle
-      done <= 1;
-    end else if (done) begin
+      done = 0;
+    end else if (!mem_ren) begin  // memory read delay one cycle
       pc <= npc;
       fetch <= 1;
       ivalid <= 0;
-      done <= 0;
+      done = 1;
     end
   end
 
