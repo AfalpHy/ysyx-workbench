@@ -51,7 +51,6 @@ module ysyx_25010008_NPC (
   end
 
   always @(posedge clk) begin
-    $display(fetch, mem_ren, done);
     if (rst) begin
       pc <= 32'h8000_0000;
       fetch <= 1;
