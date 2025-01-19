@@ -34,7 +34,10 @@ void fflush_trace() {
   }
 }
 bool interrupt = false;
-void sigint_handler(int sig) { interrupt = true; }
+void sigint_handler(int sig) {
+  interrupt = true;
+  printf("receive SIGINT\n");
+}
 void sigsegv_handler(int sig) {
   fflush_trace();
   printf("receive SIGSEGV\n");

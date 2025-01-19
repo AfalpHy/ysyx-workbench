@@ -1,5 +1,8 @@
 module ysyx_25010008_IDU (
+    input clk,
+
     input [31:0] inst,
+    input valid,
 
     output [2:0] npc_sel,
 
@@ -13,7 +16,7 @@ module ysyx_25010008_IDU (
     output [4:0] rs1,
     output [4:0] rs2,
     output [4:0] rd,
-    output r_wen,
+    output reg r_wen,
     output [2:0] r_wdata_sel,
 
     output [11:0] csr_s,
@@ -24,7 +27,7 @@ module ysyx_25010008_IDU (
     output csr_wdata1_sel,
     output csr_wdata2_sel,
 
-    output mem_ren,
+    output reg mem_ren,
     output mem_wen,
 
     output [7:0] alu_opcode,
@@ -145,7 +148,6 @@ module ysyx_25010008_IDU (
   assign rs2 = CSRRW ? 0 : inst[24:20]; // CSRRW always use x0 means imm + 0
   assign rd  = inst[11:7];
 
-  assign r_wen          = U_type | J_type | I_type | R_type;
   assign r_wdata_sel[0] = JAL | JALR | load;
   assign r_wdata_sel[1] = AUIPC | load;
   assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
@@ -153,13 +155,12 @@ module ysyx_25010008_IDU (
   assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : imm[11:0]);
   assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
   assign csr_d2 = ECALL ? 12'h341 : imm[11:0];
-  assign csr_wen1 = CSRRW | CSRRS | CSRRC | ECALL;
-  assign csr_wen2 = ECALL;
+  assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL) & valid;
+  assign csr_wen2 = ECALL & valid;
   assign csr_wdata1_sel = ECALL;
   assign csr_wdata2_sel = ECALL;
 
-  assign mem_ren = load;
-  assign mem_wen = store;
+  assign mem_wen = store & valid;
 
   assign halt = EBREAK;
 
@@ -171,6 +172,17 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
+
+  always @(negedge clk) begin
+    // avoid read two times
+    if(mem_ren) begin
+      mem_ren = 0;
+      r_wen = 1;
+    end else begin
+      mem_ren = load & valid;
+      r_wen = (U_type | J_type | I_type | R_type) & valid & !mem_ren;
+    end
+  end
 
 endmodule
 
