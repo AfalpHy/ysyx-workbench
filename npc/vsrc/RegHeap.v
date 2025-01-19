@@ -36,7 +36,7 @@ module ysyx_25010008_RegHeap (
     set_regs_ptr(regs);
   end
 
-  always @(negedge clk) begin
+  always @(posedge clk) begin
     if (rst) begin
       for (int i = 0; i < 32; i = i + 1) regs[i] <= 0;
       mstatus <= 32'h1800;
@@ -63,7 +63,7 @@ module ysyx_25010008_RegHeap (
     end
   end
 
-   ysyx_25010008_MuxKeyWithDefault #(4, 12, 32) mux_csr_src (
+  ysyx_25010008_MuxKeyWithDefault #(4, 12, 32) mux_csr_src (
       .out(csr_src),
       .key(csr_s),
       .default_out(32'b0),

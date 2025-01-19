@@ -7,6 +7,7 @@ module ysyx_25010008_NPC (
 );
   // pc
   reg [31:0] pc;
+  reg fetch;
   wire [31:0] npc;
   wire [2:0] npc_sel;
 
@@ -16,6 +17,7 @@ module ysyx_25010008_NPC (
   wire suffix_b;
   wire suffix_h;
   wire sext;
+  wire ivalid;
 
   // alu
   wire [7:0] alu_opcode;
@@ -39,25 +41,43 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
+  reg done;
+
   // set pointer of pc for cpp
   initial begin
     set_pc(pc);
   end
 
-  always @(negedge clk) begin
-    if (rst) pc <= 32'h8000_0000;
-    else pc <= npc;
+  always @(posedge clk) begin
+    if (rst) begin
+      pc <= 32'h8000_0000;
+      fetch <= 1;
+    end else if (fetch) begin
+      fetch <= 0;
+      if (!mem_ren) done <= 1;
+    end else if (mem_ren) begin  // memory read delay one cycle
+      done <= 1;
+    end else if (done) begin
+      pc <= npc;
+      fetch <= 1;
+      done <= 0;
+    end
   end
 
   ysyx_25010008_IFU ifu (
-      .clk (clk),
-      .rst (rst),
-      .pc  (pc),
-      .inst(inst)
+      .clk(clk),
+      .rst(rst),
+      .pc(pc),
+      .fetch(fetch),
+      .inst(inst),
+      .valid(ivalid)
   );
 
   ysyx_25010008_IDU idu (
-      .inst(inst),
+      .clk(clk),
+
+      .inst (inst),
+      .valid(ivalid),
 
       .npc_sel(npc_sel),
 
@@ -89,7 +109,7 @@ module ysyx_25010008_NPC (
       .halt(halt)
   );
 
-  ysyx_25010008_EXU edu (
+  ysyx_25010008_EXU exu (
       .pc(pc),
       .npc_sel(npc_sel),
 
@@ -116,7 +136,7 @@ module ysyx_25010008_NPC (
   );
 
 
-  ysyx_25010008_Memory memory (
+  ysyx_25010008_LSU lsu (
       .clk(clk),
 
       .suffix_b(suffix_b),
