@@ -97,7 +97,7 @@ void cpu_exec(uint32_t num) {
     if (total_insts_num < 10000) // avoid trace file too big
       fprintf(log_fp, "%s", str);
 #endif
-
+  printf("%d\n",*done);
 #ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
