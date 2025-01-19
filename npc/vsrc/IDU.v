@@ -177,10 +177,10 @@ module ysyx_25010008_IDU (
     // avoid read two times
     if(mem_ren) begin
       mem_ren = 0;
-      r_wen = 0;
+      r_wen = 1;
     end else begin
       mem_ren = load & valid;
-      r_wen = (U_type | J_type | I_type | R_type) & valid;
+      r_wen = (U_type | J_type | I_type | R_type) & valid & !mem_ren;
     end
     $display("idu  ",mem_ren);
   end
