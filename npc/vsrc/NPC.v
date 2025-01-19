@@ -1,4 +1,5 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
+import "DPI-C" function void set_done(input logic done[]);
 
 module ysyx_25010008_NPC (
     input  clk,
@@ -46,12 +47,14 @@ module ysyx_25010008_NPC (
   // set pointer of pc for cpp
   initial begin
     set_pc(pc);
+    set_done(done);
   end
 
   always @(posedge clk) begin
     if (rst) begin
       pc <= 32'h8000_0000;
       fetch <= 1;
+      done <= 0;
     end else if (fetch) begin
       fetch <= 0;
       if (!mem_ren) done <= 1;
