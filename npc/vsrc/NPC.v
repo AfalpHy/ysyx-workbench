@@ -62,7 +62,6 @@ module ysyx_25010008_NPC (
     end else if (mem_ren) begin  // memory read delay one cycle
       done <= 1;
     end else if (done) begin
-
       pc <= npc;
       fetch <= 1;
       done <= 0;
