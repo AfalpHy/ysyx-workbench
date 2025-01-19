@@ -60,6 +60,7 @@ static int check_regs() {
 }
 
 void single_cycle() {
+  printf("cycle\n");
   top.clk = 1;
   top.eval();
   top.clk = 0;
