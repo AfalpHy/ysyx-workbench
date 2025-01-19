@@ -18,7 +18,7 @@ module ysyx_25010008_NPC (
   wire suffix_b;
   wire suffix_h;
   wire sext;
-  wire ivalid;
+  reg ivalid;
 
   // alu
   wire [7:0] alu_opcode;
@@ -50,14 +50,15 @@ module ysyx_25010008_NPC (
     set_done(done);
   end
 
-  always @(negedge clk) begin
+  always @(posedge clk) begin
     $display(fetch, mem_ren, done);
     if (rst) begin
       pc <= 32'h8000_0000;
       fetch <= 1;
       done <= 0;
     end else if (fetch) begin
-      fetch <= 0;
+      fetch  <= 0;
+      ivalid <= 1;
       if (!mem_ren) done <= 1;
     end else if (mem_ren) begin  // memory read delay one cycle
       done <= 1;
@@ -73,8 +74,7 @@ module ysyx_25010008_NPC (
       .rst(rst),
       .pc(pc),
       .fetch(fetch),
-      .inst(inst),
-      .valid(ivalid)
+      .inst(inst)
   );
 
   ysyx_25010008_IDU idu (
