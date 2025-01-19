@@ -55,6 +55,7 @@ module ysyx_25010008_NPC (
     if (rst) begin
       pc <= 32'h8000_0000;
       fetch <= 1;
+      ivalid <= 0;
       done <= 0;
     end else if (fetch) begin
       fetch  <= 0;
@@ -65,6 +66,7 @@ module ysyx_25010008_NPC (
     end else if (done) begin
       pc <= npc;
       fetch <= 1;
+      ivalid <= 0;
       done <= 0;
     end
   end
