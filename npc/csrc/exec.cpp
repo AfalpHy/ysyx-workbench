@@ -100,14 +100,14 @@ void cpu_exec(uint32_t num) {
 #ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
-    while (!*done) {
+    // while (!*done) {
       single_cycle();
-    }
+    // }
     print_mtrace = false;
 #else
-    while (!*done) {
+    // while (!*done) {
       single_cycle();
-    }
+    // }
 #endif
 
     total_insts_num++;
