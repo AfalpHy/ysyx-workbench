@@ -103,7 +103,6 @@ void cpu_exec(uint32_t num) {
       fprintf(log_fp, "%s", str);
 #endif
 
-    std::cout << *done << std::endl;
 #ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
