@@ -51,6 +51,7 @@ module ysyx_25010008_NPC (
   end
 
   always @(posedge clk) begin
+    $display(fetch, mem_ren, done);
     if (rst) begin
       pc <= 32'h8000_0000;
       fetch <= 1;
@@ -61,7 +62,7 @@ module ysyx_25010008_NPC (
     end else if (mem_ren) begin  // memory read delay one cycle
       done <= 1;
     end else if (done) begin
-      $display(npc);
+
       pc <= npc;
       fetch <= 1;
       done <= 0;
