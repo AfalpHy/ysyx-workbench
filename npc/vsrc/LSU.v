@@ -70,6 +70,10 @@ module ysyx_25010008_LSU (
           arvalid <= 1;
           state   <= HANDLE_RADDR;
         end
+        if (wen) begin
+          awvalid <= 1;
+          state   <= HANDLE_WADDR;
+        end
       end else if (state == HANDLE_RADDR) begin
         if (arready) begin
           arvalid <= 0;
