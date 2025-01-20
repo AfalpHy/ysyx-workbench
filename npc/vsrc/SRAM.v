@@ -101,6 +101,7 @@ module ysyx_25010008_SRAM (
         end
       end else if (wstate == WRITING) begin
         pmem_write(_awaddr, _wdata, _wstrb);
+        $display("complete write");
         bvalid <= 1;
         wstate <= HANDLE_BRESP;
       end else begin
