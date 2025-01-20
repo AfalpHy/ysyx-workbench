@@ -45,6 +45,7 @@ module ysyx_25010008_IFU (
         if (write_back) begin
           pc <= npc;
           pvalid <= 1;
+          valid <= 0;
           state <= HANDLE_PC;
         end
       end else if (state == HANDLE_PC) begin
