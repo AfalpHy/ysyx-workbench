@@ -68,12 +68,10 @@ module ysyx_25010008_LSU (
     end else begin
       if (state == IDLE) begin
         if (ren) begin
-          $display("read");
           arvalid <= 1;
           state   <= HANDLE_RADDR;
         end
         if (wen) begin
-          $display("write");
           awvalid <= 1;
           state   <= HANDLE_WADDR;
         end
@@ -87,27 +85,23 @@ module ysyx_25010008_LSU (
         if (rvalid & !rresp) begin
           rready <= 0;
           rdata  <= sext ? (suffix_b ? (tmp | ({32{tmp[7]}} << 8)):(tmp | ({32{tmp[15]}} << 16))): tmp;
-          $display(tmp);
           read_done <= 1;
           state <= WRITE_BACK;
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin
-          $display("write1");
           awvalid <= 0;
           wvalid  <= 1;
           state   <= HANDLE_WDATA;
         end
       end else if (state == HANDLE_WDATA) begin
         if (wready) begin
-          $display("write2");
           wvalid <= 0;
           bready <= 1;
           state  <= HANDLE_BRESP;
         end
       end else if (state == HANDLE_BRESP) begin
         if (bvalid & !bresp) begin
-          $display("write3");
           bready <= 0;
           write_done <= 1;
           state <= WRITE_BACK;
