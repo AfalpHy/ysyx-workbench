@@ -55,6 +55,9 @@ module ysyx_25010008_LSU (
   wire bresp;
   wire bvalid;
 
+  wire [31:0] sextb = {{24{tmp[7]}}, tmp[7:0]};
+  wire [31:0] sexth = {{16{tmp[15]}}, tmp[15:0]};
+
   always @(posedge clk) begin
     if (rst) begin
       arvalid <= 0;
@@ -84,7 +87,9 @@ module ysyx_25010008_LSU (
       end else if (state == HANDLE_RDATA) begin
         if (rvalid & !rresp) begin
           rready <= 0;
-          rdata  <= sext ? (suffix_b ? (tmp | ({32{tmp[7]}} << 8)):(tmp | ({32{tmp[15]}} << 16))): tmp;
+          rdata  <= sext ? (suffix_b ? sextb : sexth ) :
+          (suffix_b ? {24'b0, tmp[7:0]} :
+          (suffix_h ? {16'b0, tmp[15:0]} : tmp));
           read_done <= 1;
           state <= WRITE_BACK;
         end
