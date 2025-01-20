@@ -26,7 +26,7 @@ extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
 
 void check_bound(paddr_t addr) {}
 
-extern "C" word_t pmem_read(paddr_t addr, int len) {
+extern "C" word_t pmem_read(paddr_t addr) {
   check_bound(addr);
 
   word_t result;
@@ -44,35 +44,23 @@ extern "C" word_t pmem_read(paddr_t addr, int len) {
   } else {
     uint8_t *pmem_addr = (uint8_t *)pmem;
     pmem_addr += (addr - 0x80000000);
-    switch (len) {
-    case 1:
-      result = *pmem_addr;
-      break;
-    case 2:
-      result = *(uint16_t *)pmem_addr;
-      break;
-    case 4:
-      result = *(word_t *)pmem_addr;
-      break;
-    default:
-      result = *(word_t *)pmem_addr;
-    }
+    result = *(word_t *)pmem_addr;
   }
 #ifdef MTRACE
   extern uint64_t total_insts_num;
   if (print_mtrace && total_insts_num < 10000)
-    fprintf(log_fp, "read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
-            addr, len, result);
+    fprintf(log_fp, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
+            result);
 #endif
   return result;
 }
 
-extern "C" void pmem_write(word_t addr, word_t data, int len) {
+extern "C" void pmem_write(word_t addr, word_t data, int mask) {
 #ifdef MTRACE
   extern uint64_t total_insts_num;
   if (print_mtrace && total_insts_num < 10000)
-    fprintf(log_fp, "write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
-            addr, len, data);
+    fprintf(log_fp, "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
+            data);
 #endif
   if (addr == SERIAL_PORT) {
     skip_ref_inst = true;
@@ -82,18 +70,6 @@ extern "C" void pmem_write(word_t addr, word_t data, int len) {
 
   uint8_t *pmem_addr = (uint8_t *)pmem;
   pmem_addr += (addr - 0x80000000);
-  switch (len) {
-  case 1:
-    *pmem_addr = data;
-    break;
-  case 2:
-    *(uint16_t *)pmem_addr = data;
-    break;
-  case 4:
-    *(uint32_t *)pmem_addr = data;
-    break;
-  default:
-    *(word_t *)pmem_addr = data;
-    break;
-  }
+  word_t origin_data = *(word_t *)pmem_addr;
+  *(word_t *)pmem_addr = (origin_data & ~mask) | (data & mask);
 }

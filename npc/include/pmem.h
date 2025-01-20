@@ -4,6 +4,6 @@
 #include "common.h"
 
 extern word_t *pmem;
-extern "C" word_t pmem_read(paddr_t addr, int len);
+extern "C" word_t pmem_read(paddr_t addr);
 extern bool print_mtrace;
 #endif

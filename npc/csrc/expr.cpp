@@ -256,7 +256,7 @@ static word_t eval(int left, int right, bool *success) {
     }
 
     if (tokens[op].type == TK_DEREF) {
-      return pmem_read(eval(left + 1, right, success), 8);
+      return pmem_read(eval(left + 1, right, success));
     }
 
     word_t val1 = eval(left, op - 1, success);

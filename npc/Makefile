@@ -1,8 +1,8 @@
 TOPNAME = ysyx_25010008_NPC
 INC_PATH ?= $(NPC_HOME)/include
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc --trace\
-				-O3 --x-assign fast --x-initial fast --noassert
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --trace --timing\
+				--x-assign fast --x-initial fast --noassert
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir

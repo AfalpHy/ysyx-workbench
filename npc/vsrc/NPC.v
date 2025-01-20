@@ -1,14 +1,10 @@
-import "DPI-C" function void set_pc(input [31:0] ptr[]);
-import "DPI-C" function void set_done(input logic done[]);
-
 module ysyx_25010008_NPC (
     input  clk,
     input  rst,
     output halt
 );
   // pc
-  reg [31:0] pc;
-  reg fetch;
+  wire [31:0] pc;
   wire [31:0] npc;
   wire [2:0] npc_sel;
 
@@ -18,16 +14,17 @@ module ysyx_25010008_NPC (
   wire suffix_b;
   wire suffix_h;
   wire sext;
-  reg ivalid;
+  wire ivalid;
 
   // alu
   wire [7:0] alu_opcode;
   wire [1:0] alu_operand2_sel;
   wire [31:0] alu_result;
 
-  // memory
+  // lsu
   wire mem_ren, mem_wen;
   wire [31:0] mem_rdata;
+  wire read_done, write_done;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
@@ -42,43 +39,21 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
-  reg done;
-
-  // set pointer of pc for cpp
-  initial begin
-    set_pc(pc);
-    set_done(done);
-  end
-
-  always @(posedge clk) begin
-    if (rst) begin
-      pc <= 32'h8000_0000;
-      fetch <= 1;
-      ivalid <= 0;
-      done = 0;
-    end else if (fetch) begin
-      fetch  <= 0;
-      ivalid <= 1;
-      done = 0;
-    end else if (!mem_ren) begin  // memory read delay one cycle
-      pc <= npc;
-      fetch <= 1;
-      ivalid <= 0;
-      done = 1;
-    end
-  end
+  wire write_back = mem_ren ? read_done : (mem_wen ? write_done : ivalid);
 
   ysyx_25010008_IFU ifu (
       .clk(clk),
       .rst(rst),
+
+      .write_back(write_back),
+      .npc(npc),
       .pc(pc),
-      .fetch(fetch),
-      .inst(inst)
+
+      .inst (inst),
+      .valid(ivalid)
   );
 
   ysyx_25010008_IDU idu (
-      .clk(clk),
-
       .inst (inst),
       .valid(ivalid),
 
@@ -141,6 +116,7 @@ module ysyx_25010008_NPC (
 
   ysyx_25010008_LSU lsu (
       .clk(clk),
+      .rst(rst),
 
       .suffix_b(suffix_b),
       .suffix_h(suffix_h),
@@ -153,7 +129,9 @@ module ysyx_25010008_NPC (
       .waddr(alu_result),
       .wdata(src2),
 
-      .rdata(mem_rdata)
+      .rdata(mem_rdata),
+      .read_done(read_done),
+      .write_done(write_done)
   );
 
   ysyx_25010008_RegHeap reg_heap (
@@ -164,7 +142,8 @@ module ysyx_25010008_NPC (
       .rs2(rs2),
       .rd (rd),
 
-      .wen  (r_wen),
+      .write_back(write_back),
+      .wen(r_wen),
       .wdata(r_wdata),
 
       .csr_s (csr_s),

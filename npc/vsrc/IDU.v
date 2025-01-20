@@ -1,6 +1,4 @@
 module ysyx_25010008_IDU (
-    input clk,
-
     input [31:0] inst,
     input valid,
 
@@ -148,6 +146,7 @@ module ysyx_25010008_IDU (
   assign rs2 = CSRRW ? 0 : inst[24:20]; // CSRRW always use x0 means imm + 0
   assign rd  = inst[11:7];
 
+  assign r_wen = (U_type | J_type | I_type | R_type) & valid;
   assign r_wdata_sel[0] = JAL | JALR | load;
   assign r_wdata_sel[1] = AUIPC | load;
   assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
@@ -160,6 +159,7 @@ module ysyx_25010008_IDU (
   assign csr_wdata1_sel = ECALL;
   assign csr_wdata2_sel = ECALL;
 
+  assign mem_ren = load & valid;
   assign mem_wen = store & valid;
 
   assign halt = EBREAK;
@@ -172,17 +172,6 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
-
-  always @(negedge clk) begin
-    // avoid read two times
-    if(mem_ren) begin
-      mem_ren = 0;
-      r_wen = 1;
-    end else begin
-      mem_ren = load & valid;
-      r_wen = (U_type | J_type | I_type | R_type) & valid & !mem_ren;
-    end
-  end
 
 endmodule
 
