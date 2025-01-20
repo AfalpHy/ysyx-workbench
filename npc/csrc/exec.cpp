@@ -9,6 +9,7 @@
 extern Vysyx_25010008_NPC top;
 extern int status;
 extern bool diff_test_on;
+extern bool interrupt;
 
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
@@ -106,12 +107,12 @@ void cpu_exec(uint32_t num) {
 #ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
-    while (!(*write_back))
+    while (!(*write_back) && !interrupt)
       single_cycle();
     single_cycle(); // write back
     print_mtrace = false;
 #else
-    while (!(*write_back))
+    while (!(*write_back) && !interrupt)
       single_cycle();
     single_cycle(); // write back
 #endif
@@ -143,7 +144,6 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    extern bool interrupt;
     if (top.halt || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
