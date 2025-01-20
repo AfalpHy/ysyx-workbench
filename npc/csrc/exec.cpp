@@ -71,7 +71,7 @@ void single_cycle() {
   top.eval();
   top.clk = 0;
   top.eval();
-  // Verilated::timeInc(1);
+  Verilated::timeInc(1);
 }
 
 void reset() {
