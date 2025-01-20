@@ -67,10 +67,12 @@ module ysyx_25010008_LSU (
     end else begin
       if (state == IDLE) begin
         if (ren) begin
+          $display("read");
           arvalid <= 1;
           state   <= HANDLE_RADDR;
         end
         if (wen) begin
+          $display("write");
           awvalid <= 1;
           state   <= HANDLE_WADDR;
         end
