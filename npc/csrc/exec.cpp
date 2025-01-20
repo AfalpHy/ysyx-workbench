@@ -73,7 +73,7 @@ void single_cycle() {
   top.eval();
   Verilated::timeInc(1);
   static int i=0;
-  std::cout<< i <<std::endl;
+  std::cout<< i++ <<std::endl;
 }
 
 void reset() {
