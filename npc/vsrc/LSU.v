@@ -73,10 +73,12 @@ module ysyx_25010008_LSU (
       if (state == IDLE) begin
         if (ren) begin
           #delay arvalid <= 1;
+          $display("ren ",delay);
           state <= HANDLE_RADDR;
         end
         if (wen) begin
           #delay awvalid <= 1;
+          $display("wen ", delay);
           state <= HANDLE_WADDR;
         end
       end else if (state == HANDLE_RADDR) begin
