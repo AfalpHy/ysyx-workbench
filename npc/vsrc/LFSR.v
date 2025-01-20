@@ -6,7 +6,7 @@ module ysyx_25010008_LFSR (
 
   always @(posedge clk) begin
     if (rst) dout <= 1;
-    else dout <= {dout[4] ^ dout[3] ^ dout[2] ^ dout[0], dout[6:0]};
+    else dout <= {dout[4] ^ dout[3] ^ dout[2] ^ dout[0], dout[7:1]};
   end
 
 endmodule
