@@ -86,9 +86,8 @@ module ysyx_25010008_SRAM (
       end
 
       if (wstate == HANDLE_WADDR) begin
-          $display("complete write1");
-           if (awvalid) begin
-             $display("complete write2");
+        if (awvalid) begin
+          $display("complete write2");
           _awaddr <= awaddr;
           awready <= 0;
           wready  <= 1;
@@ -96,7 +95,7 @@ module ysyx_25010008_SRAM (
         end
       end else if (wstate == HANDLE_WDATA) begin
         if (wvalid) begin
-             $display("complete write3");
+          $display("complete write3");
           _wdata <= wdata;
           _wstrb <= wstrb;
           wready <= 0;
