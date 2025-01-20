@@ -73,8 +73,7 @@ module ysyx_25010008_SRAM (
           rstate  <= READING;
         end
       end else if (rstate == READING) begin
-        rdata <= pmem_read(_araddr);
-        $display("complete");
+        rdata  <= pmem_read(_araddr);
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin
@@ -87,7 +86,6 @@ module ysyx_25010008_SRAM (
 
       if (wstate == HANDLE_WADDR) begin
         if (awvalid) begin
-          $display("complete write2");
           _awaddr <= awaddr;
           awready <= 0;
           wready  <= 1;
@@ -95,7 +93,6 @@ module ysyx_25010008_SRAM (
         end
       end else if (wstate == HANDLE_WDATA) begin
         if (wvalid) begin
-          $display("complete write3");
           _wdata <= wdata;
           _wstrb <= wstrb;
           wready <= 0;
@@ -103,7 +100,6 @@ module ysyx_25010008_SRAM (
         end
       end else if (wstate == WRITING) begin
         pmem_write(_awaddr, _wdata, _wstrb);
-        $display("complete write");
         bvalid <= 1;
         wstate <= HANDLE_BRESP;
       end else begin
