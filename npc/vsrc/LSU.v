@@ -84,6 +84,7 @@ module ysyx_25010008_LSU (
         if (rvalid & !rresp) begin
           rready <= 0;
           rdata  <= sext ? (suffix_b ? (tmp | ({32{tmp[7]}} << 8)):(tmp | ({32{tmp[15]}} << 16))): tmp;
+          $display(tmp);
           read_done <= 1;
           state <= IDLE;
         end
