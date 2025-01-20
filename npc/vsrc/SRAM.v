@@ -73,7 +73,7 @@ module ysyx_25010008_SRAM (
           rstate  <= READING;
         end
       end else if (rstate == READING) begin
-        rdata  <= pmem_read(_araddr);
+        #delay rdata  <= pmem_read(_araddr);
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin
@@ -99,7 +99,7 @@ module ysyx_25010008_SRAM (
           wstate <= WRITING;
         end
       end else if (wstate == WRITING) begin
-        pmem_write(_awaddr, _wdata, _wstrb);
+        #delay  pmem_write(_awaddr, _wdata, _wstrb);
         bvalid <= 1;
         wstate <= HANDLE_BRESP;
       end else begin
