@@ -74,6 +74,7 @@ module ysyx_25010008_SRAM (
         end
       end else if (rstate == READING) begin
         #delay rdata <= pmem_read(_araddr);
+        $display("complete");
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin
