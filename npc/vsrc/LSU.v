@@ -58,6 +58,7 @@ module ysyx_25010008_LSU (
   wire [31:0] sextb = {{24{tmp[7]}}, tmp[7:0]};
   wire [31:0] sexth = {{16{tmp[15]}}, tmp[15:0]};
 
+  wire [7:0] delay;
   always @(posedge clk) begin
     if (rst) begin
       arvalid <= 0;
@@ -71,12 +72,12 @@ module ysyx_25010008_LSU (
     end else begin
       if (state == IDLE) begin
         if (ren) begin
-          arvalid <= 1;
-          state   <= HANDLE_RADDR;
+          #delay arvalid <= 1;
+          state <= HANDLE_RADDR;
         end
         if (wen) begin
-          awvalid <= 1;
-          state   <= HANDLE_WADDR;
+          #delay awvalid <= 1;
+          state <= HANDLE_WADDR;
         end
       end else if (state == HANDLE_RADDR) begin
         if (arready) begin
@@ -146,4 +147,9 @@ module ysyx_25010008_LSU (
       .bvalid(bvalid)
   );
 
+  ysyx_25010008_LFSR lfsr (
+      .clk (clk),
+      .rst (rst),
+      .dout(delay)
+  );
 endmodule

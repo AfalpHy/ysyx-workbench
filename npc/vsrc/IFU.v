@@ -27,6 +27,7 @@ module ysyx_25010008_IFU (
   wire rresp;
   wire rvalid;
 
+  wire [7:0] delay;
   // set pointer of pc for cpp
   initial begin
     set_pc(pc);
@@ -44,15 +45,15 @@ module ysyx_25010008_IFU (
       if (state == IDLE) begin
         if (write_back) begin
           pc <= npc;
-          pvalid <= 1;
+          #delay pvalid <= 1;
           valid <= 0;
           state <= HANDLE_PC;
         end
       end else if (state == HANDLE_PC) begin
         if (pready) begin
           pvalid <= 0;
-          rready <= 1;
-          state  <= HANDLE_INST;
+          #delay rready <= 1;
+          state <= HANDLE_INST;
         end
       end else begin
         if (rvalid & !rresp) begin
@@ -92,4 +93,9 @@ module ysyx_25010008_IFU (
       .bvalid()
   );
 
+  ysyx_25010008_LFSR lfsr (
+      .clk (clk),
+      .rst (rst),
+      .dout(delay)
+  );
 endmodule
