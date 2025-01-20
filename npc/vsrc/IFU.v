@@ -45,7 +45,7 @@ module ysyx_25010008_IFU (
       if (state == IDLE) begin
         if (write_back) begin
           pc <= npc;
-          #delay pvalid <= 1;
+          pvalid <= 1;
           valid <= 0;
           state <= HANDLE_PC;
         end
