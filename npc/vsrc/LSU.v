@@ -69,6 +69,7 @@ module ysyx_25010008_LSU (
       state   <= IDLE;
     end else begin
       if (state == IDLE) begin
+        $display("lsu idle", , wen);
         if (ren) begin
           arvalid <= 1;
           state   <= HANDLE_RADDR;
@@ -84,7 +85,6 @@ module ysyx_25010008_LSU (
           state   <= HANDLE_RDATA;
         end
       end else if (state == HANDLE_RDATA) begin
-        $display("lsu rdata");
         if (rvalid & !rresp) begin
           rready <= 0;
           rdata  <= sext ? (suffix_b ? sextb : sexth ) :
