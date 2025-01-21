@@ -162,7 +162,7 @@ module ysyx_25010008_Xbar (
           master <= MASTER_0;
           if (araddr_0 >= 32'h8000_0000 && araddr_0 < 32'h8100_0000) begin
             slave <= SLAVE_SRAM;
-          end else if (araddr_0 >= 32'h1000_0000 && araddr_0 < 32'h1000_0fff) begin
+          end else if (araddr_0 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
           end else begin
             $display("error addr %h", araddr_0);
@@ -173,7 +173,7 @@ module ysyx_25010008_Xbar (
           master <= MASTER_1;
           if (araddr_1 >= 32'h8000_0000 && araddr_1 < 32'h8100_0000) begin
             slave <= SLAVE_SRAM;
-          end else if (araddr_1 >= 32'h1000_0000 && araddr_1 < 32'h1000_0fff) begin
+          end else if (araddr_1 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
           end else begin
             $display("error addr %h", araddr_1);
