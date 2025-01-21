@@ -188,6 +188,8 @@ module ysyx_25010008_Xbar (
             slave <= SLAVE_SRAM;
           end else if (araddr_1 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
+          end else if (araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_0048) begin
+            slave <= SLAVE_CLINT;
           end else begin
             $display("error addr %h", araddr_1);
             $finish;
