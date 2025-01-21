@@ -17,7 +17,26 @@ module ysyx_25010008_LSU (
 
     output reg [31:0] rdata,
     output reg read_done,
-    output reg write_done
+    output reg write_done,
+
+    output reg arvalid,
+    input arready,
+
+    output reg rready,
+    input [31:0] tmp,
+    input rresp,
+    input rvalid,
+
+    output reg awvalid,
+    input awready,
+
+    output reg [31:0] wstrb,
+    output reg wvalid,
+    input wready,
+
+    output reg bready,
+    input bresp,
+    input bvalid
 );
 
   parameter IDLE = 0;
@@ -36,24 +55,7 @@ module ysyx_25010008_LSU (
     set_memory_ptr(memory);
   end
 
-  reg arvalid;
-  wire arready;
-
-  reg rready;
-  wire [31:0] tmp;
-  wire rresp;
-  wire rvalid;
-
-  reg awvalid;
-  wire awready;
-
-  wire [31:0] wstrb = suffix_b ? {24'b0, 8'hFF} : (suffix_h ? {16'b0, 16'hFFFF} : 32'hFFFF_FFFF);
-  reg wvalid;
-  wire wready;
-
-  reg bready;
-  wire bresp;
-  wire bvalid;
+  assign wstrb = suffix_b ? {24'b0, 8'hFF} : (suffix_h ? {16'b0, 16'hFFFF} : 32'hFFFF_FFFF);
 
   wire [31:0] sextb = {{24{tmp[7]}}, tmp[7:0]};
   wire [31:0] sexth = {{16{tmp[15]}}, tmp[15:0]};
@@ -118,32 +120,5 @@ module ysyx_25010008_LSU (
       end
     end
   end
-
-  ysyx_25010008_SRAM sram (
-      .clk(clk),
-      .rst(rst),
-
-      .araddr (raddr),
-      .arvalid(arvalid),
-      .arready(arready),
-
-      .rready(rready),
-      .rdata (tmp),
-      .rresp (rresp),
-      .rvalid(rvalid),
-
-      .awaddr (waddr),
-      .awvalid(awvalid),
-      .awready(awready),
-
-      .wdata (wdata),
-      .wstrb (wstrb),
-      .wvalid(wvalid),
-      .wready(wready),
-
-      .bready(bready),
-      .bresp (bresp),
-      .bvalid(bvalid)
-  );
 
 endmodule
