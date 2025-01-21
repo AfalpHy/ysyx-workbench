@@ -221,7 +221,7 @@ module ysyx_25010008_NPC (
 
   ysyx_25010008_Xbar xbar (
       .clk(clk),
-      .rst(clk),
+      .rst(rst),
 
       .araddr_0 (araddr_0),
       .arvalid_0(arvalid_0),
