@@ -114,7 +114,7 @@ module ysyx_25010008_Xbar (
   assign SRAM_wdata = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wdata_1 : wdata_0);
   assign SRAM_wstrb = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wstrb_1 : wstrb_0);
   assign SRAM_wvalid = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wvalid_1 : wvalid_0);
-  assign SRAM_bready = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? bresp_1 : bresp_0);
+  assign SRAM_bready = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? bready_1 : bready_0);
 
   assign UART_araddr = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
   assign UART_arvalid = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
@@ -124,7 +124,7 @@ module ysyx_25010008_Xbar (
   assign UART_wdata = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wdata_1 : wdata_0);
   assign UART_wstrb = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wstrb_1 : wstrb_0);
   assign UART_wvalid = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wvalid_1 : wvalid_0);
-  assign UART_bready = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? bresp_1 : bresp_0);
+  assign UART_bready = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? bready_1 : bready_0);
 
   assign arready_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_arready : UART_arready);
   assign arready_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_arready : UART_arready);
