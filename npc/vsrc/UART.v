@@ -65,6 +65,7 @@ module ysyx_25010008_UART (
           rstate  <= READING;
         end
       end else if (rstate == READING) begin
+        // TODO: read data
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin
@@ -90,6 +91,7 @@ module ysyx_25010008_UART (
           wstate <= WRITING;
         end
       end else if (wstate == WRITING) begin
+        // temporarily use pmem_write to support diff test 
         pmem_write(_awaddr, _wdata, _wstrb);
         bvalid <= 1;
         wstate <= HANDLE_BRESP;
