@@ -42,6 +42,7 @@ module ysyx_25010008_IFU (
       state <= HANDLE_PC;
     end else begin
       if (state == IDLE) begin
+        $display("idle");
         if (write_back) begin
           pc <= npc;
           pvalid <= 1;
