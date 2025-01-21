@@ -8,6 +8,7 @@
 #include "sdb.h"
 #include "watchpoint.h"
 #include <Vysyx_25010008_NPC.h>
+#include <verilated_vcd_c.h>
 #include <fstream>
 #include <iostream>
 #include <signal.h>
@@ -102,6 +103,10 @@ int main(int argc, char **argv) {
   // init sdl
   // init_vga();
   int size = load_img(img);
+  Verilated::traceEverOn(true);  // 开启波形跟踪
+  auto tracer = new VerilatedVcdC;    // 创建 VCD 跟踪对象
+  top.trace(tracer, 99);        // 设置跟踪的深度，99 表示生成详细的波形
+  tracer->open("waveform.vcd"); // 打开 VCD 文件
   reset();
   if (!ref_so.empty()) {
     init_difftest(ref_so.c_str(), size);
