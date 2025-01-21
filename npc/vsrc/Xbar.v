@@ -149,7 +149,7 @@ module ysyx_25010008_Xbar (
   assign bvalid_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_bvalid : UART_bvalid);
 
   always @(SRAM_awvalid or awready_1) begin
-    $display(SRAM_awvalid ,, awready_1);
+    $display(SRAM_awvalid,, awready_1);
   end
   always @(posedge clk) begin
     if (rst) begin
@@ -182,7 +182,7 @@ module ysyx_25010008_Xbar (
           state <= TRANSFER;
         end else if (awvalid_1) begin
           $display("xbar");
-          $display(SRAM_awvalid ,, awready_1);
+          $display(SRAM_awvalid,, awready_1);
           master <= MASTER_1;
           if (awaddr_1 >= 32'h8000_0000 && awaddr_1 < 32'h8100_0000) begin
             slave <= SLAVE_SRAM;
@@ -198,11 +198,13 @@ module ysyx_25010008_Xbar (
         if (slave == SLAVE_SRAM) begin
           if (SRAM_rvalid || SRAM_bvalid) begin
             master <= MASTER_NULL;
+            slave  <= SLAVE_NULL;
             state  <= CHOSE_MASTER_AND_SLAVE;
           end
         end else if (slave == SLAVE_UART) begin
           if (UART_rvalid || UART_bvalid) begin
             master <= MASTER_NULL;
+            slave  <= SLAVE_NULL;
             state  <= CHOSE_MASTER_AND_SLAVE;
           end
         end
