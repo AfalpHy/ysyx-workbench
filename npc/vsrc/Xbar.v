@@ -59,6 +59,7 @@ module ysyx_25010008_Xbar (
   parameter SLAVE_SRAM = 0;
   parameter SLAVE_UART = 1;
   parameter SLAVE_NULL = 2;
+  parameter SLAVE_CLINT = 3;
 
   reg [1:0] master, slave;
 
@@ -106,6 +107,15 @@ module ysyx_25010008_Xbar (
   wire UART_bresp;
   wire UART_bvalid;
 
+  reg [31:0] CLINT_araddr;
+  reg CLINT_arvalid;
+  wire CLINT_arready;
+
+  reg CLINT_rready;
+  wire [31:0] CLINT_rdata;
+  wire CLINT_rresp;
+  wire CLINT_rvalid;
+
   assign SRAM_araddr = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
   assign SRAM_arvalid = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
   assign SRAM_rready = (slave != SLAVE_SRAM || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? rready_1 : rready_0);
@@ -126,29 +136,33 @@ module ysyx_25010008_Xbar (
   assign UART_wvalid = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wvalid_1 : wvalid_0);
   assign UART_bready = (slave != SLAVE_UART || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? bready_1 : bready_0);
 
-  assign arready_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_arready : UART_arready);
-  assign arready_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_arready : UART_arready);
+  assign CLINT_araddr = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
+  assign CLINT_arvalid = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
+  assign CLINT_rready = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? rready_1 : rready_0);
 
-  assign rdata_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rdata : UART_rdata);
-  assign rdata_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rdata : UART_rdata);
+  assign arready_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_arready : (slave == SLAVE_UART ? UART_arready : CLINT_arready));
+  assign arready_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_arready : (slave == SLAVE_UART ? UART_arready : CLINT_arready));
 
-  assign rresp_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rresp : UART_rresp);
-  assign rresp_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rresp : UART_rresp);
+  assign rdata_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rdata : (slave == SLAVE_UART ? UART_rdata : CLINT_rdata));
+  assign rdata_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rdata : (slave == SLAVE_UART ? UART_rdata : CLINT_rdata));
 
-  assign rvalid_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rvalid : UART_rvalid);
-  assign rvalid_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rvalid : UART_rvalid);
+  assign rresp_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rresp : (slave == SLAVE_UART ? UART_rresp : CLINT_rresp));
+  assign rresp_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rresp : (slave == SLAVE_UART ? UART_rresp : CLINT_rresp));
 
-  assign awready_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_awready : UART_awready);
-  assign awready_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_awready : UART_awready);
+  assign rvalid_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rvalid : (slave == SLAVE_UART ? UART_rvalid : CLINT_rvalid));
+  assign rvalid_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_rvalid : (slave == SLAVE_UART ? UART_rvalid : CLINT_rvalid));
 
-  assign wready_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_wready : UART_wready);
-  assign wready_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_wready : UART_wready);
+  assign awready_0 = (master != MASTER_0 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_awready : UART_awready);
+  assign awready_1 = (master != MASTER_1 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_awready : UART_awready);
 
-  assign bresp_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_bresp : UART_bresp);
-  assign bresp_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_bresp : UART_bresp);
+  assign wready_0 = (master != MASTER_0 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_wready : UART_wready);
+  assign wready_1 = (master != MASTER_1 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_wready : UART_wready);
 
-  assign bvalid_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_bvalid : UART_bvalid);
-  assign bvalid_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_bvalid : UART_bvalid);
+  assign bresp_0 = (master != MASTER_0 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_bresp : UART_bresp);
+  assign bresp_1 = (master != MASTER_1 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_bresp : UART_bresp);
+
+  assign bvalid_0 = (master != MASTER_0 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_bvalid : UART_bvalid);
+  assign bvalid_1 = (master != MASTER_1 || slave == SLAVE_NULL || slave == SLAVE_CLINT) ? 0 : (slave == SLAVE_SRAM ? SRAM_bvalid : UART_bvalid);
 
   always @(posedge clk) begin
     if (rst) begin
@@ -156,11 +170,10 @@ module ysyx_25010008_Xbar (
       slave  <= SLAVE_NULL;
       state  <= CHOSE_MASTER_AND_SLAVE;
     end else begin
-      // $display(state,arvalid_0);
       if (state == CHOSE_MASTER_AND_SLAVE) begin
         if (arvalid_0) begin
           master <= MASTER_0;
-          if (araddr_0 >= 32'h8000_0000 && araddr_0 < 32'h8100_0000) begin
+          if (araddr_0 >= 32'h8000_0000 && araddr_0 < 32'h8800_0000) begin
             slave <= SLAVE_SRAM;
           end else if (araddr_0 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
@@ -171,10 +184,12 @@ module ysyx_25010008_Xbar (
           state <= TRANSFER;
         end else if (arvalid_1) begin
           master <= MASTER_1;
-          if (araddr_1 >= 32'h8000_0000 && araddr_1 < 32'h8100_0000) begin
+          if (araddr_1 >= 32'h8000_0000 && araddr_1 < 32'h8800_0000) begin
             slave <= SLAVE_SRAM;
           end else if (araddr_1 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
+          end else if (araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c) begin
+            slave <= SLAVE_CLINT;
           end else begin
             $display("error addr %h", araddr_1);
             $finish;
@@ -182,7 +197,7 @@ module ysyx_25010008_Xbar (
           state <= TRANSFER;
         end else if (awvalid_1) begin
           master <= MASTER_1;
-          if (awaddr_1 >= 32'h8000_0000 && awaddr_1 < 32'h8100_0000) begin
+          if (awaddr_1 >= 32'h8000_0000 && awaddr_1 < 32'h8800_0000) begin
             slave <= SLAVE_SRAM;
           end else if (awaddr_1 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
@@ -201,6 +216,12 @@ module ysyx_25010008_Xbar (
           end
         end else if (slave == SLAVE_UART) begin
           if (UART_rvalid || UART_bvalid) begin
+            master <= MASTER_NULL;
+            slave  <= SLAVE_NULL;
+            state  <= CHOSE_MASTER_AND_SLAVE;
+          end
+        end else begin
+          if (CLINT_rvalid) begin
             master <= MASTER_NULL;
             slave  <= SLAVE_NULL;
             state  <= CHOSE_MASTER_AND_SLAVE;
@@ -262,6 +283,20 @@ module ysyx_25010008_Xbar (
       .bready(UART_bready),
       .bresp (UART_bresp),
       .bvalid(UART_bvalid)
+  );
+
+  ysyx_25010008_CLINT clint (
+      .clk(clk),
+      .rst(rst),
+
+      .araddr (CLINT_araddr),
+      .arvalid(CLINT_arvalid),
+      .arready(CLINT_arready),
+
+      .rready(CLINT_rready),
+      .rdata (CLINT_rdata),
+      .rresp (CLINT_rresp),
+      .rvalid(CLINT_rvalid)
   );
 
 endmodule
