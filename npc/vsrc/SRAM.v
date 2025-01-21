@@ -92,7 +92,7 @@ module ysyx_25010008_SRAM (
           wstate  <= HANDLE_WDATA;
         end
       end else if (wstate == HANDLE_WDATA) begin
-        $display("wdata");
+        // $display("wdata");
         if (wvalid) begin
           _wdata <= wdata;
           _wstrb <= wstrb;
