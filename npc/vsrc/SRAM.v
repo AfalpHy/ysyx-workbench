@@ -85,8 +85,7 @@ module ysyx_25010008_SRAM (
       end
 
       if (wstate == HANDLE_WADDR) begin
-        
-         $display("handle_waddr");
+        $display("handle_waddr");
         if (awvalid) begin
          $display("awvalid");
           _awaddr <= awaddr;

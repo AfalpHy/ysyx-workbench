@@ -148,6 +148,9 @@ module ysyx_25010008_Xbar (
   assign bvalid_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_bvalid : UART_bvalid);
   assign bvalid_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_SRAM ? SRAM_bvalid : UART_bvalid);
 
+  always @(SRAM_awvalid or SRAM_awready) begin
+    $display(SRAM_awvalid ,, SRAM_awready);
+  end
   always @(posedge clk) begin
     if (rst) begin
       master <= MASTER_0;
