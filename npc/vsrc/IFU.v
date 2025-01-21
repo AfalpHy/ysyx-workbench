@@ -58,7 +58,7 @@ module ysyx_25010008_IFU (
         if (rvalid & !rresp) begin
           rready <= 0;
           inst   <= rdata;
-          ivalid  <= 1;
+          ivalid <= 1;
           state  <= IDLE;
         end
       end
