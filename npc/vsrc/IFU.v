@@ -10,7 +10,15 @@ module ysyx_25010008_IFU (
     output reg [31:0] pc,
 
     output reg [31:0] inst,
-    output reg ivalid
+    output reg ivalid,
+
+    output reg pvalid,
+    input pready,
+
+    output reg rready,
+    input [31:0] rdata,
+    input rresp,
+    input rvalid
 );
 
   parameter IDLE = 0;
@@ -18,14 +26,6 @@ module ysyx_25010008_IFU (
   parameter HANDLE_INST = 2;
 
   reg [1:0] state;
-
-  reg pvalid;
-  wire pready;
-
-  reg rready;
-  wire [31:0] rdata;
-  wire rresp;
-  wire rvalid;
 
   // set pointer of pc for cpp
   initial begin
@@ -64,32 +64,5 @@ module ysyx_25010008_IFU (
       end
     end
   end
-
-  ysyx_25010008_SRAM sram (
-      .clk(clk),
-      .rst(rst),
-
-      .araddr (pc),
-      .arvalid(pvalid),
-      .arready(pready),
-
-      .rready(rready),
-      .rdata (rdata),
-      .rresp (rresp),
-      .rvalid(rvalid),
-
-      .awaddr (0),
-      .awvalid(0),
-      .awready(),
-
-      .wdata (0),
-      .wstrb (0),
-      .wvalid(0),
-      .wready(),
-
-      .bready(0),
-      .bresp (),
-      .bvalid()
-  );
 
 endmodule
