@@ -10,7 +10,7 @@ module ysyx_25010008_IFU (
     output reg [31:0] pc,
 
     output reg [31:0] inst,
-    output reg valid
+    output reg ivalid
 );
 
   parameter IDLE = 0;
@@ -38,14 +38,14 @@ module ysyx_25010008_IFU (
       pc <= 32'h8000_0000;
       pvalid <= 1;
       rready <= 1;
-      valid <= 0;
+      ivalid <= 0;
       state <= HANDLE_PC;
     end else begin
       if (state == IDLE) begin
         if (write_back) begin
           pc <= npc;
           pvalid <= 1;
-          valid <= 0;
+          ivalid <= 0;
           state <= HANDLE_PC;
         end
       end else if (state == HANDLE_PC) begin
@@ -58,7 +58,7 @@ module ysyx_25010008_IFU (
         if (rvalid & !rresp) begin
           rready <= 0;
           inst   <= rdata;
-          valid  <= 1;
+          ivalid  <= 1;
           state  <= IDLE;
         end
       end

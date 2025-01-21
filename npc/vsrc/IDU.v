@@ -1,6 +1,6 @@
 module ysyx_25010008_IDU (
     input [31:0] inst,
-    input valid,
+    input ivalid,
 
     output [2:0] npc_sel,
 
@@ -146,7 +146,7 @@ module ysyx_25010008_IDU (
   assign rs2 = CSRRW ? 0 : inst[24:20]; // CSRRW always use x0 means imm + 0
   assign rd  = inst[11:7];
 
-  assign r_wen = (U_type | J_type | I_type | R_type) & valid;
+  assign r_wen = (U_type | J_type | I_type | R_type) & ivalid;
   assign r_wdata_sel[0] = JAL | JALR | load;
   assign r_wdata_sel[1] = AUIPC | load;
   assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
@@ -154,13 +154,13 @@ module ysyx_25010008_IDU (
   assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : imm[11:0]);
   assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
   assign csr_d2 = ECALL ? 12'h341 : imm[11:0];
-  assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL) & valid;
-  assign csr_wen2 = ECALL & valid;
+  assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL) & ivalid;
+  assign csr_wen2 = ECALL & ivalid;
   assign csr_wdata1_sel = ECALL;
   assign csr_wdata2_sel = ECALL;
 
-  assign mem_ren = load & valid;
-  assign mem_wen = store & valid;
+  assign mem_ren = load & ivalid;
+  assign mem_wen = store & ivalid;
 
   assign halt = EBREAK;
 

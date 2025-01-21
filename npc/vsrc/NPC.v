@@ -50,12 +50,12 @@ module ysyx_25010008_NPC (
       .pc(pc),
 
       .inst (inst),
-      .valid(ivalid)
+      .ivalid(ivalid)
   );
 
   ysyx_25010008_IDU idu (
       .inst (inst),
-      .valid(ivalid),
+      .ivalid(ivalid),
 
       .npc_sel(npc_sel),
 
