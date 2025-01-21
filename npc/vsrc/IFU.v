@@ -56,7 +56,6 @@ module ysyx_25010008_IFU (
         end
       end else begin
         if (rvalid & !rresp) begin
-        $display("da");
           rready <= 0;
           inst   <= rdata;
           ivalid <= 1;
