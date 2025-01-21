@@ -85,9 +85,7 @@ module ysyx_25010008_SRAM (
       end
 
       if (wstate == HANDLE_WADDR) begin
-        $display("handle_waddr");
         if (awvalid) begin
-         $display("awvalid");
           _awaddr <= awaddr;
           awready <= 0;
           wready  <= 1;
@@ -101,7 +99,6 @@ module ysyx_25010008_SRAM (
           wstate <= WRITING;
         end
       end else if (wstate == WRITING) begin
-        $display("writing");
         pmem_write(_awaddr, _wdata, _wstrb);
         bvalid <= 1;
         wstate <= HANDLE_BRESP;

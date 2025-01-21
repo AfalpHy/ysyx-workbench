@@ -69,7 +69,6 @@ module ysyx_25010008_LSU (
       state   <= IDLE;
     end else begin
       if (state == IDLE) begin
-        $display("lsu idle", , wen);
         if (ren) begin
           arvalid <= 1;
           state   <= HANDLE_RADDR;
@@ -94,14 +93,12 @@ module ysyx_25010008_LSU (
           state <= WRITE_BACK;
         end
       end else if (state == HANDLE_WADDR) begin
-        $display("lsu waddr");
         if (awready) begin
           awvalid <= 0;
           wvalid  <= 1;
           state   <= HANDLE_WDATA;
         end
       end else if (state == HANDLE_WDATA) begin
-        $display("lsu wdata");
         if (wready) begin
           wvalid <= 0;
           bready <= 1;
