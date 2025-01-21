@@ -156,7 +156,7 @@ module ysyx_25010008_Xbar (
       slave  <= SLAVE_NULL;
       state  <= CHOSE_MASTER_AND_SLAVE;
     end else begin
-      $display(state);
+      $display(state,arvalid_0);
       if (state == CHOSE_MASTER_AND_SLAVE) begin
         if (arvalid_0) begin
           master <= MASTER_0;
