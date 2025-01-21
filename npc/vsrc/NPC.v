@@ -41,6 +41,10 @@ module ysyx_25010008_NPC (
 
   wire write_back = mem_ren ? read_done : (mem_wen ? write_done : ivalid);
 
+  always @(posedge clk) begin
+    $display(mem_ren, read_done,mem_wen,write_done,ivalid);
+  end
+
   wire [31:0] araddr_0 = pc;
   wire arvalid_0;
   wire arready_0;
