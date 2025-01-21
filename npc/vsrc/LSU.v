@@ -84,6 +84,7 @@ module ysyx_25010008_LSU (
           state   <= HANDLE_RDATA;
         end
       end else if (state == HANDLE_RDATA) begin
+        $display("lsu rdata");
         if (rvalid & !rresp) begin
           rready <= 0;
           rdata  <= sext ? (suffix_b ? sextb : sexth ) :
@@ -93,6 +94,7 @@ module ysyx_25010008_LSU (
           state <= WRITE_BACK;
         end
       end else if (state == HANDLE_WADDR) begin
+        $display("lsu waddr");
         if (awready) begin
           awvalid <= 0;
           wvalid  <= 1;
