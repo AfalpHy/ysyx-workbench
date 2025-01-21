@@ -173,7 +173,7 @@ module ysyx_25010008_Xbar (
       if (state == CHOSE_MASTER_AND_SLAVE) begin
         if (arvalid_0) begin
           master <= MASTER_0;
-          if (araddr_0 >= 32'h8000_0000 && araddr_0 < 32'h8100_0000) begin
+          if (araddr_0 >= 32'h8000_0000 && araddr_0 < 32'h8800_0000) begin
             slave <= SLAVE_SRAM;
           end else if (araddr_0 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
@@ -184,7 +184,7 @@ module ysyx_25010008_Xbar (
           state <= TRANSFER;
         end else if (arvalid_1) begin
           master <= MASTER_1;
-          if (araddr_1 >= 32'h8000_0000 && araddr_1 < 32'h8100_0000) begin
+          if (araddr_1 >= 32'h8000_0000 && araddr_1 < 32'h8800_0000) begin
             slave <= SLAVE_SRAM;
           end else if (araddr_1 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
@@ -197,7 +197,7 @@ module ysyx_25010008_Xbar (
           state <= TRANSFER;
         end else if (awvalid_1) begin
           master <= MASTER_1;
-          if (awaddr_1 >= 32'h8000_0000 && awaddr_1 < 32'h8100_0000) begin
+          if (awaddr_1 >= 32'h8000_0000 && awaddr_1 < 32'h8800_0000) begin
             slave <= SLAVE_SRAM;
           end else if (awaddr_1 == 32'ha000_03f8) begin
             slave <= SLAVE_UART;
