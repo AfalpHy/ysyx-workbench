@@ -182,6 +182,7 @@ module ysyx_25010008_Xbar (
           state <= TRANSFER;
         end else if (awvalid_1) begin
           $display("xbar");
+          $display(SRAM_awvalid ,, SRAM_awready);
           master <= MASTER_1;
           if (awaddr_1 >= 32'h8000_0000 && awaddr_1 < 32'h8100_0000) begin
             slave <= SLAVE_SRAM;
