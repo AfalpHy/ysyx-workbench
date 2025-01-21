@@ -99,6 +99,7 @@ module ysyx_25010008_LSU (
           state   <= HANDLE_WDATA;
         end
       end else if (state == HANDLE_WDATA) begin
+        $display("lsu wdata");
         if (wready) begin
           wvalid <= 0;
           bready <= 1;
