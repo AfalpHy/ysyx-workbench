@@ -155,7 +155,9 @@ module ysyx_25010008_Xbar (
       state  <= CHOSE_MASTER_AND_SLAVE;
     end else begin
       if (state == CHOSE_MASTER_AND_SLAVE) begin
+        $display("here");
         if (arvalid_0) begin
+        $display("here0");
           master <= MASTER_0;
           if (araddr_0 >= 32'h8000_0000 && araddr_0 < 32'h8100_0000) begin
             slave <= SLAVE_SRAM;
@@ -167,6 +169,7 @@ module ysyx_25010008_Xbar (
           end
           state <= TRANSFER;
         end else if (arvalid_1) begin
+        $display("here1");
           master <= MASTER_1;
           if (araddr_1 >= 32'h8000_0000 && araddr_1 < 32'h8100_0000) begin
             slave <= SLAVE_SRAM;
