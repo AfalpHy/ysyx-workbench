@@ -50,7 +50,7 @@ module ysyx_25010008_NPC (
   wire rresp_0;
   wire rvalid_0;
 
-  wire [31:0] araddr_1;
+  wire [31:0] araddr_1 = alu_result;
   wire arvalid_1;
   wire arready_1;
 
@@ -59,11 +59,11 @@ module ysyx_25010008_NPC (
   wire rresp_1;
   wire rvalid_1;
 
-  wire [31:0] awaddr_1;
+  wire [31:0] awaddr_1 = alu_result;
   wire awvalid_1;
   wire awready_1;
 
-  wire [31:0] wdata_1;
+  wire [31:0] wdata_1 = src2;
   wire [31:0] wstrb_1;
   wire wvalid_1;
   wire wready_1;
@@ -161,12 +161,9 @@ module ysyx_25010008_NPC (
       .suffix_h(suffix_h),
       .sext(sext),
 
-      .ren  (mem_ren),
-      .raddr(alu_result),
+      .ren(mem_ren),
 
-      .wen  (mem_wen),
-      .waddr(alu_result),
-      .wdata(src2),
+      .wen(mem_wen),
 
       .rdata(mem_rdata),
       .read_done(read_done),

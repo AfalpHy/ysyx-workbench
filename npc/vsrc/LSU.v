@@ -9,11 +9,8 @@ module ysyx_25010008_LSU (
     input sext,
 
     input ren,
-    input [31:0] raddr,
 
     input wen,
-    input [31:0] waddr,
-    input [31:0] wdata,
 
     output reg [31:0] rdata,
     output reg read_done,
