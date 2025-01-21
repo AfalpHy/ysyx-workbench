@@ -164,7 +164,7 @@ module ysyx_25010008_Xbar (
           end else if (araddr_0 >= 32'h1000_0000 && araddr_0 < 32'h1000_0fff) begin
             slave <= SLAVE_UART;
           end else begin
-            $display("error addr");
+            $display("error addr %h", araddr_0);
             $finish;
           end
           state <= TRANSFER;
@@ -176,7 +176,7 @@ module ysyx_25010008_Xbar (
           end else if (araddr_1 >= 32'h1000_0000 && araddr_1 < 32'h1000_0fff) begin
             slave <= SLAVE_UART;
           end else begin
-            $display("error addr");
+            $display("error addr %h", araddr_1);
             $finish;
           end
           state <= TRANSFER;
