@@ -68,6 +68,7 @@ module ysyx_25010008_LSU (
       bready  <= 1;
       state   <= IDLE;
     end else begin
+      $display("state",,state);
       if (state == IDLE) begin
         if (ren) begin
           arvalid <= 1;
