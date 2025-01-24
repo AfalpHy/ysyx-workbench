@@ -147,7 +147,8 @@ module ysyx_25010008_Arbiter (
     end else begin
       if (state == CHOSE_MASTER) begin
         if (arvalid_0) begin
-          $display("here1");
+
+          $display("here1", , state);
           master <= MASTER_0;
           slave  <= SLAVE_OTHERS;
           state  = TRANSFER;
