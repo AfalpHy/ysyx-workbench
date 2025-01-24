@@ -37,7 +37,7 @@ module ysyx_25010008_IFU (
     if (reset) begin
       pc <= 32'h2000_0000;
       pvalid <= 1;
-      // rready <= 1;
+      rready <= 1;
       ivalid <= 0;
       state <= HANDLE_PC;
     end else begin
@@ -50,18 +50,17 @@ module ysyx_25010008_IFU (
         end
       end else if (state == HANDLE_PC) begin
         if (pready) begin
-        $display("handle pc");
           pvalid <= 0;
           rready <= 1;
           state  <= HANDLE_INST;
         end
       end else begin
         if (rvalid) begin
-        $display("handle rvalid");
           rready <= 0;
           inst   <= rdata;
           ivalid <= 1;
           state  <= IDLE;
+          $display("%h",rdata);
         end
       end
     end
