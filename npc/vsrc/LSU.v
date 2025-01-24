@@ -68,7 +68,7 @@ module ysyx_25010008_LSU (
       // bready  <= 1;
       state   <= IDLE;
     end else begin
-      $display("state",,state);
+      // $display("state",,state);
       if (state == IDLE) begin
         if (ren) begin
           arvalid <= 1;
@@ -108,6 +108,7 @@ module ysyx_25010008_LSU (
         end
       end else if (state == HANDLE_BRESP) begin
         if(bresp != 0) begin
+          $display("finish");
           $finish;
         end
         if (bvalid) begin
