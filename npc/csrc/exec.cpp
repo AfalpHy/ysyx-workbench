@@ -76,7 +76,8 @@ void single_cycle() {
 
 void reset() {
   std::cout<<"reset in cpp"<<std::endl;
-  sleep(5);
+  for(int i =0 ;i<10;i++){
+
   
   top.reset = 1;
   top.clock = 1;
@@ -84,6 +85,7 @@ void reset() {
   top.clock = 0;
   top.eval();
   top.reset = 0;
+  }
 }
 
 void cpu_exec(uint32_t num) {
