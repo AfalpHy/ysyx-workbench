@@ -75,16 +75,14 @@ void single_cycle() {
 }
 
 void reset() {
-  std::cout<<"reset in cpp"<<std::endl;
-  for(int i =0 ;i<10;i++){
-
-  
-  top.reset = 1;
-  top.clock = 1;
-  top.eval();
-  top.clock = 0;
-  top.eval();
-  top.reset = 0;
+  std::cout << "reset in cpp" << std::endl;
+  for (int i = 0; i < 10; i++) {
+    top.reset = 1;
+    top.clock = 1;
+    top.eval();
+    top.clock = 0;
+    top.eval();
+    top.reset = 0;
   }
 }
 
