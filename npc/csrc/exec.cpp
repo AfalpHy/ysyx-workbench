@@ -75,6 +75,9 @@ void single_cycle() {
 }
 
 void reset() {
+  std::cout<<"reset in cpp"<<std::endl;
+  sleep(5);
+  
   top.reset = 1;
   top.clock = 1;
   top.eval();
