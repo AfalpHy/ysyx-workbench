@@ -160,6 +160,7 @@ module ysyx_25010008_Arbiter (
           end
           state <= TRANSFER;
         end else if (awvalid_1) begin
+          $display("awvalid");
           master <= MASTER_1;
           slave  <= SLAVE_OTHERS;
           state  <= TRANSFER;
