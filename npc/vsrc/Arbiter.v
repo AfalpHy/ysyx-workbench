@@ -140,7 +140,7 @@ module ysyx_25010008_Arbiter (
   assign bvalid_0 = (master != MASTER_0 || slave != SLAVE_OTHERS) ? 0 : io_master_bvalid;
   assign bvalid_1 = (master != MASTER_1 || slave != SLAVE_OTHERS) ? 0 : io_master_bvalid;
 
-  assign io_master_arid = 1;
+  assign io_master_arid = 0;
 
   always @(posedge clock) begin
     if (reset) begin
