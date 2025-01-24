@@ -151,7 +151,6 @@ module ysyx_25010008_Arbiter (
           master <= MASTER_0;
           slave  <= SLAVE_OTHERS;
           state  <= TRANSFER;
-          $display("pc");
         end else if (arvalid_1) begin
           master <= MASTER_1;
           if (araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c) begin
