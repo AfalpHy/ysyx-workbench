@@ -146,6 +146,7 @@ module ysyx_25010008_Arbiter (
       slave  <= SLAVE_NULL;
       state  <= CHOSE_MASTER;
     end else begin
+            $display("state", ,state);
       if (state == CHOSE_MASTER) begin
         if (arvalid_0) begin
           master <= MASTER_0;
