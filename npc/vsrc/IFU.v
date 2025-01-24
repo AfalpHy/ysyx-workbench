@@ -60,7 +60,6 @@ module ysyx_25010008_IFU (
           inst   <= rdata;
           ivalid <= 1;
           state  <= IDLE;
-          $display("%h",rdata);
         end
       end
     end
