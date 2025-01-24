@@ -175,5 +175,6 @@ module ysyx_25010008_IDU (
   initial begin
     set_halt(EBREAK);
   end
+
 endmodule
 
