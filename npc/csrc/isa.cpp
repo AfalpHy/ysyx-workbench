@@ -5,7 +5,6 @@
 word_t *regs = nullptr;
 paddr_t *pc = nullptr;
 bool *write_back = nullptr;
-bool *halt = nullptr;
 
 const char *regs_name[] = {"$0", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
                            "s0", "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
@@ -22,10 +21,6 @@ extern "C" void set_write_back(const svOpenArrayHandle r) {
 
 extern "C" void set_regs_ptr(const svOpenArrayHandle r) {
   regs = (word_t *)(((VerilatedDpiOpenVar *)r)->datap());
-}
-
-extern "C" void set_halt(const svOpenArrayHandle r) {
-  halt = (bool *)(((VerilatedDpiOpenVar *)r)->datap());
 }
 
 word_t isa_reg_str2val(const char *s) {

@@ -84,16 +84,17 @@ void reset() {
 }
 
 void cpu_exec(uint32_t num) {
-  if (*halt) {
-    std::cout<<*halt<<std::endl;
+  static bool halt = false;
+  if (halt) {
     printf("Program execution has ended\n");
     return;
   }
   uint32_t print_num = num;
   while (num-- > 0) {
-#ifdef ITRACE
     uint32_t inst;
     mrom_read(*pc, (int32_t *)&inst);
+    halt = inst == 0b00000000000100000000000001110011;
+#ifdef ITRACE
     int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
     iringbuf[iringbuf_index].pc = *pc;
     iringbuf[iringbuf_index].inst = inst;
@@ -112,9 +113,7 @@ void cpu_exec(uint32_t num) {
     print_mtrace = true;
     while (!(*write_back) && !interrupt)
       single_cycle();
-    std::cout << *halt << std::endl;
     single_cycle(); // write back
-    std::cout << *halt << std::endl;
     print_mtrace = false;
 #else
     while (!(*write_back) && !interrupt)
@@ -149,7 +148,7 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    if (*halt || interrupt) {
+    if (halt || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
     }

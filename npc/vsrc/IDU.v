@@ -1,5 +1,3 @@
-import "DPI-C" function void set_halt(input int halt[]);
-
 module ysyx_25010008_IDU (
     input [31:0] inst,
     input ivalid,
@@ -30,8 +28,7 @@ module ysyx_25010008_IDU (
     output reg mem_ren,
     output mem_wen,
 
-    output [7:0] alu_opcode,
-    output reg EBREAK
+    output [7:0] alu_opcode
 );
 
   wire [6:0] opcode = inst[6:0];
@@ -117,7 +114,7 @@ module ysyx_25010008_IDU (
   wire CSRRC  = system & funct3_011;
 
   wire ECALL  = inst[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
-  assign EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
+  wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
   wire MRET   = inst[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
   assign npc_sel[0] = JAL | branch;
@@ -173,8 +170,5 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
-  initial begin
-    set_halt(EBREAK);
-  end
 endmodule
 

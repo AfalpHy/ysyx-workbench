@@ -183,8 +183,7 @@ module ysyx_25010008_NPC (
       .mem_ren(mem_ren),
       .mem_wen(mem_wen),
 
-      .alu_opcode(alu_opcode),
-      .EBREAK()
+      .alu_opcode(alu_opcode)
   );
 
   ysyx_25010008_EXU exu (
