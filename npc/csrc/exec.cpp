@@ -85,6 +85,7 @@ void reset() {
 
 void cpu_exec(uint32_t num) {
   if (*halt) {
+    std::cout<<*halt<<std::endl;
     printf("Program execution has ended\n");
     return;
   }
