@@ -43,6 +43,7 @@ module ysyx_25010008_IFU (
     end else begin
       if (state == IDLE) begin
         if (write_back) begin
+          $display("here");
           pc <= npc;
           pvalid <= 1;
           ivalid <= 0;
