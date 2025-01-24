@@ -171,7 +171,6 @@ module ysyx_25010008_Arbiter (
             state  <= CHOSE_MASTER;
           end
         end else begin
-          $display(io_master_rvalid, , io_master_bvalid);
           if (io_master_rvalid | io_master_bvalid) begin
             master <= MASTER_NULL;
             slave  <= SLAVE_NULL;
@@ -179,6 +178,7 @@ module ysyx_25010008_Arbiter (
           end
         end
       end
+      $display(io_master_rvalid,, io_master_bvalid);
     end
   end
 
