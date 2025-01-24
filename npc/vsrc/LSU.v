@@ -69,7 +69,6 @@ module ysyx_25010008_LSU (
       state   <= IDLE;
     end else begin
       if (state == IDLE) begin
-        $display("idle",wen);
         if (ren) begin
           arvalid <= 1;
           state   <= HANDLE_RADDR;
