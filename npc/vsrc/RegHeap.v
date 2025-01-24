@@ -1,8 +1,8 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 
 module ysyx_25010008_RegHeap (
-    input clk,
-    input rst,
+    input clock,
+    input reset,
 
     input [4:0] rs1,
     input [4:0] rs2,
@@ -39,8 +39,8 @@ module ysyx_25010008_RegHeap (
 
   integer i;
 
-  always @(posedge clk) begin
-    if (rst) begin
+  always @(posedge clock) begin
+    if (reset) begin
       for (i = 0; i < 32; i = i + 1) regs[i] <= 0;
       mstatus <= 32'h1800;
     end else begin

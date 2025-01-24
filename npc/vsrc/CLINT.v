@@ -1,6 +1,6 @@
 module ysyx_25010008_CLINT (
-    input clk,
-    input rst,
+    input clock,
+    input reset,
 
     input [31:0] araddr,
     input arvalid,
@@ -8,7 +8,7 @@ module ysyx_25010008_CLINT (
 
     input rready,
     output reg [31:0] rdata,
-    output reg rresp,
+    output reg [1:0] rresp,
     output reg rvalid
 );
 
@@ -20,8 +20,8 @@ module ysyx_25010008_CLINT (
 
   reg [31:0] _araddr;
 
-  always @(posedge clk) begin
-    if (rst) begin
+  always @(posedge clock) begin
+    if (reset) begin
       arready <= 1;
       rresp   <= 0;
       rvalid  <= 0;
@@ -34,7 +34,7 @@ module ysyx_25010008_CLINT (
           rstate  <= READING;
         end
       end else if (rstate == READING) begin
-        rdata  <= pmem_read(_araddr);
+        // rdata  <= pmem_read(_araddr);
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin

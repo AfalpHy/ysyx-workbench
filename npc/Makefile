@@ -1,7 +1,10 @@
-TOPNAME = ysyx_25010008_NPC
+TOPNAME = ysyxSoCFull
 INC_PATH ?= $(NPC_HOME)/include
+YSYX_SOC = $(abspath ../ysyxSoC)
+PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc -O3 --trace --timing\
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --timescale "1ns/1ns" --no-timing\
+				-I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
 				--x-assign fast --x-initial fast --noassert
 
 BUILD_DIR = ./build
@@ -12,11 +15,12 @@ $(shell mkdir -p $(BUILD_DIR))
 
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
+VSRCS += $(shell find $(PERIP) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-CXXFLAGS += $(INCFLAGS)
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME=V$(TOPNAME)
 LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
 ifdef RV32IM

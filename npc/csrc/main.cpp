@@ -7,7 +7,7 @@
 #include "isa.h"
 #include "sdb.h"
 #include "watchpoint.h"
-#include <Vysyx_25010008_NPC.h>
+#include <VysyxSoCFull.h>
 #include <fstream>
 #include <iostream>
 #include <signal.h>
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-Vysyx_25010008_NPC top;
+TOP_NAME top;
 
 int status = 0;
 bool diff_test_on = false;
@@ -56,6 +56,7 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
+  Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;

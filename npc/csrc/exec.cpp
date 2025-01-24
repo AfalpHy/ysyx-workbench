@@ -1,4 +1,4 @@
-#include "Vysyx_25010008_NPC.h"
+#include "VysyxSoCFull.h"
 #include "difftest.h"
 #include "disasm.h"
 #include "ftrace.h"
@@ -6,7 +6,7 @@
 #include "string.h"
 #include "watchpoint.h"
 
-extern Vysyx_25010008_NPC top;
+extern TOP_NAME top;
 extern int status;
 extern bool diff_test_on;
 extern bool interrupt;
@@ -67,24 +67,24 @@ static int check_regs() {
 }
 
 void single_cycle() {
-  top.clk = 1;
+  top.clock = 1;
   top.eval();
-  top.clk = 0;
+  top.clock = 0;
   top.eval();
   Verilated::timeInc(1);
 }
 
 void reset() {
-  top.rst = 1;
-  top.clk = 1;
+  top.reset = 1;
+  top.clock = 1;
   top.eval();
-  top.clk = 0;
+  top.clock = 0;
   top.eval();
-  top.rst = 0;
+  top.reset = 0;
 }
 
 void cpu_exec(uint32_t num) {
-  if (top.halt) {
+  if (*halt) {
     printf("Program execution has ended\n");
     return;
   }
@@ -145,7 +145,7 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    if (top.halt || interrupt) {
+    if (*halt || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
     }
