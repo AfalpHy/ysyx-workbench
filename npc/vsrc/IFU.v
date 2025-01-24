@@ -49,15 +49,15 @@ module ysyx_25010008_IFU (
           state <= HANDLE_PC;
         end
       end else if (state == HANDLE_PC) begin
-        $display("handle pc");
         if (pready) begin
+        $display("handle pc");
           pvalid <= 0;
           rready <= 1;
           state  <= HANDLE_INST;
         end
       end else begin
-        $display("handle rvalid");
         if (rvalid) begin
+        $display("handle rvalid");
           rready <= 0;
           inst   <= rdata;
           ivalid <= 1;
