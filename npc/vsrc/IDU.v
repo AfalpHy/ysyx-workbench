@@ -1,4 +1,4 @@
-import "DPI-C" function void set_halt(input logic halt[]);
+import "DPI-C" function void set_halt(input int halt[]);
 
 module ysyx_25010008_IDU (
     input [31:0] inst,
