@@ -178,8 +178,8 @@ module ysyx_25010008_Arbiter (
             state  <= CHOSE_MASTER;
           end
         end
-        $display("ar",,state);
       end
+        $display("ar",,state);
     end
   end
 
