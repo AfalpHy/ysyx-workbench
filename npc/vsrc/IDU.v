@@ -1,5 +1,3 @@
-import "DPI-C" function void set_halt(input logic halt[]);
-
 module ysyx_25010008_IDU (
     input [31:0] inst,
     input ivalid,
@@ -172,8 +170,5 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
-  initial begin
-    set_halt(EBREAK);
-  end
 endmodule
 

@@ -68,6 +68,7 @@ int main(int argc, char **argv) {
   string img;
   string ref_so;
   vector<string> elf_files;
+  int size;
   for (int i = 0; i < argc; i++) {
     string tmp = argv[i];
     string option;
@@ -83,6 +84,7 @@ int main(int argc, char **argv) {
       Assert(log_fp, "open log file failed");
     } else if (option == "img") {
       img = tmp.substr(pos + 1);
+      size = load_img(img);
     } else if (option == "diff_so") {
       ref_so = tmp.substr(pos + 1);
     } else if (option == "b") {
@@ -102,13 +104,11 @@ int main(int argc, char **argv) {
   init_wp_pool();
   // init sdl
   // init_vga();
-  int size = load_img(img);
   reset();
   if (!ref_so.empty()) {
     init_difftest(ref_so.c_str(), size);
     diff_test_on = true;
   }
-
 #ifdef FTRACE
   init_elf(elf_files);
 #endif
