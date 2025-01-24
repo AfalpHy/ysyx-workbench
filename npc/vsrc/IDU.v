@@ -177,7 +177,7 @@ module ysyx_25010008_IDU (
     set_halt(EBREAK);
   end
 
-  always @(posedge clk) $display(EBREAK);
+  always @(posedge clk) $display("here", EBREAK);
 
 endmodule
 
