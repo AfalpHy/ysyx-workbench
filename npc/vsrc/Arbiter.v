@@ -179,7 +179,7 @@ module ysyx_25010008_Arbiter (
           end
         end
       end
-      $display(io_master_arvalid, , io_master_rvalid,, io_master_bvalid);
+      $display(io_master_arvalid, , io_master_rvalid,, io_master_bvalid,state);
     end
   end
 
