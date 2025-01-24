@@ -80,7 +80,7 @@ module ysyx_25010008_Arbiter (
   parameter CHOSE_MASTER = 0;
   parameter TRANSFER = 1;
 
-  reg state;
+  reg [1:0] state;
 
   parameter MASTER_0 = 0;
   parameter MASTER_1 = 1;
@@ -179,7 +179,7 @@ module ysyx_25010008_Arbiter (
           end
         end
       end
-      $display(io_master_arvalid, , io_master_rvalid,, io_master_bvalid,state);
+      $display(io_master_arvalid, , io_master_rvalid,, io_master_bvalid,, state);
     end
   end
 
