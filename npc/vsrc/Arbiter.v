@@ -80,7 +80,7 @@ module ysyx_25010008_Arbiter (
   parameter CHOSE_MASTER = 0;
   parameter TRANSFER = 1;
 
-  reg [1:0] state;
+  reg state;
 
   parameter MASTER_0 = 0;
   parameter MASTER_1 = 1;
@@ -100,6 +100,7 @@ module ysyx_25010008_Arbiter (
   wire [31:0] CLINT_rdata;
   wire [1:0] CLINT_rresp;
   wire CLINT_rvalid;
+
 
   assign io_master_araddr = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
   assign io_master_arvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
@@ -141,18 +142,15 @@ module ysyx_25010008_Arbiter (
 
   always @(posedge clock) begin
     if (reset) begin
-      $display("reset");
       master <= MASTER_0;
       slave  <= SLAVE_NULL;
-      state  = CHOSE_MASTER;
+      state  <= CHOSE_MASTER;
     end else begin
       if (state == CHOSE_MASTER) begin
         if (arvalid_0) begin
-
-          $display("here1", , state);
           master <= MASTER_0;
           slave  <= SLAVE_OTHERS;
-          state  = TRANSFER;
+          state  <= TRANSFER;
         end else if (arvalid_1) begin
           master <= MASTER_1;
           if (araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c) begin
@@ -160,28 +158,27 @@ module ysyx_25010008_Arbiter (
           end else begin
             slave <= SLAVE_OTHERS;
           end
-          state = TRANSFER;
+          state <= TRANSFER;
         end else if (awvalid_1) begin
           master <= MASTER_1;
           slave  <= SLAVE_OTHERS;
-          state  = TRANSFER;
+          state  <= TRANSFER;
         end
       end else begin
         if (slave == SLAVE_CLINT) begin
           if (CLINT_rvalid) begin
             master <= MASTER_NULL;
             slave  <= SLAVE_NULL;
-            state  = CHOSE_MASTER;
+            state  <= CHOSE_MASTER;
           end
         end else begin
           if (io_master_rvalid | io_master_bvalid) begin
             master <= MASTER_NULL;
             slave  <= SLAVE_NULL;
-            state  = CHOSE_MASTER;
+            state  <= CHOSE_MASTER;
           end
         end
       end
-      $display(io_master_arvalid, , io_master_rvalid,, io_master_bvalid,, state);
     end
   end
 

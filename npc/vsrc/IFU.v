@@ -35,7 +35,6 @@ module ysyx_25010008_IFU (
 
   always @(posedge clock) begin
     if (reset) begin
-      $display("reset 1");
       pc <= 32'h2000_0000;
       pvalid <= 1;
       rready <= 1;
@@ -44,7 +43,6 @@ module ysyx_25010008_IFU (
     end else begin
       if (state == IDLE) begin
         if (write_back) begin
-          $display("here");
           pc <= npc;
           pvalid <= 1;
           ivalid <= 0;
@@ -55,7 +53,6 @@ module ysyx_25010008_IFU (
           pvalid <= 0;
           rready <= 1;
           state  <= HANDLE_INST;
-          $display("%h",rdata);
         end
       end else begin
         if (rvalid) begin
@@ -63,7 +60,6 @@ module ysyx_25010008_IFU (
           inst   <= rdata;
           ivalid <= 1;
           state  <= IDLE;
-          $display("%h",rdata);
         end
       end
     end
