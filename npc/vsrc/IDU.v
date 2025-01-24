@@ -116,8 +116,7 @@ module ysyx_25010008_IDU (
   wire CSRRC  = system & funct3_011;
 
   wire ECALL  = inst[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
-  // wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
-  reg EBREAK = 1;
+  wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
   wire MRET   = inst[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
   assign npc_sel[0] = JAL | branch;

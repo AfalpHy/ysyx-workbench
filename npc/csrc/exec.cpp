@@ -111,9 +111,9 @@ void cpu_exec(uint32_t num) {
     print_mtrace = true;
     while (!(*write_back) && !interrupt)
       single_cycle();
-    std::cout<<*halt<<std::endl;
+    std::cout << *halt << std::endl;
     single_cycle(); // write back
-    std::cout<<*halt<<std::endl;
+    std::cout << *halt << std::endl;
     print_mtrace = false;
 #else
     while (!(*write_back) && !interrupt)
