@@ -143,14 +143,14 @@ module ysyx_25010008_Arbiter (
     if (reset) begin
       master <= MASTER_0;
       slave  <= SLAVE_NULL;
-      state  <= CHOSE_MASTER;
+      state  = CHOSE_MASTER;
     end else begin
       if (state == CHOSE_MASTER) begin
         if (arvalid_0) begin
           $display("here1");
           master <= MASTER_0;
           slave  <= SLAVE_OTHERS;
-          state  <= TRANSFER;
+          state  = TRANSFER;
         end else if (arvalid_1) begin
           master <= MASTER_1;
           if (araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c) begin
@@ -158,24 +158,24 @@ module ysyx_25010008_Arbiter (
           end else begin
             slave <= SLAVE_OTHERS;
           end
-          state <= TRANSFER;
+          state = TRANSFER;
         end else if (awvalid_1) begin
           master <= MASTER_1;
           slave  <= SLAVE_OTHERS;
-          state  <= TRANSFER;
+          state  = TRANSFER;
         end
       end else begin
         if (slave == SLAVE_CLINT) begin
           if (CLINT_rvalid) begin
             master <= MASTER_NULL;
             slave  <= SLAVE_NULL;
-            state  <= CHOSE_MASTER;
+            state  = CHOSE_MASTER;
           end
         end else begin
           if (io_master_rvalid | io_master_bvalid) begin
             master <= MASTER_NULL;
             slave  <= SLAVE_NULL;
-            state  <= CHOSE_MASTER;
+            state  = CHOSE_MASTER;
           end
         end
       end
