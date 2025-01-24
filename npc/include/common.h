@@ -28,8 +28,8 @@ typedef uint32_t paddr_t;
 
 extern word_t *regs, *pmem;
 extern word_t *pc;
-extern bool *write_back;
-extern int *halt;
+extern bool* write_back;
+extern bool* halt;
 extern const char *regs_name[];
 extern FILE *log_fp;
 
