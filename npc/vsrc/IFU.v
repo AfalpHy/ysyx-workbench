@@ -53,6 +53,7 @@ module ysyx_25010008_IFU (
           pvalid <= 0;
           rready <= 1;
           state  <= HANDLE_INST;
+          $display("%h",rdata);
         end
       end else begin
         if (rvalid) begin
