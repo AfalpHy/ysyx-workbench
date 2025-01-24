@@ -74,6 +74,7 @@ module ysyx_25010008_LSU (
           state   <= HANDLE_RADDR;
         end
         if (wen) begin
+          $display("wen");
           awvalid <= 1;
           state   <= HANDLE_WADDR;
         end
