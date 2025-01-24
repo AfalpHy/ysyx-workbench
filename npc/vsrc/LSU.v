@@ -60,12 +60,12 @@ module ysyx_25010008_LSU (
   always @(posedge clock) begin
     if (reset) begin
       arvalid <= 0;
-      rready  <= 1;
+      // rready  <= 1;
 
       awvalid <= 0;
       wvalid  <= 0;
 
-      bready  <= 1;
+      // bready  <= 1;
       state   <= IDLE;
     end else begin
       if (state == IDLE) begin
