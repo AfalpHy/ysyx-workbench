@@ -1,6 +1,7 @@
 import "DPI-C" function void set_halt(input logic halt[]);
 
 module ysyx_25010008_IDU (
+  input clk,
     input [31:0] inst,
     input ivalid,
 
@@ -175,6 +176,8 @@ module ysyx_25010008_IDU (
   initial begin
     set_halt(EBREAK);
   end
+
+  always @(posedge clk) $display(EBREAK);
 
 endmodule
 

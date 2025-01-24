@@ -154,6 +154,7 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_IDU idu (
+    .clk(clock),
       .inst  (inst),
       .ivalid(ivalid),
 
