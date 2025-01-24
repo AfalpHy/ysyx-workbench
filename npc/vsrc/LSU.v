@@ -1,8 +1,8 @@
 import "DPI-C" function void set_memory_ptr(input logic [31:0] ptr[]);
 
 module ysyx_25010008_LSU (
-    input clk,
-    input rst,
+    input clock,
+    input reset,
 
     input suffix_b,
     input suffix_h,
@@ -21,18 +21,18 @@ module ysyx_25010008_LSU (
 
     output reg rready,
     input [31:0] tmp,
-    input rresp,
+    input [1:0] rresp,
     input rvalid,
 
     output reg awvalid,
     input awready,
 
-    output reg [31:0] wstrb,
+    output reg [3:0] wstrb,
     output reg wvalid,
     input wready,
 
     output reg bready,
-    input bresp,
+    input [1:0] bresp,
     input bvalid
 );
 
@@ -52,13 +52,13 @@ module ysyx_25010008_LSU (
     set_memory_ptr(memory);
   end
 
-  assign wstrb = suffix_b ? {24'b0, 8'hFF} : (suffix_h ? {16'b0, 16'hFFFF} : 32'hFFFF_FFFF);
+  assign wstrb = suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111);
 
   wire [31:0] sextb = {{24{tmp[7]}}, tmp[7:0]};
   wire [31:0] sexth = {{16{tmp[15]}}, tmp[15:0]};
 
-  always @(posedge clk) begin
-    if (rst) begin
+  always @(posedge clock) begin
+    if (reset) begin
       arvalid <= 0;
       rready  <= 1;
 
@@ -84,7 +84,7 @@ module ysyx_25010008_LSU (
           state   <= HANDLE_RDATA;
         end
       end else if (state == HANDLE_RDATA) begin
-        if (rvalid & !rresp) begin
+        if (rvalid) begin
           rready <= 0;
           rdata  <= sext ? (suffix_b ? sextb : sexth ) :
           (suffix_b ? {24'b0, tmp[7:0]} :
@@ -105,7 +105,7 @@ module ysyx_25010008_LSU (
           state  <= HANDLE_BRESP;
         end
       end else if (state == HANDLE_BRESP) begin
-        if (bvalid & !bresp) begin
+        if (bvalid) begin
           bready <= 0;
           write_done <= 1;
           state <= WRITE_BACK;

@@ -2,8 +2,8 @@ import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void set_write_back(input logic write_back[]);
 
 module ysyx_25010008_IFU (
-    input clk,
-    input rst,
+    input clock,
+    input reset,
 
     input write_back,
     input [31:0] npc,
@@ -17,7 +17,7 @@ module ysyx_25010008_IFU (
 
     output reg rready,
     input [31:0] rdata,
-    input rresp,
+    input [1:0] rresp,
     input rvalid
 );
 
@@ -33,9 +33,9 @@ module ysyx_25010008_IFU (
     set_write_back(write_back);
   end
 
-  always @(posedge clk) begin
-    if (rst) begin
-      pc <= 32'h8000_0000;
+  always @(posedge clock) begin
+    if (reset) begin
+      pc <= 32'h2000_0000;
       pvalid <= 1;
       rready <= 1;
       ivalid <= 0;
@@ -55,7 +55,7 @@ module ysyx_25010008_IFU (
           state  <= HANDLE_INST;
         end
       end else begin
-        if (rvalid & !rresp) begin
+        if (rvalid) begin
           rready <= 0;
           inst   <= rdata;
           ivalid <= 1;

@@ -20,6 +20,9 @@ extern uint64_t begin_us;
 
 extern bool skip_ref_inst;
 
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
+
 extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
   pmem = (word_t *)(((VerilatedDpiOpenVar *)r)->datap());
 }

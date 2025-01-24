@@ -1,7 +1,68 @@
+
 module ysyx_25010008_NPC (
-    input  clk,
-    input  rst,
-    output halt
+    input clock,
+    input reset,
+    input io_interrupt,
+
+    input         io_master_awready,
+    output        io_master_awvalid,
+    output [ 3:0] io_master_awid,
+    output [31:0] io_master_awaddr,
+    output [ 7:0] io_master_awlen,
+    output [ 2:0] io_master_awsize,
+    output [ 1:0] io_master_awburst,
+    input         io_master_wready,
+    output        io_master_wvalid,
+    output [31:0] io_master_wdata,
+    output [ 3:0] io_master_wstrb,
+    output        io_master_wlast,
+    output        io_master_bready,
+    input         io_master_bvalid,
+    input  [ 3:0] io_master_bid,
+    input  [ 1:0] io_master_bresp,
+    input         io_master_arready,
+    output        io_master_arvalid,
+    output [ 3:0] io_master_arid,
+    output [31:0] io_master_araddr,
+    output [ 7:0] io_master_arlen,
+    output [ 2:0] io_master_arsize,
+    output [ 1:0] io_master_arburst,
+    output        io_master_rready,
+    input         io_master_rvalid,
+    input  [ 3:0] io_master_rid,
+    input  [31:0] io_master_rdata,
+    input  [ 1:0] io_master_rresp,
+    input         io_master_rlast,
+
+    input         io_slave_awready,
+    input         io_slave_awvalid,
+    input  [ 3:0] io_slave_awid,
+    input  [31:0] io_slave_awaddr,
+    input  [ 7:0] io_slave_awlen,
+    input  [ 2:0] io_slave_awsize,
+    input  [ 1:0] io_slave_awburst,
+    output        io_slave_wready,
+    input         io_slave_wvalid,
+    input  [31:0] io_slave_wdata,
+    input  [ 3:0] io_slave_wstrb,
+    input         io_slave_wlast,
+    input         io_slave_bready,
+    output        io_slave_bvalid,
+    output [ 3:0] io_slave_bid,
+    output [ 1:0] io_slave_bresp,
+    output        io_slave_arready,
+    input         io_slave_arvalid,
+    input  [ 3:0] io_slave_arid,
+    input  [31:0] io_slave_araddr,
+    input  [ 7:0] io_slave_arlen,
+    input  [ 2:0] io_slave_arsize,
+    input  [ 1:0] io_slave_arburst,
+    input         io_slave_rready,
+    output        io_slave_rvalid,
+    output [ 3:0] io_slave_rid,
+    output [31:0] io_slave_rdata,
+    output [ 1:0] io_slave_rresp,
+    output        io_slave_rlast
 );
   // pc
   wire [31:0] pc;
@@ -47,7 +108,7 @@ module ysyx_25010008_NPC (
 
   wire rready_0;
   wire [31:0] rdata_0;
-  wire rresp_0;
+  wire [1:0] rresp_0;
   wire rvalid_0;
 
   wire [31:0] araddr_1 = alu_result;
@@ -56,7 +117,7 @@ module ysyx_25010008_NPC (
 
   wire rready_1;
   wire [31:0] rdata_1;
-  wire rresp_1;
+  wire [1:0] rresp_1;
   wire rvalid_1;
 
   wire [31:0] awaddr_1 = alu_result;
@@ -64,17 +125,17 @@ module ysyx_25010008_NPC (
   wire awready_1;
 
   wire [31:0] wdata_1 = src2;
-  wire [31:0] wstrb_1;
+  wire [3:0] wstrb_1;
   wire wvalid_1;
   wire wready_1;
 
   wire bready_1;
-  wire bresp_1;
+  wire [1:0] bresp_1;
   wire bvalid_1;
 
   ysyx_25010008_IFU ifu (
-      .clk(clk),
-      .rst(rst),
+      .clock(clock),
+      .reset(reset),
 
       .write_back(write_back),
       .npc(npc),
@@ -122,8 +183,7 @@ module ysyx_25010008_NPC (
       .mem_ren(mem_ren),
       .mem_wen(mem_wen),
 
-      .alu_opcode(alu_opcode),
-      .halt(halt)
+      .alu_opcode(alu_opcode)
   );
 
   ysyx_25010008_EXU exu (
@@ -154,8 +214,8 @@ module ysyx_25010008_NPC (
 
 
   ysyx_25010008_LSU lsu (
-      .clk(clk),
-      .rst(rst),
+      .clock(clock),
+      .reset(reset),
 
       .suffix_b(suffix_b),
       .suffix_h(suffix_h),
@@ -190,8 +250,8 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_RegHeap reg_heap (
-      .clk(clk),
-      .rst(rst),
+      .clock(clock),
+      .reset(reset),
 
       .rs1(rs1),
       .rs2(rs2),
@@ -216,9 +276,9 @@ module ysyx_25010008_NPC (
       .csr_src(csr_src)
   );
 
-  ysyx_25010008_Xbar xbar (
-      .clk(clk),
-      .rst(rst),
+  ysyx_25010008_Arbiter arbiter (
+      .clock(clock),
+      .reset(reset),
 
       .araddr_0 (araddr_0),
       .arvalid_0(arvalid_0),
@@ -262,7 +322,37 @@ module ysyx_25010008_NPC (
 
       .bready_1(bready_1),
       .bresp_1 (bresp_1),
-      .bvalid_1(bvalid_1)
+      .bvalid_1(bvalid_1),
+
+      .io_master_awready(io_master_awready),
+      .io_master_awvalid(io_master_awvalid),
+      .io_master_awid   (io_master_awid),
+      .io_master_awaddr (io_master_awaddr),
+      .io_master_awlen  (io_master_awlen),
+      .io_master_awsize (io_master_awsize),
+      .io_master_awburst(io_master_awburst),
+      .io_master_wready (io_master_wready),
+      .io_master_wvalid (io_master_wvalid),
+      .io_master_wdata  (io_master_wdata),
+      .io_master_wstrb  (io_master_wstrb),
+      .io_master_wlast  (io_master_wlast),
+      .io_master_bready (io_master_bready),
+      .io_master_bvalid (io_master_bvalid),
+      .io_master_bid    (io_master_bid),
+      .io_master_bresp  (io_master_bresp),
+      .io_master_arready(io_master_arready),
+      .io_master_arvalid(io_master_arvalid),
+      .io_master_arid   (io_master_arid),
+      .io_master_araddr (io_master_araddr),
+      .io_master_arlen  (io_master_arlen),
+      .io_master_arsize (io_master_arsize),
+      .io_master_arburst(io_master_arburst),
+      .io_master_rready (io_master_rready),
+      .io_master_rvalid (io_master_rvalid),
+      .io_master_rid    (io_master_rid),
+      .io_master_rdata  (io_master_rdata),
+      .io_master_rresp  (io_master_rresp),
+      .io_master_rlast  (io_master_rlast)
   );
 
 endmodule
