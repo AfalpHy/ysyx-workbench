@@ -107,6 +107,9 @@ module ysyx_25010008_LSU (
           state  <= HANDLE_BRESP;
         end
       end else if (state == HANDLE_BRESP) begin
+        if(bresp != 0) begin
+          $finish;
+        end
         if (bvalid) begin
           bready <= 0;
           write_done <= 1;
