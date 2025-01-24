@@ -91,7 +91,8 @@ void cpu_exec(uint32_t num) {
   uint32_t print_num = num;
   while (num-- > 0) {
 #ifdef ITRACE
-    uint32_t inst = pmem_read(*pc);
+    uint32_t inst;
+    mrom_read(*pc, (int32_t*)&inst);
     int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
     iringbuf[iringbuf_index].pc = *pc;
     iringbuf[iringbuf_index].inst = inst;
