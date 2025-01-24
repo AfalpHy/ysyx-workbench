@@ -92,7 +92,7 @@ void cpu_exec(uint32_t num) {
   while (num-- > 0) {
 #ifdef ITRACE
     uint32_t inst;
-    mrom_read(*pc, (int32_t*)&inst);
+    mrom_read(*pc, (int32_t *)&inst);
     int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
     iringbuf[iringbuf_index].pc = *pc;
     iringbuf[iringbuf_index].inst = inst;
@@ -109,15 +109,15 @@ void cpu_exec(uint32_t num) {
 #ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
-    while (!(*write_back) && !interrupt)
+    while (!(*write_back) && !interrupt) {
       single_cycle();
+      std::cout << *halt << std::endl;
+    }
     single_cycle(); // write back
     print_mtrace = false;
 #else
-    while (!(*write_back) && !interrupt){
-
+    while (!(*write_back) && !interrupt) {
       single_cycle();
-      std::cout<<*halt<<std::endl;
     }
     single_cycle(); // write back
 #endif
