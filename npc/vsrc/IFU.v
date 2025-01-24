@@ -37,7 +37,7 @@ module ysyx_25010008_IFU (
     if (reset) begin
       pc <= 32'h2000_0000;
       pvalid <= 1;
-      rready <= 1;
+      // rready <= 1;
       ivalid <= 0;
       state <= HANDLE_PC;
     end else begin
