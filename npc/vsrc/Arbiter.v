@@ -141,6 +141,7 @@ module ysyx_25010008_Arbiter (
 
   always @(posedge clock) begin
     if (reset) begin
+      $display("reset");
       master <= MASTER_0;
       slave  <= SLAVE_NULL;
       state  = CHOSE_MASTER;
