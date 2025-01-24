@@ -147,6 +147,7 @@ module ysyx_25010008_Arbiter (
     end else begin
       if (state == CHOSE_MASTER) begin
         if (arvalid_0) begin
+          io_master_arsize <= 3'b10;
           master <= MASTER_0;
           slave  <= SLAVE_OTHERS;
           state  <= TRANSFER;
