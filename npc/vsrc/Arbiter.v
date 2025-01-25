@@ -172,14 +172,13 @@ module ysyx_25010008_Arbiter (
             state  <= CHOSE_MASTER;
           end
         end else begin
-          if ((io_master_rready & io_master_rvalid) | (io_master_bready & io_master_bvalid)) begin
+          if (io_master_rvalid | io_master_bvalid) begin
             master <= MASTER_NULL;
             slave  <= SLAVE_NULL;
             state  <= CHOSE_MASTER;
           end
         end
       end
-        $display("ar ",,state,,io_master_rready,,io_master_rvalid,,io_master_bready,,io_master_bvalid,, io_master_awaddr);
     end
   end
 

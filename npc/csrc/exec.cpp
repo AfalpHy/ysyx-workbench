@@ -75,14 +75,14 @@ void single_cycle() {
 }
 
 void reset() {
-  // for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     top.reset = 1;
     top.clock = 1;
     top.eval();
     top.clock = 0;
     top.eval();
     top.reset = 0;
-  // }
+  }
 }
 
 void cpu_exec(uint32_t num) {

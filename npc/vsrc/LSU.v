@@ -60,22 +60,20 @@ module ysyx_25010008_LSU (
   always @(posedge clock) begin
     if (reset) begin
       arvalid <= 0;
-      // rready  <= 1;
+      rready  <= 1;
 
       awvalid <= 0;
       wvalid  <= 0;
 
-      // bready  <= 1;
+      bready  <= 1;
       state   <= IDLE;
     end else begin
-      // $display("state",,state);
       if (state == IDLE) begin
         if (ren) begin
           arvalid <= 1;
           state   <= HANDLE_RADDR;
         end
         if (wen) begin
-          $display("wen");
           awvalid <= 1;
           state   <= HANDLE_WADDR;
         end
@@ -107,10 +105,6 @@ module ysyx_25010008_LSU (
           state  <= HANDLE_BRESP;
         end
       end else if (state == HANDLE_BRESP) begin
-        if(bresp != 0) begin
-          $display("finish");
-          $finish;
-        end
         if (bvalid) begin
           bready <= 0;
           write_done <= 1;
