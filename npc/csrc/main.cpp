@@ -7,7 +7,7 @@
 #include "isa.h"
 #include "sdb.h"
 #include "watchpoint.h"
-#include <VysyxSoCFull.h>
+#include <Vysyx_25010008_NPC.h>
 #include <fstream>
 #include <iostream>
 #include <signal.h>
@@ -16,7 +16,7 @@
 
 using namespace std;
 
-TOP_NAME top;
+Vysyx_25010008_NPC top;
 
 int status = 0;
 bool diff_test_on = false;
@@ -34,10 +34,7 @@ void fflush_trace() {
   }
 }
 bool interrupt = false;
-void sigint_handler(int sig) {
-  interrupt = true;
-  printf("receive SIGINT\n");
-}
+void sigint_handler(int sig) { interrupt = true; }
 void sigsegv_handler(int sig) {
   fflush_trace();
   printf("receive SIGSEGV\n");
@@ -56,7 +53,6 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
-  Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
@@ -68,7 +64,6 @@ int main(int argc, char **argv) {
   string img;
   string ref_so;
   vector<string> elf_files;
-  int size;
   for (int i = 0; i < argc; i++) {
     string tmp = argv[i];
     string option;
@@ -84,7 +79,6 @@ int main(int argc, char **argv) {
       Assert(log_fp, "open log file failed");
     } else if (option == "img") {
       img = tmp.substr(pos + 1);
-      size = load_img(img);
     } else if (option == "diff_so") {
       ref_so = tmp.substr(pos + 1);
     } else if (option == "b") {
@@ -104,11 +98,13 @@ int main(int argc, char **argv) {
   init_wp_pool();
   // init sdl
   // init_vga();
+  int size = load_img(img);
   reset();
   if (!ref_so.empty()) {
     init_difftest(ref_so.c_str(), size);
     diff_test_on = true;
   }
+
 #ifdef FTRACE
   init_elf(elf_files);
 #endif

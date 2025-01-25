@@ -61,7 +61,7 @@ static int cmd_x(char *args) {
   uint64_t size = strtoul(args, &base, 10);
   word_t addr = strtoul(base, NULL, 16);
   for (uint64_t i = 0; i < size; ++i) {
-    printf("0x%08x\n", (uint32_t)pmem_read(addr + 4 * i));
+    printf("0x%08x\n", (uint32_t)pmem_read(addr + 4 * i, 4));
   }
   return 0;
 }
