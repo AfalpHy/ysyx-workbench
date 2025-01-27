@@ -24,7 +24,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   }
-  _stack_top = 0xf0000000;
+  _stack_top = 0x0f000000;
   . = _stack_top + 0x8000;
   _stack_pointer = .;
   end = .;
