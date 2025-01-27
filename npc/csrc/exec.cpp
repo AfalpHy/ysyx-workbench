@@ -1,4 +1,4 @@
-#include "Vysyx_25010008_NPC.h"
+#include "VysyxSoCFull.h"
 #include "difftest.h"
 #include "disasm.h"
 #include "ftrace.h"
@@ -6,9 +6,10 @@
 #include "string.h"
 #include "watchpoint.h"
 
-extern Vysyx_25010008_NPC top;
+extern TOP_NAME top;
 extern int status;
 extern bool diff_test_on;
+extern bool interrupt;
 
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
@@ -46,13 +47,19 @@ static int check_regs() {
   word_t ref_reg[REGS_NUM];
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
+  if (*pc != ref_pc) {
+    std::cerr << total_insts_num << " instrutions have been executed"
+              << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
+              << std::endl;
+    return -1;
+  }
   for (int i = 0; i < REGS_NUM; i++) {
     if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
       std::cerr << total_insts_num << " instrutions have been executed"
                 << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
-                << " ref pc:" << ref_pc << " npc:" << *pc << std::endl;
+                << std::endl;
       return -1;
     }
   }
@@ -60,30 +67,36 @@ static int check_regs() {
 }
 
 void single_cycle() {
-  top.clk = 1;
+  top.clock = 1;
   top.eval();
-  top.clk = 0;
+  top.clock = 0;
   top.eval();
+  Verilated::timeInc(1);
 }
 
 void reset() {
-  top.rst = 1;
-  top.clk = 1;
-  top.eval();
-  top.clk = 0;
-  top.eval();
-  top.rst = 0;
+  for (int i = 0; i < 10; i++) {
+    top.reset = 1;
+    top.clock = 1;
+    top.eval();
+    top.clock = 0;
+    top.eval();
+    top.reset = 0;
+  }
 }
 
 void cpu_exec(uint32_t num) {
-  if (top.halt) {
+  static bool halt = false;
+  if (halt) {
     printf("Program execution has ended\n");
     return;
   }
   uint32_t print_num = num;
   while (num-- > 0) {
+    uint32_t inst;
+    mrom_read(*pc, (int32_t *)&inst);
+    halt = inst == 0b00000000000100000000000001110011;
 #ifdef ITRACE
-    uint32_t inst = pmem_read(*pc, 4);
     int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
     iringbuf[iringbuf_index].pc = *pc;
     iringbuf[iringbuf_index].inst = inst;
@@ -100,10 +113,14 @@ void cpu_exec(uint32_t num) {
 #ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
-    single_cycle();
+    while (!(*write_back) && !interrupt)
+      single_cycle();
+    single_cycle(); // write back
     print_mtrace = false;
 #else
-    single_cycle();
+    while (!(*write_back) && !interrupt)
+      single_cycle();
+    single_cycle(); // write back
 #endif
 
     total_insts_num++;
@@ -133,8 +150,7 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    extern bool interrupt;
-    if (top.halt || interrupt) {
+    if (halt || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
     }

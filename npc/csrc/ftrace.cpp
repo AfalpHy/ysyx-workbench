@@ -107,6 +107,9 @@ static char call_chain[MAX_DEEP][FILE_NAME_MAXLEN];
 static int indent = 0;
 
 void ftrace(word_t pc, word_t addr, uint32_t inst) {
+  if (fun_num == 0) {
+    return;
+  }
   bool jalr = BITS(inst, 14, 12) == 0 && BITS(inst, 6, 0) == 0b1100111;
   bool jal = BITS(inst, 6, 0) == 0b1101111;
   if (!jal && !jalr) {

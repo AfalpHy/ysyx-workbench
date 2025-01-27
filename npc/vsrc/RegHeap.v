@@ -1,13 +1,14 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 
 module ysyx_25010008_RegHeap (
-    input clk,
-    input rst,
+    input clock,
+    input reset,
 
     input [4:0] rs1,
     input [4:0] rs2,
     input [4:0] rd,
 
+    input write_back,
     input wen,
     input [31:0] wdata,
 
@@ -36,13 +37,15 @@ module ysyx_25010008_RegHeap (
     set_regs_ptr(regs);
   end
 
-  always @(negedge clk) begin
-    if (rst) begin
-      for (int i = 0; i < 32; i = i + 1) regs[i] <= 0;
+  integer i;
+
+  always @(posedge clock) begin
+    if (reset) begin
+      for (i = 0; i < 32; i = i + 1) regs[i] <= 0;
       mstatus <= 32'h1800;
     end else begin
-      if (wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
-      if (csr_wen1) begin
+      if (write_back && wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
+      if (write_back & csr_wen1) begin
         case (csr_d1)
           12'h300: mstatus <= csr_wdata1;
           12'h305: mtvec <= csr_wdata1;
@@ -51,7 +54,7 @@ module ysyx_25010008_RegHeap (
           default: ;
         endcase
       end
-      if (csr_wen2) begin
+      if (write_back & csr_wen2) begin
         case (csr_d2)
           12'h300: mstatus <= csr_wdata2;
           12'h305: mtvec <= csr_wdata2;
@@ -63,7 +66,7 @@ module ysyx_25010008_RegHeap (
     end
   end
 
-   ysyx_25010008_MuxKeyWithDefault #(4, 12, 32) mux_csr_src (
+  ysyx_25010008_MuxKeyWithDefault #(4, 12, 32) mux_csr_src (
       .out(csr_src),
       .key(csr_s),
       .default_out(32'b0),
