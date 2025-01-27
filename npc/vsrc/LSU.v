@@ -94,18 +94,21 @@ module ysyx_25010008_LSU (
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin
+          $display("handle_waddr");
           awvalid <= 0;
           wvalid  <= 1;
           state   <= HANDLE_WDATA;
         end
       end else if (state == HANDLE_WDATA) begin
         if (wready) begin
+          $display("wdata");
           wvalid <= 0;
           bready <= 1;
           state  <= HANDLE_BRESP;
         end
       end else if (state == HANDLE_BRESP) begin
         if (bvalid) begin
+          $display("bresp");
           bready <= 0;
           write_done <= 1;
           state <= WRITE_BACK;
