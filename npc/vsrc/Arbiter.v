@@ -165,6 +165,7 @@ module ysyx_25010008_Arbiter (
           state  <= TRANSFER;
         end
       end else begin
+        $display(io_master_bresp);
         if (slave == SLAVE_CLINT) begin
           if (CLINT_rvalid) begin
             master <= MASTER_NULL;
