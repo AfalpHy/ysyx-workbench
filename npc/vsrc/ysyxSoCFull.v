@@ -1983,6 +1983,7 @@ module AXI4RAM(	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/
       rdata_r2 <= _mem_ext_R0_data[23:16];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26, home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
       rdata_r3 <= _mem_ext_R0_data[31:24];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26, home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
     end
+        $display("here %h",auto_in_araddr[27:13]);
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9
     `ifdef FIRRTL_BEFORE_INITIAL	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9
@@ -2001,7 +2002,6 @@ module AXI4RAM(	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/
         w_id = _RANDOM[1'h0][4:1];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9, :75:25, :76:21
         r_sel1 = _RANDOM[1'h0][5];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9, :75:25, :78:25
         w_sel1 = _RANDOM[1'h0][6];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9, :75:25, :79:25
-        $display("here");
         r_full = _RANDOM[1'h0][7];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9, :75:25, :104:25
         r_id = _RANDOM[1'h0][11:8];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9, :75:25, :105:21
         rdata_REG = _RANDOM[1'h0][12];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9, :75:25, home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:100:91
