@@ -165,7 +165,6 @@ module ysyx_25010008_Arbiter (
           state  <= TRANSFER;
         end
       end else begin
-        $display("%h",io_master_awaddr,, io_master_wready, ,  io_master_bvalid);
         if (slave == SLAVE_CLINT) begin
           if (CLINT_rvalid) begin
             master <= MASTER_NULL;
