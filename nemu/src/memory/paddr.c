@@ -22,11 +22,31 @@
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+static uint8_t mrom[CONFIG_MROM_SIZE] = {};
+static uint8_t sram[CONFIG_SRAM_SIZE] = {};
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
+uint8_t* mrom2host(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE;}
+uint8_t* sram2host(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE;}
+
+#ifdef CONFIG_MROM_SRAM
+static word_t mrom_read(paddr_t addr, int len) {
+  word_t ret = host_read(mrom2host(addr), len);
+  return ret;
+}
+
+static word_t sram_read(paddr_t addr, int len) {
+  word_t ret = host_read(sram2host(addr), len);
+  return ret;
+}
+
+static void sram_write(paddr_t addr, int len, word_t data) {
+  host_write(sram2host(addr), len, data);
+}
+#else
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
   return ret;
@@ -35,6 +55,7 @@ static word_t pmem_read(paddr_t addr, int len) {
 static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
 }
+#endif
 
 static void out_of_bound(paddr_t addr) {
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
@@ -55,8 +76,14 @@ bool print_mtrace = false;
 
 word_t paddr_read(paddr_t addr, int len) {
   word_t result;
+#ifdef CONFIG_MROM_SRAM
+  if (in_mrom(addr) || in_sram(addr)) {
+    result = in_mrom(addr) ? mrom_read(addr, len) : sram_read(addr, len);
+#else
   if (likely(in_pmem(addr))) {
     result = pmem_read(addr, len);
+#endif
+
 #ifdef CONFIG_MTRACE
     if (print_mtrace)
       log_write("read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", addr,
@@ -84,7 +111,16 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     log_write("write addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n",
               (word_t)addr, len, data);
 #endif
+
+#ifdef CONFIG_MROM_SRAM
+  if (in_sram(addr)) {
+    sram_write(addr, len, data);
+    return;
+  }
+#else
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+#endif
+
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }
