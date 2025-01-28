@@ -1983,7 +1983,6 @@ module AXI4RAM(	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/
       rdata_r2 <= _mem_ext_R0_data[23:16];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26, home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
       rdata_r3 <= _mem_ext_R0_data[31:24];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26, home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
     end
-        $display("here %h %h",auto_in_awaddr,auto_in_awaddr[27:13],,w_sel1);
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_REG_	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9
     `ifdef FIRRTL_BEFORE_INITIAL	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9
