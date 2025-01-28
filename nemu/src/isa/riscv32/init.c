@@ -27,9 +27,12 @@ static const uint32_t img [] = {
 };
 
 static void restart() {
+#ifdef CONFIG_MROM_SRAM
+  cpu.pc = CONFIG_MROM_BASE;
+#else
   /* Set the initial program counter. */
   cpu.pc = RESET_VECTOR;
-
+#endif
   cpu.mstatus = MUXDEF(CONFIG_ISA_64, 0xa00001800, 0x1800);
 
   /* The zero register is always 0. */
