@@ -14,7 +14,13 @@ void halt(int code) {
   while (1);
 }
 
+extern char _data,_end;
+
 void _trm_init() {
+  // copy data from mrom to sram
+  for (char *addr = &_data; addr < &_end; addr++) {
+    *(addr + 0xf000000) = *addr;
+  }
   int ret = main(mainargs);
   halt(ret);
 }
