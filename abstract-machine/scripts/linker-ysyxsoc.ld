@@ -25,7 +25,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  }
+  } > sram :data
   _stack_top = 0x0f000000;
   . = _stack_top + 0x1000;
   _stack_pointer = .;
