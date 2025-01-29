@@ -1892,8 +1892,6 @@ module mem_2048x32(	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/sc
       Memory[W0_addr][32'h10 +: 8] <= W0_data[23:16];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
     if (W0_en & W0_mask[3])	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
       Memory[W0_addr][32'h18 +: 8] <= W0_data[31:24];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
-      if(W0_addr == 11'h400)
-       $display("%h",W0_data, ,W0_mask);
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_MEM_	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
     `ifdef RANDOMIZE_REG_INIT	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26

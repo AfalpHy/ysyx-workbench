@@ -12,10 +12,12 @@ module ysyx_25010008_LSU (
 
     input wen,
 
+    input [31:0] addr,
     output reg [31:0] rdata,
     output reg read_done,
     output reg write_done,
 
+    output reg [31:0] araddr,
     output reg arvalid,
     input arready,
 
@@ -24,6 +26,7 @@ module ysyx_25010008_LSU (
     input [1:0] rresp,
     input rvalid,
 
+    output reg [31:0] awaddr,
     output reg awvalid,
     input awready,
 
@@ -52,7 +55,10 @@ module ysyx_25010008_LSU (
     set_memory_ptr(memory);
   end
 
-  assign wstrb = suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111);
+  assign araddr = addr;
+  assign awaddr = addr;
+
+  assign wstrb  = suffix_b ? (4'b0001 << addr[1:0]) : (suffix_h ? (4'b0011 << addr[1:0]) : 4'b1111);
 
   wire [31:0] sextb = {{24{tmp[7]}}, tmp[7:0]};
   wire [31:0] sexth = {{16{tmp[15]}}, tmp[15:0]};
@@ -91,7 +97,6 @@ module ysyx_25010008_LSU (
           (suffix_h ? {16'b0, tmp[15:0]} : tmp));
           read_done <= 1;
           state <= WRITE_BACK;
-          $display("%h",tmp);
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin
