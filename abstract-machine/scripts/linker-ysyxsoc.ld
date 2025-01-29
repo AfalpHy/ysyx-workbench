@@ -14,22 +14,21 @@ SECTIONS {
   _etext = .;
   .rodata : {
     *(.rodata*)
-  } > mrom
+  } > mrom AT > mrom
+  _data = .;
   .data : {
     *(.data)
-  } > sram AT > mrom :data
+  } > sram AT > mrom : data
   edata = .;
-  _data = .;
   .bss : {
 	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram
-  _stack_top = 0x0f000000;
-  . = _stack_top + 0x1000;
-  _stack_pointer = .;
+  } > sram AT > mrom
   end = .;
   _end = .;
-  _heap_start = ALIGN(0x1000);
+
+  _stack_pointer = ORIGIN(sram) + LENGTH(sram);
+  _heap_start = ORIGIN(sram) + _end - _data;
 }
