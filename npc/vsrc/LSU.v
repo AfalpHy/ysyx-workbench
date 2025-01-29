@@ -12,21 +12,26 @@ module ysyx_25010008_LSU (
 
     input wen,
 
-    output reg [31:0] rdata,
+    input [31:0] addr,
+    output reg [31:0] mem_rdata,
     output reg read_done,
     output reg write_done,
 
+    output reg [31:0] araddr,
     output reg arvalid,
     input arready,
 
     output reg rready,
-    input [31:0] tmp,
+    input [31:0] rdata,
     input [1:0] rresp,
     input rvalid,
 
+    output reg [31:0] awaddr,
     output reg awvalid,
     input awready,
 
+    input [31:0] wsrc,
+    output reg [31:0] wdata,
     output reg [3:0] wstrb,
     output reg wvalid,
     input wready,
@@ -52,10 +57,15 @@ module ysyx_25010008_LSU (
     set_memory_ptr(memory);
   end
 
-  assign wstrb = suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111);
+  assign araddr = addr;
+  assign awaddr = addr;
 
-  wire [31:0] sextb = {{24{tmp[7]}}, tmp[7:0]};
-  wire [31:0] sexth = {{16{tmp[15]}}, tmp[15:0]};
+  assign wdata = suffix_b ? (wsrc << {addr[1:0], 3'b0}) : (suffix_h ? (wsrc << {addr[1:0], 3'b0}) : wsrc);
+  assign wstrb = suffix_b ? (4'b0001 << addr[1:0]) : (suffix_h ? (4'b0011 << addr[1:0]) : 4'b1111);
+
+  wire [31:0] real_rdata = suffix_b ? (rdata >> {addr[1:0], 3'b0}) : (suffix_h ? (rdata >> {addr[1:0], 3'b0}) : rdata); 
+  wire [31:0] sextb = {{24{rdata[7]}}, real_rdata[7:0]};
+  wire [31:0] sexth = {{16{rdata[15]}}, real_rdata[15:0]};
 
   always @(posedge clock) begin
     if (reset) begin
@@ -86,9 +96,9 @@ module ysyx_25010008_LSU (
       end else if (state == HANDLE_RDATA) begin
         if (rvalid) begin
           rready <= 0;
-          rdata  <= sext ? (suffix_b ? sextb : sexth ) :
-          (suffix_b ? {24'b0, tmp[7:0]} :
-          (suffix_h ? {16'b0, tmp[15:0]} : tmp));
+          mem_rdata  <= sext ? (suffix_b ? sextb : sexth ) :
+          (suffix_b ? {24'b0, real_rdata[7:0]} :
+          (suffix_h ? {16'b0, real_rdata[15:0]} : real_rdata));
           read_done <= 1;
           state <= WRITE_BACK;
         end

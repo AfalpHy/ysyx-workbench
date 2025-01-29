@@ -111,7 +111,7 @@ module ysyx_25010008_NPC (
   wire [1:0] rresp_0;
   wire rvalid_0;
 
-  wire [31:0] araddr_1 = alu_result;
+  wire [31:0] araddr_1;
   wire arvalid_1;
   wire arready_1;
 
@@ -120,11 +120,11 @@ module ysyx_25010008_NPC (
   wire [1:0] rresp_1;
   wire rvalid_1;
 
-  wire [31:0] awaddr_1 = alu_result;
+  wire [31:0] awaddr_1;
   wire awvalid_1;
   wire awready_1;
 
-  wire [31:0] wdata_1 = src2;
+  wire [31:0] wdata_1;
   wire [3:0] wstrb_1;
   wire wvalid_1;
   wire wready_1;
@@ -225,21 +225,27 @@ module ysyx_25010008_NPC (
 
       .wen(mem_wen),
 
-      .rdata(mem_rdata),
-      .read_done(read_done),
+      .addr(alu_result),
+
+      .mem_rdata (mem_rdata),
+      .read_done (read_done),
       .write_done(write_done),
 
+      .araddr (araddr_1),
       .arvalid(arvalid_1),
       .arready(arready_1),
 
       .rready(rready_1),
-      .tmp(rdata_1),
-      .rresp(rresp_1),
+      .rdata (rdata_1),
+      .rresp (rresp_1),
       .rvalid(rvalid_1),
 
+      .awaddr (awaddr_1),
       .awvalid(awvalid_1),
       .awready(awready_1),
 
+      .wsrc  (src2),
+      .wdata (wdata_1),
       .wstrb (wstrb_1),
       .wvalid(wvalid_1),
       .wready(wready_1),
