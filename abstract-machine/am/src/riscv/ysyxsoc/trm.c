@@ -14,7 +14,14 @@ void halt(int code) {
   while (1);
 }
 
+extern char _data,_data_start,_end;
+
 void _trm_init() {
+  // copy data from mrom to sram
+  int size = &_end - &_data_start;
+  for (int i = 0; i < size; i++) {
+    *(&_data_start + i) = *(&_data + i);
+  }
   int ret = main(mainargs);
   halt(ret);
 }
