@@ -18,7 +18,7 @@ SECTIONS {
   } > mrom AT> mrom
   .data : {
     *(.data)
-  } > sram AT> mrom 
+  } > sram AT> mrom :data
   edata = .;
   _data = .;
   .bss : {
