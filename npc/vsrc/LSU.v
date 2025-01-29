@@ -47,7 +47,13 @@ module ysyx_25010008_LSU (
   parameter HANDLE_BRESP = 5;
   parameter WRITE_BACK = 6;
 
-  reg [2:0] state;
+  reg [ 2:0] state;
+
+  reg [31:0] memory['h1000_0000-1:0];
+
+  initial begin
+    set_memory_ptr(memory);
+  end
 
   assign araddr = addr;
   assign awaddr = addr;
