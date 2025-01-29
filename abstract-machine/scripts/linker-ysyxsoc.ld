@@ -9,15 +9,15 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } > mrom AT> mrom :text
+  } : text
   etext = .;
   _etext = .;
   .rodata : {
     *(.rodata*)
-  } > mrom AT> mrom
+  }
   .data : {
     *(.data)
-  } > sram AT> mrom :data
+  } > sram :data
   edata = .;
   _data = .;
   .bss : {
@@ -25,7 +25,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram :data
+  } > sram
   _stack_top = 0x0f000000;
   . = _stack_top + 0x1000;
   _stack_pointer = .;
