@@ -23,6 +23,7 @@ extern bool skip_ref_inst;
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) {
   uint8_t *tmp = (uint8_t *)pmem;
+  addr &= ~3;
   tmp += addr - 0x20000000;
   *data = *(int32_t *)tmp;
 }
