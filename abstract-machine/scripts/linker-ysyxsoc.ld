@@ -25,10 +25,10 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram AT > mrom
+  } > sram
   end = .;
   _end = .;
+  _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
-  _heap_start = ORIGIN(sram) + _end - _data;
 }
