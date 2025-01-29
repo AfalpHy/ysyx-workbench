@@ -15,8 +15,8 @@ SECTIONS {
   .rodata : {
     *(.rodata*)
   } > mrom AT > mrom
-  _data = .;
   .data : {
+  _data = .;
     *(.data)
   } > sram AT > mrom : data
   edata = .;
