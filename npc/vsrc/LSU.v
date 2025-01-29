@@ -91,6 +91,7 @@ module ysyx_25010008_LSU (
           (suffix_h ? {16'b0, tmp[15:0]} : tmp));
           read_done <= 1;
           state <= WRITE_BACK;
+          $display("%h",tmp);
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin
