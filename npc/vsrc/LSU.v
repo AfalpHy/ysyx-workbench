@@ -30,6 +30,8 @@ module ysyx_25010008_LSU (
     output reg awvalid,
     input awready,
 
+    input [31:0] wsrc,
+    output reg [31:0] wdata,
     output reg [3:0] wstrb,
     output reg wvalid,
     input wready,
@@ -58,10 +60,12 @@ module ysyx_25010008_LSU (
   assign araddr = addr;
   assign awaddr = addr;
 
-  assign wstrb  = suffix_b ? (4'b0001 << addr[1:0]) : (suffix_h ? (4'b0011 << addr[1:0]) : 4'b1111);
+  assign wdata = suffix_b ? (wsrc << {addr[1:0], 3'b0}) : (suffix_h ? (wsrc << {addr[1:0], 3'b0}) : wsrc);
+  assign wstrb = suffix_b ? (4'b0001 << addr[1:0]) : (suffix_h ? (4'b0011 << addr[1:0]) : 4'b1111);
 
-  wire [31:0] sextb = {{24{rdata[7]}}, rdata[7:0]};
-  wire [31:0] sexth = {{16{rdata[15]}}, rdata[15:0]};
+  wire [31:0] real_rdata = suffix_b ? (rdata >> {addr[1:0], 3'b0}) : (suffix_h ? (rdata >> {addr[1:0], 3'b0}) : rdata); 
+  wire [31:0] sextb = {{24{rdata[7]}}, real_rdata[7:0]};
+  wire [31:0] sexth = {{16{rdata[15]}}, real_rdata[15:0]};
 
   always @(posedge clock) begin
     if (reset) begin
@@ -93,11 +97,10 @@ module ysyx_25010008_LSU (
         if (rvalid) begin
           rready <= 0;
           mem_rdata  <= sext ? (suffix_b ? sextb : sexth ) :
-          (suffix_b ? {24'b0, rdata[7:0]} :
-          (suffix_h ? {16'b0, rdata[15:0]} : rdata));
+          (suffix_b ? {24'b0, real_rdata[7:0]} :
+          (suffix_h ? {16'b0, real_rdata[15:0]} : real_rdata));
           read_done <= 1;
           state <= WRITE_BACK;
-          $display("rdata: %h", rdata);
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin

@@ -124,7 +124,7 @@ module ysyx_25010008_NPC (
   wire awvalid_1;
   wire awready_1;
 
-  wire [31:0] wdata_1 = src2;
+  wire [31:0] wdata_1;
   wire [3:0] wstrb_1;
   wire wvalid_1;
   wire wready_1;
@@ -244,6 +244,8 @@ module ysyx_25010008_NPC (
       .awvalid(awvalid_1),
       .awready(awready_1),
 
+      .wsrc  (src2),
+      .wdata (wdata_1),
       .wstrb (wstrb_1),
       .wvalid(wvalid_1),
       .wready(wready_1),
