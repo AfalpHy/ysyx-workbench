@@ -227,8 +227,8 @@ module ysyx_25010008_NPC (
 
       .addr(alu_result),
 
-      .rdata(mem_rdata),
-      .read_done(read_done),
+      .mem_rdata (mem_rdata),
+      .read_done (read_done),
       .write_done(write_done),
 
       .araddr (araddr_1),
@@ -236,8 +236,8 @@ module ysyx_25010008_NPC (
       .arready(arready_1),
 
       .rready(rready_1),
-      .tmp(rdata_1),
-      .rresp(rresp_1),
+      .rdata (rdata_1),
+      .rresp (rresp_1),
       .rvalid(rvalid_1),
 
       .awaddr (awaddr_1),
