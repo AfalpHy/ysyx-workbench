@@ -26,7 +26,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > sram AT > mrom
+  } > sram
   end = .;
   _end = .;
   _heap_start = .;
