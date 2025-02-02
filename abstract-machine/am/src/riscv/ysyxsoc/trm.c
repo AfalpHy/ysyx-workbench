@@ -17,8 +17,8 @@ static inline void outb(uintptr_t addr, uint8_t  data) { *(volatile uint8_t  *)a
 
 void putch(char ch) {
   // loop until transmitter is not empty
-  while (!(inb(UART_ADDR + UART_REG_LS) & 0x40)) {
-  }
+  // while (!(inb(UART_ADDR + UART_REG_LS) & 0x40)) {
+  // }
 
   outb(UART_ADDR + UART_REG_TR, ch);
 }
@@ -32,10 +32,10 @@ extern char _data,_data_start,_end;
 
 void _trm_init() {
   // init uart
-  outb(UART_ADDR + UART_REG_LC, 0x80); // set dlab(divisor latch access bit)
-  outb(UART_ADDR + UART_REG_DLL, 12);
-  outb(UART_ADDR + UART_REG_DLH, 0);
-  outb(UART_ADDR + UART_REG_LC, 3); // recover
+  // outb(UART_ADDR + UART_REG_LC, 0x80); // set dlab(divisor latch access bit)
+  // outb(UART_ADDR + UART_REG_DLL, 12);
+  // outb(UART_ADDR + UART_REG_DLH, 0);
+  // outb(UART_ADDR + UART_REG_LC, 3); // recover
   // copy data from mrom to sram
   int size = &_end - &_data_start;
   for (int i = 0; i < size; i++) {
