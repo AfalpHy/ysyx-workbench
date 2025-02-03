@@ -28,7 +28,7 @@ void halt(int code) {
   while (1);
 }
 
-extern char _data,_data_start,edata;
+extern char _data,_data_start,_end;
 
 void _trm_init() {
   // init uart
@@ -37,7 +37,7 @@ void _trm_init() {
   outb(UART_ADDR + UART_REG_DLH, 0);
   outb(UART_ADDR + UART_REG_LC, 3); // recover
   // copy data from mrom to sram
-  int size = &edata - &_data_start;
+  int size = &_end - &_data_start;
   for (int i = 0; i < size; i++) {
     *(&_data_start + i) = *(&_data + i);
   }
