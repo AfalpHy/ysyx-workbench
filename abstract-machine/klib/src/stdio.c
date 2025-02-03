@@ -6,7 +6,7 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-static char buff[8192];
+static char buff[256];
 
 static int num2str(char *out, uint64_t num, bool is_sign, int width,
                    bool fill_zero, int radix) {
