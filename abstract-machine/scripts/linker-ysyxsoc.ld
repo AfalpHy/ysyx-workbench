@@ -12,21 +12,21 @@ SECTIONS {
   } > mrom AT > mrom : text
   etext = .;
   _etext = .;
-  .rodata : {
+  .rodata :AT (_etext) {
     *(.rodata*)
-  } > mrom AT > mrom
+  } > mrom 
   _data = .;
-  .data : {
+  .data :AT (_data)  {
   _data_start = .;
     *(.data)
-  } > sram AT > mrom : data
+  } > sram : data
   edata = .;
   .bss : {
 	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > mrom
+  } > sram
   end = .;
   _end = .;
   _heap_start = .;
