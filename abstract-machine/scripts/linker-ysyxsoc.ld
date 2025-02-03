@@ -8,17 +8,17 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } > mrom AT > mrom 
+  } > mrom 
   etext = .;
   _etext = .;
   .rodata : {
     *(.rodata*)
-  } > mrom AT > mrom
+  } > mrom
   _data = .;
   .data : {
   _data_start = .;
     *(.data)
-  } > sram AT > mrom 
+  } > sram
   edata = .;
   .bss : {
 	_bss_start = .;
