@@ -22,7 +22,7 @@ SECTIONS {
   _data_end = .;
   } > sram : data
   edata = .;
-  .bss : {
+  .bss : AT (_data) {
 	_bss_start = .;
     *(.bss*)
     *(.sbss*)
