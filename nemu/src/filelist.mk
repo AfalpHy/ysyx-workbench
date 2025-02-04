@@ -18,7 +18,7 @@ DIRS-y += src/cpu src/monitor src/utils
 DIRS-$(CONFIG_MODE_SYSTEM) += src/memory
 DIRS-BLACKLIST-$(CONFIG_TARGET_AM) += src/monitor/sdb
 DIRS-BLACKLIST-$(CONFIG_TARGET_SHARE) += src/monitor src/device
-SRCS-BLACKLIST-$(CONFIG_TARGET_SHARE) += src/cpu/difftest/dut.c
+SRCS-BLACKLIST-$(CONFIG_TARGET_SHARE) += src/cpu/difftest/dut.c src/utils/elf.c src/utils/log.c
 SRCS-BLACKLIST-$(CONFIG_TARGET_NATIVE_ELF) += src/cpu/difftest/ref.c
 
 SHARE = $(if $(CONFIG_TARGET_SHARE),1,0)
