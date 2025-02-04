@@ -27,7 +27,7 @@ static const uint32_t img [] = {
 };
 
 static void restart() {
-#ifdef CONFIG_MROM_SRAM
+#ifdef CONFIG_TARGET_SHARE
   cpu.pc = CONFIG_MROM_BASE;
 #else
   /* Set the initial program counter. */
