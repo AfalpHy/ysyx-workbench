@@ -26,10 +26,6 @@ typedef uint32_t paddr_t;
 #define REGS_NUM 16
 #endif
 
-extern word_t *regs, *pmem;
-extern word_t *pc;
-extern bool* write_back;
-extern const char *regs_name[];
 extern FILE *log_fp;
 
 #define Assert(cond, format, ...)                                              \

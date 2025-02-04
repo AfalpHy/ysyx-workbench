@@ -2,6 +2,7 @@
 #include "difftest.h"
 #include "disasm.h"
 #include "ftrace.h"
+#include "isa.h"
 #include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"

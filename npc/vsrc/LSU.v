@@ -1,5 +1,3 @@
-import "DPI-C" function void set_memory_ptr(input logic [31:0] ptr[]);
-
 module ysyx_25010008_LSU (
     input clock,
     input reset,
@@ -50,12 +48,6 @@ module ysyx_25010008_LSU (
   parameter WRITE_BACK = 6;
 
   reg [ 2:0] state;
-
-  reg [31:0] memory['h1000_0000-1:0];
-
-  initial begin
-    set_memory_ptr(memory);
-  end
 
   assign araddr = addr;
   assign awaddr = addr;

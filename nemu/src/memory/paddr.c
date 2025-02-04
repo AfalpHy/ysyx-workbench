@@ -22,17 +22,19 @@
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
-static uint8_t mrom[CONFIG_MROM_SIZE] = {};
-static uint8_t sram[CONFIG_SRAM_SIZE] = {};
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
+#ifdef CONFIG_MROM_SRAM
+
+static uint8_t mrom[CONFIG_MROM_SIZE] = {};
+static uint8_t sram[CONFIG_SRAM_SIZE] = {};
+
 uint8_t* mrom2host(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE;}
 uint8_t* sram2host(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE;}
 
-#ifdef CONFIG_MROM_SRAM
 static word_t mrom_read(paddr_t addr, int len) {
   word_t ret = host_read(mrom2host(addr), len);
   return ret;

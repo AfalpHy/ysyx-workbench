@@ -4,16 +4,11 @@
 #include <sys/time.h>
 
 #define DEVICE_BASE 0xa0000000
-#define MMIO_BASE 0xa0000000
 
 #define SERIAL_PORT (DEVICE_BASE + 0x00003f8)
-#define KBD_ADDR (DEVICE_BASE + 0x0000060)
 #define RTC_ADDR (DEVICE_BASE + 0x0000048)
-#define VGACTL_ADDR (DEVICE_BASE + 0x0000100)
-#define FB_ADDR (MMIO_BASE + 0x1000000)
-#define SYNC_ADDR (VGACTL_ADDR + 4)
 
-word_t *pmem = nullptr;
+word_t pmem[0x10000000] = {};
 bool print_mtrace = false;
 
 extern uint64_t begin_us;
@@ -28,15 +23,7 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
   *data = *(int32_t *)tmp;
 }
 
-extern "C" void set_memory_ptr(const svOpenArrayHandle r) {
-  pmem = (word_t *)(((VerilatedDpiOpenVar *)r)->datap());
-}
-
-void check_bound(paddr_t addr) {}
-
 extern "C" word_t pmem_read(paddr_t addr) {
-  check_bound(addr);
-
   word_t result;
   if (addr == RTC_ADDR || addr == RTC_ADDR + 4) {
     static uint64_t us;

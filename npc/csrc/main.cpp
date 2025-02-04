@@ -5,6 +5,7 @@
 #include "expr.h"
 #include "ftrace.h"
 #include "isa.h"
+#include "pmem.h"
 #include "sdb.h"
 #include "watchpoint.h"
 #include <VysyxSoCFull.h>
