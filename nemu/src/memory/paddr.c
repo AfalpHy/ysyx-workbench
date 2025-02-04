@@ -27,7 +27,7 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
-#ifdef CONFIG_MROM_SRAM
+#ifdef CONFIG_TARGET_SHARE
 
 static uint8_t mrom[CONFIG_MROM_SIZE] = {};
 static uint8_t sram[CONFIG_SRAM_SIZE] = {};
@@ -78,7 +78,7 @@ bool print_mtrace = false;
 
 word_t paddr_read(paddr_t addr, int len) {
   word_t result;
-#ifdef CONFIG_MROM_SRAM
+#ifdef CONFIG_TARGET_SHARE
   if (in_mrom(addr) || in_sram(addr)) {
     result = in_mrom(addr) ? mrom_read(addr, len) : sram_read(addr, len);
 #else
@@ -114,7 +114,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
               (word_t)addr, len, data);
 #endif
 
-#ifdef CONFIG_MROM_SRAM
+#ifdef CONFIG_TARGET_SHARE
   if (in_sram(addr)) {
     sram_write(addr, len, data);
     return;

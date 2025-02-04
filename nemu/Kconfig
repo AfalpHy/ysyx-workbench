@@ -68,11 +68,6 @@ config TARGET_AM
   bool "Application on Abstract-Machine (DON'T CHOOSE)"
 endchoice
   
-config MROM_SRAM
-  depends on TARGET_SHARE
-  bool "Enable MROM and SRAM"
-  default n
-
 menu "Build Options"
 choice
   prompt "Compiler"
