@@ -1,4 +1,4 @@
-import "DPI-C" function void set_memory_ptr(input logic [31:0] ptr[]);
+import "DPI-C" function void set_skip_ref_inst();
 
 module ysyx_25010008_LSU (
     input clock,
@@ -49,13 +49,7 @@ module ysyx_25010008_LSU (
   parameter HANDLE_BRESP = 5;
   parameter WRITE_BACK = 6;
 
-  reg [ 2:0] state;
-
-  reg [31:0] memory['h1000_0000-1:0];
-
-  initial begin
-    set_memory_ptr(memory);
-  end
+  reg [2:0] state;
 
   assign araddr = addr;
   assign awaddr = addr;
@@ -63,7 +57,7 @@ module ysyx_25010008_LSU (
   assign wdata = suffix_b ? (wsrc << {addr[1:0], 3'b0}) : (suffix_h ? (wsrc << {addr[1:0], 3'b0}) : wsrc);
   assign wstrb = suffix_b ? (4'b0001 << addr[1:0]) : (suffix_h ? (4'b0011 << addr[1:0]) : 4'b1111);
 
-  wire [31:0] real_rdata = suffix_b ? (rdata >> {addr[1:0], 3'b0}) : (suffix_h ? (rdata >> {addr[1:0], 3'b0}) : rdata); 
+  wire [31:0] real_rdata = suffix_b ? (rdata >> {addr[1:0], 3'b0}) : (suffix_h ? (rdata >> {addr[1:0], 3'b0}) : rdata);
   wire [31:0] sextb = {{24{rdata[7]}}, real_rdata[7:0]};
   wire [31:0] sexth = {{16{rdata[15]}}, real_rdata[15:0]};
 
@@ -104,6 +98,7 @@ module ysyx_25010008_LSU (
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin
+          if (araddr >= 32'h1000_0000 && araddr <= 32'h1000_0fff) set_skip_ref_inst();
           awvalid <= 0;
           wvalid  <= 1;
           state   <= HANDLE_WDATA;

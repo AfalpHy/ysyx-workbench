@@ -1,4 +1,5 @@
 #include "difftest.h"
+#include "pmem.h"
 #include <assert.h>
 #include <dlfcn.h>
 

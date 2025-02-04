@@ -2,6 +2,7 @@
 #include "difftest.h"
 #include "disasm.h"
 #include "ftrace.h"
+#include "isa.h"
 #include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"
@@ -13,6 +14,8 @@ extern bool interrupt;
 
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
+
+extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 
 typedef struct {
   paddr_t pc;
