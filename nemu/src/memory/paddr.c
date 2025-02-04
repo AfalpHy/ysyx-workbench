@@ -82,9 +82,8 @@ word_t paddr_read(paddr_t addr, int len) {
     return mrom_read(addr, len);
   } else if (in_sram(addr)) {
     return sram_read(addr, len);
-  } else {
-    out_of_bound(addr);
   }
+  out_of_bound(addr);
 #elif defined(CONFIG_MTRACE)
   word_t result;
   if (likely(in_pmem(addr))) {
@@ -111,6 +110,7 @@ word_t paddr_read(paddr_t addr, int len) {
 #endif
   out_of_bound(addr);
 #endif
+  return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
