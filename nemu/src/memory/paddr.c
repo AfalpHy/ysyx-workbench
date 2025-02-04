@@ -77,34 +77,40 @@ void init_mem() {
 bool print_mtrace = false;
 
 word_t paddr_read(paddr_t addr, int len) {
-  word_t result;
 #ifdef CONFIG_TARGET_SHARE
-  if (in_mrom(addr) || in_sram(addr)) {
-    result = in_mrom(addr) ? mrom_read(addr, len) : sram_read(addr, len);
-#else
+  if (in_mrom(addr)) {
+    return mrom_read(addr, len);
+  } else if (in_sram(addr)) {
+    return sram_read(addr, len);
+  } else {
+    out_of_bound(addr);
+  }
+#elif defined(CONFIG_MTRACE)
+  word_t result;
   if (likely(in_pmem(addr))) {
     result = pmem_read(addr, len);
-#endif
-
-#ifdef CONFIG_MTRACE
     if (print_mtrace)
       log_write("read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", addr,
                 len, result);
-#endif
     return result;
   }
 #ifdef CONFIG_DEVICE
   result = mmio_read(addr, len);
-#ifdef CONFIG_MTRACE
   if (print_mtrace)
     log_write("read addr:\t" FMT_PADDR "\tlen:%d\tdata:" FMT_WORD "\n", addr,
               len, result);
-#endif
   return result;
 #endif
-
   out_of_bound(addr);
-  return 0;
+#else
+  if (likely(in_pmem(addr))) {
+    return pmem_read(addr, len);
+  }
+#ifdef CONFIG_DEVICE
+  return mmio_read(addr, len);
+#endif
+  out_of_bound(addr);
+#endif
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
@@ -119,10 +125,13 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     sram_write(addr, len, data);
     return;
   }
-#else
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-#endif
-
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
+#else
+  if (likely(in_pmem(addr))) {
+    pmem_write(addr, len, data);
+    return;
+  }
+  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return );
+  out_of_bound(addr);
+#endif
 }
