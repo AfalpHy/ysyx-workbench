@@ -72,6 +72,7 @@ module ysyx_25010008_LSU (
       bready  <= 1;
       state   <= IDLE;
     end else begin
+        $display("waddr\n",state);
       if (state == IDLE) begin
         if (ren) begin
           arvalid <= 1;
@@ -97,7 +98,6 @@ module ysyx_25010008_LSU (
           state <= WRITE_BACK;
         end
       end else if (state == HANDLE_WADDR) begin
-        $display("waddr\n");
         if (awready) begin
           if (araddr >= 32'h1000_0000 && araddr <= 32'h1000_0fff) set_skip_ref_inst();
           awvalid <= 0;
@@ -105,7 +105,6 @@ module ysyx_25010008_LSU (
           state   <= HANDLE_WDATA;
         end
       end else if (state == HANDLE_WDATA) begin
-        $display("wadata\n");
         if (wready) begin
           wvalid <= 0;
           bready <= 1;
