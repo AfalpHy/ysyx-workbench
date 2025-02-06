@@ -1892,7 +1892,6 @@ module mem_2048x32(	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/sc
       Memory[W0_addr][32'h10 +: 8] <= W0_data[23:16];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
     if (W0_en & W0_mask[3])	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
       Memory[W0_addr][32'h18 +: 8] <= W0_data[31:24];	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
-      if(W0_en) $display("wb");
   end // always @(posedge)
   `ifdef ENABLE_INITIAL_MEM_	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
     `ifdef RANDOMIZE_REG_INIT	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/DescribedSRAM.scala:17:26
@@ -2144,6 +2143,7 @@ module AXI4ToAPB(	// home/cloud/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:
   wire        is_write = _is_write_T ? accept_write : is_write_r;	// home/cloud/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/cloud/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:51:32, :52:{39,61,73}
   `ifndef SYNTHESIS	// home/cloud/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
     always @(posedge clock) begin	// home/cloud/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
+    $display("wb %b",is_write);
       if (~reset & auto_in_arvalid & auto_in_arsize > 3'h2) begin	// home/cloud/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :64:{13,25,41}
         if (`ASSERT_VERBOSE_COND_)	// home/cloud/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
           $error("Assertion failed at AXI4ToAPB.scala:64\n");	// home/cloud/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
