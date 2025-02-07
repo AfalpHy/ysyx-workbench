@@ -1,5 +1,6 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void set_write_back(input logic write_back[]);
+import "DPI-C" function void set_inst(int inst);
 
 module ysyx_25010008_IFU (
     input clock,
@@ -58,6 +59,7 @@ module ysyx_25010008_IFU (
         if (rvalid) begin
           rready <= 0;
           inst   <= rdata;
+          set_inst(rdata);
           ivalid <= 1;
           state  <= IDLE;
         end
