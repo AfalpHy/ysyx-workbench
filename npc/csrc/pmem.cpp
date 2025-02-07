@@ -15,7 +15,7 @@ extern uint64_t begin_us;
 
 extern bool skip_ref_inst;
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { *data = 0x01000000; }
+extern "C" void flash_read(int32_t addr, int32_t *data) { *data = 0x01010000; }
 extern "C" void mrom_read(int32_t addr, int32_t *data) {
   uint8_t *tmp = (uint8_t *)pmem;
   addr &= ~3;
