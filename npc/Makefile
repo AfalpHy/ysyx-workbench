@@ -73,13 +73,13 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
-sim: all
+sim: all clean
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
-gdb: all 
+gdb: all clean
 	$(call git_commit, "sim RTL")
 	gdb -args $(BIN) $(ARGS)
 
