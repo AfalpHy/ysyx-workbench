@@ -20,7 +20,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
   int tmp = mem[addr / 4];
   *data = ((tmp >> 24) & 0xff) | (tmp << 24) | ((tmp & 0xff00) << 8) |
           ((tmp >> 8) & 0xff00);
-  printf("%x", *data);
+  printf("%x\n", *data);
 }
 
 extern "C" void mrom_read(int32_t addr, int32_t *data) {
