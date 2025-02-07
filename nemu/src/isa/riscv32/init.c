@@ -28,7 +28,7 @@ static const uint32_t img [] = {
 
 static void restart() {
 #ifdef CONFIG_TARGET_SHARE
-  cpu.pc = CONFIG_MROM_BASE;
+  cpu.pc = CONFIG_FLASH_BASE;
 #else
   /* Set the initial program counter. */
   cpu.pc = RESET_VECTOR;

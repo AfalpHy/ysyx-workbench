@@ -31,9 +31,11 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static uint8_t mrom[CONFIG_MROM_SIZE] = {};
 static uint8_t sram[CONFIG_SRAM_SIZE] = {};
+static uint8_t flash[CONFIG_FLASH_SIZE] = {};
 
-uint8_t* mrom2host(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE;}
-uint8_t* sram2host(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE;}
+uint8_t *mrom2host(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
+uint8_t *sram2host(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE; }
+uint8_t *flash2host(paddr_t paddr) { return flash + paddr - CONFIG_FLASH_BASE; }
 
 static word_t mrom_read(paddr_t addr, int len) {
   word_t ret = host_read(mrom2host(addr), len);
@@ -48,6 +50,12 @@ static word_t sram_read(paddr_t addr, int len) {
 static void sram_write(paddr_t addr, int len, word_t data) {
   host_write(sram2host(addr), len, data);
 }
+
+static word_t flash_read(paddr_t addr, int len) {
+  word_t ret = host_read(flash2host(addr), len);
+  return ret;
+}
+
 #else
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
@@ -82,6 +90,8 @@ word_t paddr_read(paddr_t addr, int len) {
     return mrom_read(addr, len);
   } else if (in_sram(addr)) {
     return sram_read(addr, len);
+  } else if (in_flash(addr)) {
+    return flash_read(addr, len);
   }
   out_of_bound(addr);
 #elif defined(CONFIG_MTRACE)
