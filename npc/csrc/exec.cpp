@@ -97,26 +97,31 @@ void cpu_exec(uint32_t num) {
   }
   uint32_t print_num = num;
   while (num-- > 0) {
-#ifdef MTRACE
-    // only print inst memory access
-    print_mtrace = true;
-    while (!(*write_back) && !interrupt)
-      single_cycle();
-    single_cycle(); // write back
-    print_mtrace = false;
-#else
-    while (!(*write_back) && !interrupt)
-      single_cycle();
-    single_cycle(); // write back
-#endif
-
-    halt = inst == 0b00000000000100000000000001110011;
 #ifdef ITRACE
     int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
     iringbuf[iringbuf_index].pc = *pc;
+#endif
+
+#ifdef MTRACE
+    // only print inst memory access
+    print_mtrace = true;
+#endif
+
+    while (!(*write_back) && !interrupt)
+      single_cycle();
+    single_cycle(); // write back
+
+#ifdef MTRACE
+    // only print inst memory access
+    print_mtrace = false;
+#endif
+
+    halt = inst == 0b00000000000100000000000001110011;
+
+#ifdef ITRACE
     iringbuf[iringbuf_index].inst = inst;
-    disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str), *pc,
-                (uint8_t *)&inst, 4);
+    disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str),
+                iringbuf[iringbuf_index].inst, (uint8_t *)&inst, 4);
     auto str = one_inst_str(&iringbuf[iringbuf_index]);
     if (print_num <= 10) {
       printf("%s", str);
