@@ -23,7 +23,7 @@ __EXPORT int regs_num;
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
-    memcpy(mrom2host(addr), buf, n);
+    memcpy(flash2host(addr), buf, n);
   } else {
     Assert(0, "memcpy to dut is not supported");
   }
