@@ -59,9 +59,9 @@ module ysyx_25010008_IFU (
         if (rvalid) begin
           rready <= 0;
           inst   <= rdata;
-          set_inst(rdata);
           ivalid <= 1;
           state  <= IDLE;
+          set_inst(rdata);
         end
       end
     end
