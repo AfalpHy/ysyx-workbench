@@ -71,8 +71,8 @@ static int check_regs() {
 }
 
 void single_cycle() {
-  extern VerilatedContext *contextp;
-  contextp->timeInc(1);
+  // extern VerilatedContext *contextp;
+  // contextp->timeInc(1);
   top.clock = 1;
   top.eval();
   top.clock = 0;
