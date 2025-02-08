@@ -62,8 +62,8 @@ int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   Verilated::mkdir("logs");
   contextp = new VerilatedContext;
-  Verilated::traceEverOn(true);
-  Verilated::timeInc(1);
+  contextp->traceEverOn(true);
+  contextp->timeInc(1);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
