@@ -80,13 +80,9 @@ void single_cycle() {
 }
 
 void reset() {
+  top.reset = 1;
   for (int i = 0; i < 10; i++) {
-    top.reset = 1;
-    top.clock = 1;
-    top.eval();
-    top.clock = 0;
-    top.eval();
-    top.reset = 0;
+    single_cycle();
   }
 }
 
