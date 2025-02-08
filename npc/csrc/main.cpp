@@ -69,10 +69,9 @@ int main(int argc, char **argv) {
   // contextp->traceEverOn(true);
   VerilatedVcdC *tfp = new VerilatedVcdC;
   top.trace(tfp, 99); // 99 是 VCD 文件的详细级别，0 是最低详细级别，99 是最高
-  // tfp->open("waveform.vcd"); // 打开 VCD 文件
   // initial
   top.eval();
-
+  
   string img;
   string ref_so;
   vector<string> elf_files;
@@ -117,10 +116,10 @@ int main(int argc, char **argv) {
     init_difftest(ref_so.c_str(), size);
     diff_test_on = true;
   }
-#ifdef FTRACE
+  #ifdef FTRACE
   init_elf(elf_files);
-#endif
-
+  #endif
+  
   sdb_mainloop();
   if (status != 0 || isa_reg_str2val("a0") != 0) {
     status = -1;
@@ -129,6 +128,7 @@ int main(int argc, char **argv) {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
   // tfp->close();
+  tfp->open("waveform.vcd"); // 打开 VCD 文件
   top.final();
   return status;
 }
