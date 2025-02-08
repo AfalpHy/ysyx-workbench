@@ -18,8 +18,8 @@
 
 using namespace std;
 
-VerilatedContext *contextp = nullptr;
-TOP_NAME top;
+VerilatedContext contextp;
+TOP_NAME top(&contextp);
 
 int status = 0;
 bool diff_test_on = false;
@@ -61,8 +61,7 @@ int load_img(const string &filepath) {
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   Verilated::mkdir("logs");
-  contextp = new VerilatedContext;
-  contextp->traceEverOn(true);
+  contextp.traceEverOn(true);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;

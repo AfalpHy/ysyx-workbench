@@ -32,8 +32,6 @@ module ysyx_25010008_IFU (
   initial begin
     set_pc(pc);
     set_write_back(write_back);
-    $dumpfile("dump.vcd");
-    $dumpvars(0,ysyx_25010008_IFU);
   end
 
   always @(posedge clock) begin
@@ -60,7 +58,6 @@ module ysyx_25010008_IFU (
       end else begin
         if (rvalid) begin
           rready <= 0;
-          if(rresp==0) $display("a");
           inst   <= rdata;
           ivalid <= 1;
           state  <= IDLE;
