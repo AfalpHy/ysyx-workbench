@@ -32,9 +32,8 @@ module ysyx_25010008_IFU (
   initial begin
     set_pc(pc);
     set_write_back(write_back);
-    $display($time);
     $dumpfile("dump.vcd");
-    // $dumpvars();
+    $dumpvars();
   end
 
   always @(posedge clock) begin
