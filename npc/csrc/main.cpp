@@ -59,6 +59,9 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
+  VerilatedVcdC *tfp = new VerilatedVcdC;
+  top.trace(tfp, 99); // 99 是 VCD 文件的详细级别，0 是最低详细级别，99 是最高
+  tfp->open("waveform.vcd"); // 打开 VCD 文件
   contextp = new VerilatedContext;
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
@@ -69,9 +72,6 @@ int main(int argc, char **argv) {
   contextp->traceEverOn(true);
   // initial
   top.eval();
-  VerilatedVcdC *tfp = new VerilatedVcdC;
-  top.trace(tfp, 99); // 99 是 VCD 文件的详细级别，0 是最低详细级别，99 是最高
-  tfp->open("waveform.vcd"); // 打开 VCD 文件
 
   string img;
   string ref_so;
