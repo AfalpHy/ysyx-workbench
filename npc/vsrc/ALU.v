@@ -17,8 +17,8 @@ module ysyx_25010008_ALU (
   wire [31:0] bitwise_not_and = opcode[7] ? ~operand1 & operand2 : 0;
   wire eq = operand1 == operand2;
   wire ne = operand1 != operand2;
-  wire ltu = carry;
-  wire geu = ~carry;
+  wire ltu = ~carry;
+  wire geu = carry;
   // look sign of result if operand1 and operand2 have the same sign
   wire lt = operand1[31] == operand2[31] ? add_result[31] : operand1[31];
   // look sign of result if operand1 and operand2 have the same sign
