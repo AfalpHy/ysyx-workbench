@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
   contextp.traceEverOn(true);
   VerilatedVcdC *tfp = new VerilatedVcdC;
   top.trace(tfp, 99);
-  tfp->open("dump/waveform.vcd");
+  tfp->open("waveform.vcd");
 
   // initial
   top.eval();

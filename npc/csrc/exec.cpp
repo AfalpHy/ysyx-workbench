@@ -72,7 +72,7 @@ static int check_regs() {
 
 void single_cycle() {
   extern VerilatedContext contextp;
-  Verilated::timeInc(1);
+  contextp.timeInc(1);
   top.clock = 1;
   top.eval();
   top.clock = 0;
