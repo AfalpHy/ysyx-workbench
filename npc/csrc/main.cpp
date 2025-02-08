@@ -58,6 +58,7 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
+  Verilated::mkdir("logs");
   contextp = new VerilatedContext;
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
