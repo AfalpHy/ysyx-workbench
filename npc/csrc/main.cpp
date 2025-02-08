@@ -67,11 +67,11 @@ int main(int argc, char **argv) {
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
   contextp->traceEverOn(true);
-  // VerilatedVcdC *tfp = new VerilatedVcdC;
-  // top.trace(tfp, 99); // 99 是 VCD 文件的详细级别，0 是最低详细级别，99 是最高
-  // tfp->open("waveform.vcd"); // 打开 VCD 文件
   // initial
   top.eval();
+  VerilatedVcdC *tfp = new VerilatedVcdC;
+  top.trace(tfp, 99); // 99 是 VCD 文件的详细级别，0 是最低详细级别，99 是最高
+  tfp->open("waveform.vcd"); // 打开 VCD 文件
 
   string img;
   string ref_so;
