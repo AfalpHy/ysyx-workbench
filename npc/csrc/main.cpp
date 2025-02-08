@@ -62,12 +62,12 @@ int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   Verilated::mkdir("logs");
   contextp = new VerilatedContext;
+  contextp->traceEverOn(true);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
-  contextp->traceEverOn(true);
   // initial
   top.eval();
 
