@@ -59,14 +59,9 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
+  Verilated::commandArgs(argc, argv);
   Verilated::mkdir("logs");
   contextp = new VerilatedContext;
-  contextp->debug(0);
-
-  // Randomization reset policy
-  // May be overridden by commandArgs argument parsing
-  contextp->randReset(2);
-  Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
