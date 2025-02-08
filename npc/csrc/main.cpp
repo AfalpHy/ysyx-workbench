@@ -60,8 +60,6 @@ int load_img(const string &filepath) {
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
-  Verilated::mkdir("logs");
-  contextp.traceEverOn(true);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
