@@ -14,6 +14,7 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <vector>
+#include <verilated_vcd_c.h>
 
 using namespace std;
 
@@ -58,7 +59,6 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
-  Verilated::mkdir("logs");
   contextp = new VerilatedContext;
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
@@ -66,7 +66,9 @@ int main(int argc, char **argv) {
   struct timeval now;
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
-  contextp->traceEverOn(true);
+  VerilatedVcdC *tfp = new VerilatedVcdC;
+  top.trace(tfp, 99); // 99 是 VCD 文件的详细级别，0 是最低详细级别，99 是最高
+  tfp->open("waveform.vcd"); // 打开 VCD 文件
   // initial
   top.eval();
 
@@ -125,6 +127,7 @@ int main(int argc, char **argv) {
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
+  tfp->close();
   top.final();
   return status;
 }
