@@ -32,6 +32,7 @@ module ysyx_25010008_IFU (
   initial begin
     set_pc(pc);
     set_write_back(write_back);
+    $dumpvars();
   end
 
   always @(posedge clock) begin
