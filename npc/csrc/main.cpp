@@ -17,6 +17,7 @@
 
 using namespace std;
 
+VerilatedContext *contextp = nullptr;
 TOP_NAME top;
 
 int status = 0;
@@ -57,12 +58,14 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
+  contextp = new VerilatedContext;
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
+  contextp->traceEverOn(true);
   // initial
   top.eval();
 
@@ -121,5 +124,6 @@ int main(int argc, char **argv) {
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
+  top.final();
   return status;
 }

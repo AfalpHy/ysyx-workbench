@@ -3,7 +3,7 @@ INC_PATH ?= $(NPC_HOME)/include
 YSYX_SOC = $(abspath ../ysyxSoC)
 PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc -O3 --timescale "1ns/1ns" --no-timing\
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --timescale "1ns/1ns" --no-timing --trace\
 				-I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
 				--x-assign fast --x-initial fast --noassert --autoflush
 
