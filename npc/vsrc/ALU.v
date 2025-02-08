@@ -24,8 +24,9 @@ module ysyx_25010008_ALU (
   // look sign of result if operand1 and operand2 have the same sign
   wire ge = operand1[31] == operand2[31] ? ~add_result[31] : ~operand1[31];
 
+  wire [31:0] calc_result = xor_result | or_result | and_result | logic_left_shift_result | logic_right_shift_result | arithmetic_right_shift_result | bitwise_not_and;
   wire cmp_result = (eq & opcode[1]) | (ne & opcode[2]) | (ltu & opcode[3]) | (geu & opcode[4]) | (lt & opcode[5]) |(ge & opcode[6]);
 
-  assign result = opcode[7:1] == 0 ? add_result : (opcode[0]? {{31{1'b0}}, cmp_result} : (xor_result | or_result | and_result | logic_left_shift_result | logic_right_shift_result | arithmetic_right_shift_result | bitwise_not_and));
+  assign result = opcode[7:1] == 0 ? add_result : (opcode[0] ? {31'b0, cmp_result} : calc_result);
 
 endmodule
