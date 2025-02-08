@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
   contextp = new VerilatedContext;
   contextp->traceEverOn(true);
   contextp->timeInc(1);
+  contextp->timeInc(1);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
