@@ -64,10 +64,12 @@ int main(int argc, char **argv) {
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
   gettimeofday(&now, NULL);
-  begin_us = now.tv_sec * 1000000 + now.tv_usec;    
-  VerilatedVcdC* tfp = new VerilatedVcdC;
-  top.trace(tfp, 99);  // 启用波形追踪，99 为详细级别
-  tfp->open("waveform.vcd");  // 打开 VCD 文件
+  begin_us = now.tv_sec * 1000000 + now.tv_usec;
+
+  contextp.traceEverOn(true);
+  VerilatedVcdC *tfp = new VerilatedVcdC;
+  top.trace(tfp, 99);
+  tfp->open("waveform.vcd");
 
   // initial
   top.eval();
