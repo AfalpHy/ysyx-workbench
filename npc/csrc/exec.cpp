@@ -76,7 +76,7 @@ void single_cycle() {
   top.clock = 0;
   top.eval();
   extern VerilatedContext contextp;
-  contextp.timeInc(1);
+  Verilated::timeInc(1);
 }
 
 void reset() {
