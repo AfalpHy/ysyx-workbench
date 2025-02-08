@@ -126,6 +126,5 @@ int main(int argc, char **argv) {
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
-  top.final();
   return status;
 }
