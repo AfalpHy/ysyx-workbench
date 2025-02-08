@@ -60,6 +60,7 @@ module ysyx_25010008_IFU (
       end else begin
         if (rvalid) begin
           rready <= 0;
+          if(rresp==0) $display("a");
           inst   <= rdata;
           ivalid <= 1;
           state  <= IDLE;
