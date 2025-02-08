@@ -19,7 +19,7 @@
 using namespace std;
 
 VerilatedContext contextp;
-TOP_NAME top(&contextp,"yyy");
+TOP_NAME top(&contextp,"ysyxSoCFull");
 
 int status = 0;
 bool diff_test_on = false;
