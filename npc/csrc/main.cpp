@@ -19,6 +19,7 @@
 using namespace std;
 
 VerilatedContext contextp;
+VerilatedVcdC *tfp = nullptr;
 TOP_NAME top(&contextp, "ysyxSoCFull");
 
 int status = 0;
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
 
   contextp.traceEverOn(true);
-  VerilatedVcdC *tfp = new VerilatedVcdC;
+  tfp = new VerilatedVcdC;
   top.trace(tfp, 99);
   tfp->open("waveform.vcd");
 
