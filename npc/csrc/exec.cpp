@@ -84,17 +84,17 @@ void single_cycle() {
     return;
   }
   extern VerilatedContext contextp;
-  extern VerilatedVcdC tfp;
+  extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
   contextp.timeInc(1);
-  tfp.dump(contextp.time());
-  tfp.dumpvars(0, "");
+  tfp->dump(contextp.time());
+  tfp->dumpvars(0, "");
   top.clock = 0;
   top.eval();
   contextp.timeInc(1);
-  tfp.dump(contextp.time());
-  tfp.dumpvars(0, "");
+  tfp->dump(contextp.time());
+  tfp->dumpvars(0, "");
 }
 
 void reset() {
