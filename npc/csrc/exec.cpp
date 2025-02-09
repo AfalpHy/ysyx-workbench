@@ -93,8 +93,8 @@ void single_cycle() {
   top.clock = 0;
   top.eval();
   contextp.timeInc(1);
-  // tfp->dump(contextp.time());
-  // tfp->dumpvars(0, "");
+  tfp->dump(contextp.time());
+  tfp->dumpvars(0, "");
 }
 
 void reset() {
