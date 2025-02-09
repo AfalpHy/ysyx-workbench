@@ -131,6 +131,8 @@ void cpu_exec(uint32_t num) {
     print_mtrace = false;
 #endif
 
+    // halt = inst == 0b00000000000100000000000001110011;
+
 #ifdef ITRACE
     iringbuf[iringbuf_index].inst = inst;
     disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str),
@@ -170,7 +172,7 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    if (halt() || interrupt) {
+    if (inst==0b00000000000100000000000001110011 || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
     }
