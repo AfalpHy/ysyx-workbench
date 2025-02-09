@@ -20,7 +20,7 @@ using namespace std;
 
 VerilatedContext contextp;
 VerilatedVcdC *tfp = nullptr;
-TOP_NAME top(&contextp, "ysyxSoCFull");
+TOP_NAME top(&contextp);
 
 int status = 0;
 bool diff_test_on = false;
