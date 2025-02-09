@@ -32,7 +32,7 @@ override CXXFLAGS += -DRV32E=1
 endif
 
 ifdef TRACE
-override CXXFLAGS += -DITRACE -DMTRACE -DFTRACE
+override CXXFLAGS += -DITRACE -DMTRACE -DFTRACE -DTRACE_WAVE
 endif
 
 ifdef ITRACE
@@ -45,6 +45,10 @@ endif
 
 ifdef FTRACE
 override CXXFLAGS += -DFTRACE
+endif
+
+ifdef TRACE_WAVE
+override CXXFLAGS += -DTRACE_WAVE
 endif
 
 ifdef IMG
