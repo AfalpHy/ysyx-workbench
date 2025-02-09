@@ -19,7 +19,7 @@
 using namespace std;
 
 VerilatedContext contextp;
-VerilatedVcdC *tfp = nullptr;
+VerilatedVcdC tfp;
 TOP_NAME top;
 
 int status = 0;
@@ -44,7 +44,7 @@ void sigint_handler(int sig) {
 }
 void sigsegv_handler(int sig) {
   fflush_trace();
-  tfp->close();
+  tfp.close();
   printf("receive SIGSEGV\n");
   exit(1);
 }
@@ -69,9 +69,8 @@ int main(int argc, char **argv) {
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
 
   contextp.traceEverOn(true);
-  tfp = new VerilatedVcdC;
-  top.trace(tfp, 99);
-  tfp->open("waveform.vcd");
+  top.trace(&tfp, 99);
+  tfp.open("waveform.vcd");
 
   // initial
   top.eval();
@@ -131,6 +130,6 @@ int main(int argc, char **argv) {
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
-  tfp->close();
+  tfp.close();
   return status;
 }
