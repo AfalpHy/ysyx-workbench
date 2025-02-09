@@ -78,8 +78,8 @@ void single_cycle() {
   top.eval();
   top.clock = 0;
   top.eval();
-  extern VerilatedVcdC *tfp;
-  tfp->dump(top.clock);
+  // extern VerilatedVcdC *tfp;
+  // tfp->dump(top.clock);
 }
 
 void reset() {
