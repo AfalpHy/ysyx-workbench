@@ -20,7 +20,7 @@ using namespace std;
 
 VerilatedContext contextp;
 VerilatedVcdC *tfp = nullptr;
-TOP_NAME top(&contextp);
+TOP_NAME top;
 
 int status = 0;
 bool diff_test_on = false;
