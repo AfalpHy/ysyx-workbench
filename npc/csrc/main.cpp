@@ -19,7 +19,7 @@
 using namespace std;
 
 VerilatedContext contextp;
-TOP_NAME top(&contextp,"ysyxSoCFull");
+TOP_NAME top(&contextp, "ysyxSoCFull");
 
 int status = 0;
 bool diff_test_on = false;
@@ -129,7 +129,6 @@ int main(int argc, char **argv) {
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
-  // top.final();
-  // tfp->close();
+  tfp->close();
   return status;
 }
