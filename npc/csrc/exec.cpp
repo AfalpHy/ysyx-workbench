@@ -80,17 +80,15 @@ static inline bool halt() {
 }
 
 void single_cycle() {
-  extern VerilatedContext contextp;
   if (halt()) {
     return;
   }
+  extern VerilatedContext contextp;
   Verilated::timeInc(1);
   top.clock = 1;
   top.eval();
   top.clock = 0;
   top.eval();
-  // extern VerilatedVcdC *tfp;
-  // tfp->dump(top.clock);
 }
 
 void reset() {

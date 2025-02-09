@@ -19,7 +19,6 @@
 using namespace std;
 
 VerilatedContext contextp;
-VerilatedVcdC *tfp = nullptr;
 TOP_NAME top(&contextp, "ysyxSoCFull");
 
 int status = 0;
@@ -60,7 +59,7 @@ int load_img(const string &filepath) {
 }
 
 int main(int argc, char **argv) {
-  Verilated::commandArgs(argc, argv);
+  // Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
@@ -68,7 +67,7 @@ int main(int argc, char **argv) {
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
 
   contextp.traceEverOn(true);
-  tfp = new VerilatedVcdC;
+  VerilatedVcdC *tfp = new VerilatedVcdC;
   top.trace(tfp, 99);
   tfp->open("waveform.vcd");
 
