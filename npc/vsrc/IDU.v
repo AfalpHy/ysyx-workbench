@@ -28,7 +28,8 @@ module ysyx_25010008_IDU (
     output reg mem_ren,
     output mem_wen,
 
-    output [7:0] alu_opcode
+    output [7:0] alu_opcode,
+    output halt
 );
 
   wire [6:0] opcode = inst[6:0];
@@ -169,6 +170,8 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
+
+  assign halt = EBREAK;
 
 endmodule
 

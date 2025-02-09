@@ -101,6 +101,7 @@ module ysyx_25010008_NPC (
   wire [31:0] csr_wdata1, csr_wdata2;
 
   wire write_back = mem_ren ? read_done : (mem_wen ? write_done : ivalid);
+  wire halt;
 
   wire [31:0] araddr_0 = pc;
   wire arvalid_0;
@@ -132,6 +133,10 @@ module ysyx_25010008_NPC (
   wire bready_1;
   wire [1:0] bresp_1;
   wire bvalid_1;
+
+  always @(posedge clock) begin
+    if (halt) $finish;
+  end
 
   ysyx_25010008_IFU ifu (
       .clock(clock),
@@ -183,7 +188,8 @@ module ysyx_25010008_NPC (
       .mem_ren(mem_ren),
       .mem_wen(mem_wen),
 
-      .alu_opcode(alu_opcode)
+      .alu_opcode(alu_opcode),
+      .halt(halt)
   );
 
   ysyx_25010008_EXU exu (
