@@ -87,11 +87,12 @@ void single_cycle() {
   contextp.timeInc(1);
   extern VerilatedVcdC *tfp;
   tfp->dump(contextp.time());
-  tfp->dumpvars(0,"");
   top.clock = 1;
   top.eval();
+  tfp->dumpvars(0, "");
   top.clock = 0;
   top.eval();
+  tfp->dumpvars(0, "");
 }
 
 void reset() {
