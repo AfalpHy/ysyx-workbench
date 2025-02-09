@@ -71,30 +71,19 @@ static int check_regs() {
   return 0;
 }
 
-static inline bool halt() {
-  extern VerilatedContext contextp;
-  if (contextp.gotFinish()) {
-    return true;
-  }
-  return false;
-}
-
 void single_cycle() {
-  if (halt()) {
-    return;
-  }
   extern VerilatedContext contextp;
   extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
   contextp.timeInc(1);
   tfp->dump(contextp.time());
-  tfp->dumpvars(0, "");
+  // tfp->dumpvars(0, "");
   top.clock = 0;
   top.eval();
   contextp.timeInc(1);
   tfp->dump(contextp.time());
-  tfp->dumpvars(0, "");
+  // tfp->dumpvars(0, "");
 }
 
 void reset() {
@@ -106,7 +95,8 @@ void reset() {
 }
 
 void cpu_exec(uint32_t num) {
-  if (halt()) {
+  static bool halt = false;
+  if (halt) {
     printf("Program execution has ended\n");
     return;
   }
@@ -122,7 +112,7 @@ void cpu_exec(uint32_t num) {
     print_mtrace = true;
 #endif
 
-    while (!(*write_back) && !interrupt && !halt())
+    while (!(*write_back) && !interrupt)
       single_cycle();
     single_cycle(); // write back
 
@@ -131,7 +121,7 @@ void cpu_exec(uint32_t num) {
     print_mtrace = false;
 #endif
 
-    // halt = inst == 0b00000000000100000000000001110011;
+    halt = inst == 0b00000000000100000000000001110011;
 
 #ifdef ITRACE
     iringbuf[iringbuf_index].inst = inst;
@@ -172,7 +162,7 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    if (inst==0b00000000000100000000000001110011 || interrupt) {
+    if (halt || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
     }
