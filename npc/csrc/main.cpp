@@ -44,6 +44,7 @@ void sigint_handler(int sig) {
 }
 void sigsegv_handler(int sig) {
   fflush_trace();
+  tfp->close();
   printf("receive SIGSEGV\n");
   exit(1);
 }
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
 
-  // contextp.traceEverOn(true);
+  contextp.traceEverOn(true);
   tfp = new VerilatedVcdC;
   top.trace(tfp, 99);
   tfp->open("waveform.vcd");
