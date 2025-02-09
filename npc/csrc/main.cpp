@@ -43,7 +43,9 @@ void sigint_handler(int sig) {
 }
 void sigsegv_handler(int sig) {
   fflush_trace();
+#ifdef TRACE_WAVE
   tfp->close();
+#endif
   printf("receive SIGSEGV\n");
   exit(1);
 }
@@ -67,11 +69,12 @@ int main(int argc, char **argv) {
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
 
+#ifdef TRACE_WAVE
   Verilated::traceEverOn(true);
   tfp = new VerilatedVcdC;
   top.trace(tfp, 99);
   tfp->open("waveform.vcd");
-
+#endif
   // initial
   top.eval();
 
@@ -130,6 +133,8 @@ int main(int argc, char **argv) {
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
   }
+#ifdef TRACE_WAVE
   tfp->close();
+#endif
   return status;
 }

@@ -75,12 +75,19 @@ void single_cycle() {
   extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
+
+#ifdef TRACE_WAVE
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
+#endif
+
   top.clock = 0;
   top.eval();
+
+#ifdef TRACE_WAVE
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
+#endif
 }
 
 void reset() {
