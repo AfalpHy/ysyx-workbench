@@ -36,7 +36,7 @@ module ysyx_25010008_IFU (
 
   always @(posedge clock) begin
     if (reset) begin
-      $display("here\n");
+      $display("here");
       pc <= 32'h3000_0000;
       pvalid <= 1;
       rready <= 1;
