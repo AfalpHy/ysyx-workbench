@@ -134,9 +134,9 @@ module ysyx_25010008_NPC (
   wire [1:0] bresp_1;
   wire bvalid_1;
 
-  always @(posedge clock) begin
-    if (halt) $finish;
-  end
+//   always @(posedge clock) begin
+//     if (halt) $finish;
+//   end
 
   ysyx_25010008_IFU ifu (
       .clock(clock),
