@@ -85,6 +85,8 @@ void single_cycle() {
   }
   extern VerilatedContext contextp;
   contextp.timeInc(1);
+  extern VerilatedVcdC *tfp;
+  tfp->dump(contextp.time());
   top.clock = 1;
   top.eval();
   top.clock = 0;
