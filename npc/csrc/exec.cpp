@@ -72,18 +72,15 @@ static int check_regs() {
 }
 
 void single_cycle() {
-  extern VerilatedContext contextp;
   extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
-  contextp.timeInc(1);
-  tfp->dump(contextp.time());
-  // tfp->dumpvars(0, "");
+  Verilated::timeInc(1);
+  tfp->dump(Verilated::time());
   top.clock = 0;
   top.eval();
-  contextp.timeInc(1);
-  tfp->dump(contextp.time());
-  // tfp->dumpvars(0, "");
+  Verilated::timeInc(1);
+  tfp->dump(Verilated::time());
 }
 
 void reset() {
