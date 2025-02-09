@@ -6,6 +6,7 @@
 #include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"
+#include <verilated_vcd_c.h>
 
 extern TOP_NAME top;
 extern int status;
@@ -71,22 +72,30 @@ static int check_regs() {
 }
 
 void single_cycle() {
+  extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
+
+#ifdef TRACE_WAVE
+  Verilated::timeInc(1);
+  tfp->dump(Verilated::time());
+#endif
+
   top.clock = 0;
   top.eval();
+
+#ifdef TRACE_WAVE
   Verilated::timeInc(1);
+  tfp->dump(Verilated::time());
+#endif
 }
 
 void reset() {
+  top.reset = 1;
   for (int i = 0; i < 10; i++) {
-    top.reset = 1;
-    top.clock = 1;
-    top.eval();
-    top.clock = 0;
-    top.eval();
-    top.reset = 0;
+    single_cycle();
   }
+  top.reset = 0;
 }
 
 void cpu_exec(uint32_t num) {

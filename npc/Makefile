@@ -3,7 +3,7 @@ INC_PATH ?= $(NPC_HOME)/include
 YSYX_SOC = $(abspath ../ysyxSoC)
 PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc -O3 --timescale "1ns/1ns" --no-timing\
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --timescale "1ns/1ns" --no-timing --trace\
 				-I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
 				--x-assign fast --x-initial fast --noassert --autoflush
 
@@ -32,7 +32,7 @@ override CXXFLAGS += -DRV32E=1
 endif
 
 ifdef TRACE
-override CXXFLAGS += -DITRACE -DMTRACE -DFTRACE
+override CXXFLAGS += -DITRACE -DMTRACE -DFTRACE -DTRACE_WAVE
 endif
 
 ifdef ITRACE
@@ -45,6 +45,10 @@ endif
 
 ifdef FTRACE
 override CXXFLAGS += -DFTRACE
+endif
+
+ifdef TRACE_WAVE
+override CXXFLAGS += -DTRACE_WAVE
 endif
 
 ifdef IMG
