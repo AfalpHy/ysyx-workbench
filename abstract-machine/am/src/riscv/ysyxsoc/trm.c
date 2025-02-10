@@ -1,5 +1,4 @@
-#include <am.h>
-#include <klib-macros.h>
+#include <klib.h>
 
 #define UART_ADDR 0x10000000
 #define UART_REG_TR 0
@@ -41,6 +40,11 @@ void _trm_init() {
   for (int i = 0; i < size; i++) {
     *(&_data_start + i) = *(&_data + i);
   }
+  uint32_t id = 0;
+  asm volatile("csrr  %0, mvendorid" : "=r"(id));
+  printf("ysyx ascii:%x\n", id);
+  asm volatile("csrr %0, marchid" : "=r"(id));
+  printf("student id:%x\n", id);
   int ret = main(mainargs);
   halt(ret);
 }
