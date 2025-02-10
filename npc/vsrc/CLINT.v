@@ -20,13 +20,17 @@ module ysyx_25010008_CLINT (
 
   reg [31:0] _araddr;
 
+  reg [63:0] mtime;
+
   always @(posedge clock) begin
     if (reset) begin
+      mtime   <= 0;
       arready <= 1;
       rresp   <= 0;
       rvalid  <= 0;
       rstate  <= HANDLE_RADDR;
     end else begin
+      mtime <= mtime + 1;
       if (rstate == HANDLE_RADDR) begin
         if (arvalid) begin
           _araddr <= araddr;
@@ -34,7 +38,7 @@ module ysyx_25010008_CLINT (
           rstate  <= READING;
         end
       end else if (rstate == READING) begin
-        // rdata  <= pmem_read(_araddr);
+        rdata  <= _araddr[2] ? mtime[63:32] : mtime[31:0];
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin
