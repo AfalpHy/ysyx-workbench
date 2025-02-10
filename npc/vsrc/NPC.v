@@ -255,7 +255,7 @@ module ysyx_25010008_NPC (
       .bvalid(bvalid_1)
   );
 
-  ysyx_25010008_RegHeap reg_heap (
+  ysyx_25010008_RegFile reg_file (
       .clock(clock),
       .reset(reset),
 

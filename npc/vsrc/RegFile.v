@@ -1,6 +1,6 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 
-module ysyx_25010008_RegHeap (
+module ysyx_25010008_RegFile (
     input clock,
     input reset,
 
