@@ -28,11 +28,12 @@ void halt(int code) {
 }
 
 void bootload() {
-  extern char _data, _data_start, _bss_start;
-  // copy data from mrom to sram
-  int size = &_bss_start - &_data_start;
+  extern char _end;
+  // copy data from flash to sram
+  int size = (int)&_end;
+  size -= 0xf000000;
   for (int i = 0; i < size; i++) {
-    *(&_data_start + i) = *(&_data + i);
+    *(char *)(0xf000000 + i) = *(char *)(0x30000000 + i);
   }
 }
 
