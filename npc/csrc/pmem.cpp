@@ -84,7 +84,6 @@ extern "C" void psram_read(paddr_t addr, int *data) {
             result);
 #endif
   *data = result;
-  printf("%x\n",result);
 }
 
 extern "C" void psram_write(word_t addr, word_t data, int mask) {
