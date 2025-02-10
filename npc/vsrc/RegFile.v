@@ -29,6 +29,8 @@ module ysyx_25010008_RegFile (
 
   reg [31:0] regs[15:0];
   reg [31:0] mstatus, mtvec, mepc, mcause;
+  reg [31:0] mvendorid;
+  reg [31:0] marchid;
 
   assign src1 = regs[rs1[3:0]];
   assign src2 = regs[rs2[3:0]];
@@ -41,8 +43,10 @@ module ysyx_25010008_RegFile (
 
   always @(posedge clock) begin
     if (reset) begin
-      for (i = 0; i < 32; i = i + 1) regs[i] <= 0;
-      mstatus <= 32'h1800;
+      for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
+      mstatus   <= 32'h1800;
+      mvendorid <= 32'h79737978;
+      marchid   <= 32'h17D_9F58;
     end else begin
       if (write_back && wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
       if (write_back & csr_wen1) begin
@@ -66,11 +70,24 @@ module ysyx_25010008_RegFile (
     end
   end
 
-  ysyx_25010008_MuxKeyWithDefault #(4, 12, 32) mux_csr_src (
+  ysyx_25010008_MuxKeyWithDefault #(6, 12, 32) mux_csr_src (
       .out(csr_src),
       .key(csr_s),
       .default_out(32'b0),
-      .lut({12'h300, mstatus, 12'h305, mtvec, 12'h341, mepc, 12'h342, mcause})
+      .lut({
+        12'h300,
+        mstatus,
+        12'h305,
+        mtvec,
+        12'h341,
+        mepc,
+        12'h342,
+        mcause,
+        12'hF11,
+        mvendorid,
+        12'hF12,
+        marchid
+      })
   );
 
 endmodule
