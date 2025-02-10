@@ -27,24 +27,34 @@ void halt(int code) {
   while (1);
 }
 
-extern char _data,_data_start,_bss_start;
-
-void _trm_init() {
-  // init uart
-  outb(UART_ADDR + UART_REG_LC, 0x80); // set dlab(divisor latch access bit)
-  outb(UART_ADDR + UART_REG_DLL, 12);
-  outb(UART_ADDR + UART_REG_DLH, 0);
-  outb(UART_ADDR + UART_REG_LC, 3); // recover
+void bootload() {
+  extern char _data, _data_start, _bss_start;
   // copy data from mrom to sram
   int size = &_bss_start - &_data_start;
   for (int i = 0; i < size; i++) {
     *(&_data_start + i) = *(&_data + i);
   }
+}
+
+void init_uart() {
+  outb(UART_ADDR + UART_REG_LC, 0x80); // set dlab(divisor latch access bit)
+  outb(UART_ADDR + UART_REG_DLL, 12);
+  outb(UART_ADDR + UART_REG_DLH, 0);
+  outb(UART_ADDR + UART_REG_LC, 3); // recover
+}
+
+void printId() {
   uint32_t id = 0;
   asm volatile("csrr  %0, mvendorid" : "=r"(id));
   printf("ysyx ascii:%x\n", id);
   asm volatile("csrr %0, marchid" : "=r"(id));
   printf("student id:%x\n", id);
+}
+
+void _trm_init() {
+  bootload();
+  init_uart();
+  printId();
   int ret = main(mainargs);
   halt(ret);
 }
