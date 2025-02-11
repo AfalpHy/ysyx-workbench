@@ -98,7 +98,7 @@ module ysyx_25010008_LSU (
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin
-          if (araddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
+          if (awaddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
           awvalid <= 0;
           wvalid  <= 1;
           state   <= HANDLE_WDATA;

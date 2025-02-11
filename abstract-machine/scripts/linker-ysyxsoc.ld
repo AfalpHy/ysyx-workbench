@@ -10,12 +10,12 @@ SECTIONS {
   _sram_start = ORIGIN(sram);
   _psram_start = ORIGIN(psram);
 
-  .text : {
+  .entry : {
     *(entry)
   } > flash
   _entry_end = .;
 
-  .text : {
+  .ssbl : {
     *(SSBL)
   } > sram AT > flash
   _SSBL_size = . - _sram_start;
@@ -24,6 +24,7 @@ SECTIONS {
   .text : {
   _text_start = .;
     *(.text*)
+  . = ALIGN(8);
   } > psram AT > flash
 
   .rodata : {

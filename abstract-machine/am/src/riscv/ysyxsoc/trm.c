@@ -1,4 +1,5 @@
 #include <klib.h>
+#include <klib-macros.h>
 
 #define UART_ADDR 0x10000000
 #define UART_REG_TR 0
@@ -7,8 +8,14 @@
 #define UART_REG_DLL 0
 #define UART_REG_DLH 1
 
+extern char _heap_start;
 int main(const char *args);
 
+extern char _psram_start;
+#define PSRAM_SIZE (4 * 1024 * 1024)
+#define PSRAM_END  ((uintptr_t)&_psram_start + PSRAM_SIZE)
+
+Area heap = RANGE(&_heap_start, PSRAM_END);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 static inline uint8_t  inb(uintptr_t addr) { return *(volatile uint8_t  *)addr; }
