@@ -24,7 +24,7 @@ _memcpy_FSBL:
 .type _SSBL, @function
 _SSBL:
   la a2, _total_size
-  la a1, _SSBL_end
+  la a1, _eee
   la a0, _psram_start
 _memcpy_SSBL:
   lb a3, 0(a1)

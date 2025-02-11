@@ -21,7 +21,7 @@ SECTIONS {
     _SSBL_end = .;
   } > sram AT > flash
   _SSBL_size = _SSBL_end - _SSBL_start;
-
+  _eee = .;
   .text : {
   _text_start = .;
     *(.text*)
