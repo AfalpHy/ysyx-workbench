@@ -1,4 +1,5 @@
 ENTRY(_start)
+PHDRS { text PT_LOAD; data PT_LOAD; }
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
@@ -12,7 +13,7 @@ SECTIONS {
 
   .entry : {
     *(entry)
-  } > flash
+  } > flash : text
   _entry_end = .;
 
   .ssbl : {
@@ -34,7 +35,7 @@ SECTIONS {
   .data : {
     *(.data)
   _data_end = .;
-  } > psram AT > flash
+  } > psram AT > flash : data
   _total_size = _data_end - _text_start;
 
   .bss : {
