@@ -27,15 +27,6 @@ void halt(int code) {
   while (1);
 }
 
-void bootload() {
-  extern char _data, _data_start, _bss_start;
-  // copy data from mrom to sram
-  int size = &_bss_start - &_data_start;
-  for (int i = 0; i < size; i++) {
-    *(&_data_start + i) = *(&_data + i);
-  }
-}
-
 void init_uart() {
   outb(UART_ADDR + UART_REG_LC, 0x80); // set dlab(divisor latch access bit)
   outb(UART_ADDR + UART_REG_DLL, 12);
@@ -52,7 +43,6 @@ void printId() {
 }
 
 void _trm_init() {
-  bootload();
   init_uart();
   printId();
   int ret = main(mainargs);

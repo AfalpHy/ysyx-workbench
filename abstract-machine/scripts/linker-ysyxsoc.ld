@@ -8,27 +8,28 @@ SECTIONS {
   .text : {
     *(entry)
   } > flash
+
   .text : {
+  _text_start = .;
     *(.text*)
   } > sram AT > flash
-  etext = .;
-  _etext = .;
+
   .rodata : {
     *(.rodata*)
   } > sram AT > flash
-  _data = .;
+
   .data : {
-  _data_start = .;
     *(.data)
+  _data_end = .;
   } > sram AT > flash
-  edata = .;
+  _total_size = _data_end - _text_start;
+
   .bss : {
 	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
   } > sram
-  end = .;
   _end = .;
   _heap_start = .;
 
