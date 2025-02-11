@@ -42,10 +42,10 @@ void sigint_handler(int sig) {
   printf("receive SIGINT\n");
 }
 void sigsegv_handler(int sig) {
-  fflush_trace();
-#ifdef TRACE_WAVE
-  tfp->close();
-#endif
+//   fflush_trace();
+// #ifdef TRACE_WAVE
+//   tfp->close();
+// #endif
   // isa_reg_display();
   // iringbuf_display();
   printf("receive SIGSEGV\n");
