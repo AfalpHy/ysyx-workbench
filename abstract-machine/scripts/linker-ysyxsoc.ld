@@ -1,8 +1,8 @@
 ENTRY(_start)
 MEMORY {
-  flash(wrx) : ORIGIN = 0x30000000, LENGTH = 16M
-  sram(xrw) : ORIGIN = 0x0f000000, LENGTH = 8K
-  psram(xrw) : ORIGIN = 0x80000000, LENGTH = 4M
+  sram : ORIGIN = 0x0f000000, LENGTH = 8K
+  flash : ORIGIN = 0x30000000, LENGTH = 16M
+  psram : ORIGIN = 0x80000000, LENGTH = 4M
 }
 
 SECTIONS {
@@ -10,12 +10,12 @@ SECTIONS {
   _sram_start = ORIGIN(sram);
   _psram_start = ORIGIN(psram);
 
-  .text : {
+  .entry : {
     *(entry)
   } > flash
   _entry_end = .;
 
-  .text : {
+  .ssbl : {
     *(SSBL)
   } > sram AT > flash
   _SSBL_size = . - _sram_start;
@@ -41,7 +41,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > psram :NONE
+  } > psram
   _end = .;
   _heap_start = .;
 
