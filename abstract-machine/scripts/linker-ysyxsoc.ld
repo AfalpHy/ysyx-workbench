@@ -10,7 +10,7 @@ SECTIONS {
   _sram_start = ORIGIN(sram);
   .entry : {
     *(entry)
-  } > flash
+  } > flash AT> flash
   .text : {
     *(.text*)
   } > sram
