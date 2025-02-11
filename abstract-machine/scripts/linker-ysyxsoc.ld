@@ -13,7 +13,7 @@ SECTIONS {
     *(entry)
   } > flash AT> flash : text
   .text : {
-    *(.text1*)
+    *(.text*)
   } > sram AT> flash : text
   etext = .;
   _etext = .;
