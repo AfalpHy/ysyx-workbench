@@ -28,7 +28,7 @@ void halt(int code) {
 }
 
 void bootload() {
-  extern char _end;
+  extern char _end[];
   // copy data from flash to sram
   int size = (int)&_end;
   size -= 0xf000000;

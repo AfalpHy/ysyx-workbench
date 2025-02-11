@@ -6,21 +6,20 @@ MEMORY {
 }
 
 SECTIONS {
-  . = ORIGIN(sram);
   .text : {
     *(entry)
     *(.text*)
-  } > sram AT > flash
+  } > sram
   etext = .;
   _etext = .;
   .rodata : {
     *(.rodata*)
-  } > sram AT> flash
+  } > sram
   _data = .;
   .data : {
   _data_start = .;
     *(.data)
-  } > sram AT > flash
+  } > sram
   edata = .;
   .bss : {
 	_bss_start = .;
@@ -30,6 +29,7 @@ SECTIONS {
   } > sram
   end = .;
   _end = .;
+  _total_size = _end - ORIGIN(sram);
   _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
