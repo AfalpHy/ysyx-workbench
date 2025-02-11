@@ -33,6 +33,7 @@ SECTIONS {
 
   .data : {
     *(.data)
+  . = ALIGN(8);
   _data_end = .;
   } > psram AT > flash
   _total_size = _data_end - _text_start;
