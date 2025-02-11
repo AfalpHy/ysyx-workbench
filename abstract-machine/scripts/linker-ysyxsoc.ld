@@ -16,25 +16,27 @@ SECTIONS {
   } > flash : text
   _entry_end = .;
 
-  .SSBL : {
+  .SSBL : AT(_entry_end) {
     *(SSBL)
-  } > sram AT > flash : text
-  _SSBL_size = . - _sram_start;
+  } > sram
+  _SSBL_size = SIZEOF(.SSBL);
   _SSBL_end = _entry_end + _SSBL_size;
   
-  .text : {
+  .text : AT(_SSBL_end) {
   _text_start = .;
     *(.text*)
-  } > psram AT > flash
+  } > psram
+  _text_end = _SSBL_end + SIZEOF(.text);
 
-  .rodata : {
+  .rodata : AT(_text_end) {
     *(.rodata*)
-  } > psram AT > flash
+  } > psram
+  _rodata_end = _text_end + SIZEOF(.rodata);
 
-  .data : {
+  .data : AT(_rodata_end) {
     *(.data)
   _data_end = .;
-  } > psram AT > flash : data
+  } > psram : data
   _total_size = _data_end - _text_start;
 
   .bss : {
