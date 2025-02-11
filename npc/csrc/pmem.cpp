@@ -31,7 +31,6 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
 extern "C" word_t pmem_read(paddr_t addr) {
   word_t result;
   if (addr == RTC_ADDR || addr == RTC_ADDR + 4) {
-    std::cout<<"here"<<std::endl;
     static uint64_t us;
     if (addr == RTC_ADDR + 4) {
       struct timeval now;
