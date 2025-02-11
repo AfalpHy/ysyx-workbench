@@ -1,4 +1,5 @@
 ENTRY(_start)
+PHDRS { text PT_LOAD; data PT_LOAD; }
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
@@ -10,21 +11,21 @@ SECTIONS {
   _sram_start = ORIGIN(sram);
   _psram_start = ORIGIN(psram);
 
-  .text : {
+  .entry : {
     *(entry)
-  } > flash
+  } > flash : text
   _entry_end = .;
 
-  .text : {
+  .SSBL : {
     *(SSBL)
-  } > sram AT > flash
+  } > sram AT > flash : text
   _SSBL_size = . - _sram_start;
   _SSBL_end = _entry_end + _SSBL_size;
   
   .text : {
   _text_start = .;
     *(.text*)
-  } > psram AT > flash
+  } > psram AT > flash : text
 
   .rodata : {
     *(.rodata*)
@@ -33,7 +34,7 @@ SECTIONS {
   .data : {
     *(.data)
   _data_end = .;
-  } > psram AT > flash
+  } > psram AT > flash : data
   _total_size = _data_end - _text_start;
 
   .bss : {
