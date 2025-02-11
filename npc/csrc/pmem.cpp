@@ -82,9 +82,9 @@ extern "C" void psram_read(paddr_t addr, int *data) {
   if (print_mtrace && total_insts_num < 10000)
     fprintf(log_fp, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
             result);
+            printf("---%d\n",result);
 #endif
   *data = result;
-  printf("---%d\n",*data);
 }
 
 extern "C" void psram_write(word_t addr, word_t data, int mask) {
