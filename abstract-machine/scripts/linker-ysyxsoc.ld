@@ -6,6 +6,7 @@ MEMORY {
 }
 
 SECTIONS {
+  _flash_start = ORIGIN(flash);
   _sram_start = ORIGIN(sram);
   .entry : {
     *(entry)
@@ -18,9 +19,7 @@ SECTIONS {
   .rodata : {
     *(.rodata*)
   } > sram
-  _data = .;
   .data : {
-  _data_start = .;
     *(.data)
   } > sram
   edata = .;
@@ -33,6 +32,7 @@ SECTIONS {
   end = .;
   _end = .;
   _heap_start = .;
-
+  _load_begin = LOADADDR(.entry);
+  _total_size = _end - _load_begin;
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
 }

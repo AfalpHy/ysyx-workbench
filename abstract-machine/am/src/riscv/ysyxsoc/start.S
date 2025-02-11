@@ -6,8 +6,9 @@ _start:
   mv s0, zero
   la sp, _stack_pointer
   
-  li a1, 0x30000000
-  li a0, 0xf000000
+  la a2, _total_size
+  la a1, _flash_start
+  la a0, _sram_start
 
   // copy data from flash to sram
   call memcpy
