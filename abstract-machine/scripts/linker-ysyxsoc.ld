@@ -12,11 +12,13 @@ SECTIONS {
 
   .entry : {
     *(entry)
+  . = ALIGN(8);
   } > flash
   _entry_end = .;
 
   .ssbl : {
     *(SSBL)
+  . = ALIGN(8);
   } > sram AT > flash
   _SSBL_size = . - _sram_start;
   _SSBL_end = _entry_end + _SSBL_size;
