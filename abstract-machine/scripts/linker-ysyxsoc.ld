@@ -14,7 +14,7 @@ SECTIONS {
   } > flash AT> flash : text
   .text : {
     *(.text1*)
-  } > sram : text
+  } > sram AT> flash : text
   etext = .;
   _etext = .;
   .rodata : {
