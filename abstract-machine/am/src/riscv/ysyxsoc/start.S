@@ -35,3 +35,4 @@ _memcpy_SSBL:
   bnez a2, _memcpy_SSBL
 
   call _trm_init
+.size _SSBL, . - _SSBL
