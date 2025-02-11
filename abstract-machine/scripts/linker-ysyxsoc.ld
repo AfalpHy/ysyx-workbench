@@ -2,46 +2,31 @@ ENTRY(_start)
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
-  psram : ORIGIN = 0x80000000, LENGTH = 4M
 }
-
 SECTIONS {
   . = ORIGIN(flash);
-  _sram_start = ORIGIN(sram);
-  _psram_start = ORIGIN(psram);
-
   .text : {
     *(entry)
-  } > flash
-  _entry_end = .;
-
-  .text : {
-    *(SSBL)
-  } > sram AT > flash
-  _SSBL_size = . - _sram_start;
-  _SSBL_end = _entry_end + _SSBL_size;
-  
-  .text : {
-  _text_start = .;
     *(.text*)
-  } > psram AT > flash
-
+  } > flash
+  etext = .;
+  _etext = .;
   .rodata : {
     *(.rodata*)
-  } > psram AT > flash
-
+  } > flash
+  _data = .;
   .data : {
+  _data_start = .;
     *(.data)
-  _data_end = .;
-  } > psram AT > flash
-  _total_size = _data_end - _text_start;
-
+  } > sram AT > flash
+  edata = .;
   .bss : {
 	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > psram
+  } > sram
+  end = .;
   _end = .;
   _heap_start = .;
 

@@ -90,10 +90,8 @@ extern "C" void psram_write(word_t addr, word_t data, int mask) {
 #ifdef MTRACE
   extern uint64_t total_insts_num;
   if (print_mtrace && total_insts_num < 10000)
-    fprintf(log_fp,
-            "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
-            "\n",
-            addr, data, mask);
+    fprintf(log_fp, "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
+            data);
 #endif
   uint8_t *pmem_addr = (uint8_t *)pmem;
   pmem_addr += addr;
