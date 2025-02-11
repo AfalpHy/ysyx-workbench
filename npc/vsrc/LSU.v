@@ -108,6 +108,7 @@ module ysyx_25010008_LSU (
           wvalid <= 0;
           bready <= 1;
           state  <= HANDLE_BRESP;
+          $display("%h",wdata);
         end
       end else if (state == HANDLE_BRESP) begin
         if (bvalid) begin
