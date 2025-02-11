@@ -20,6 +20,7 @@ _memcpy_FSBL:
   call _SSBL
 
 .section SSBL, "ax"
+.globl _SSBL
 .type _SSBL, @function
 _SSBL:
   la a2, _total_size
