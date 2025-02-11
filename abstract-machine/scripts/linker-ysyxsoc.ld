@@ -1,12 +1,14 @@
 ENTRY(_start)
 MEMORY {
-  sram : ORIGIN = 0x0f000000, LENGTH = 8K
   flash : ORIGIN = 0x30000000, LENGTH = 16M
+  sram : ORIGIN = 0x0f000000, LENGTH = 8K
   psram : ORIGIN = 0x80000000, LENGTH = 4M
 }
 
 SECTIONS {
   . = ORIGIN(flash);
+  _sram_start = ORIGIN(sram);
+  _psram_start = ORIGIN(psram);
 
   .entry : {
     *(entry)
@@ -43,7 +45,5 @@ SECTIONS {
   _end = .;
   _heap_start = .;
 
-  _sram_start = ORIGIN(sram);
-  _psram_start = ORIGIN(psram);
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
 }
