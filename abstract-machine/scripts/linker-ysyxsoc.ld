@@ -6,10 +6,11 @@ MEMORY {
 }
 
 SECTIONS {
-  _load_start = ORIGIN(flash);
   _sram_start = ORIGIN(sram);
-  .text : {
+  .entry : {
     *(entry)
+  } > flash
+  .text : {
     *(.text*)
   } > sram
   etext = .;
@@ -31,7 +32,6 @@ SECTIONS {
   } > sram
   end = .;
   _end = .;
-  _total_size = _end - ORIGIN(sram);
   _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
