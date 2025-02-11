@@ -41,7 +41,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > psram
+  } > psram :NONE
   _end = .;
   _heap_start = .;
 
