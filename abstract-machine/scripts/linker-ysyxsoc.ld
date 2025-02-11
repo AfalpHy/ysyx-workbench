@@ -20,18 +20,18 @@ SECTIONS {
 
   .ssbl : {
     *(SSBL)
-  } > sram AT > flash :text
+  } > sram AT > flash
   _SSBL_size = . - _sram_start;
   _SSBL_end = _entry_end + _SSBL_size;
   
   .text : {
   _text_start = .;
     *(.text*)
-  } > psram AT > flash :text
+  } > psram AT > flash
 
   .rodata : {
     *(.rodata*)
-  } > psram AT > flash :text
+  } > psram AT > flash
 
   .data : {
     *(.data)
