@@ -1,12 +1,12 @@
 ENTRY(_start)
 MEMORY {
   flash (rx) : ORIGIN = 0x30000000, LENGTH = 16M
-  sram (xrw) : ORIGIN = 0x0f000000, LENGTH = 8M
+  sram (xrw) : ORIGIN = 0x0f000000, LENGTH = 8k
   psram (xrw) : ORIGIN = 0x80000000, LENGTH = 4M
 }
 
 SECTIONS {
-  . = ORIGIN(flash);
+
   _sram_start = ORIGIN(sram);
   _psram_start = ORIGIN(psram);
 
@@ -17,23 +17,23 @@ SECTIONS {
 
   .ssbl : {
     *(SSBL)
-  } > sram AT > flash
+  } > sram
   _SSBL_size = . - _sram_start;
   _SSBL_end = _entry_end + _SSBL_size;
   
   .text : {
   _text_start = .;
-    *(.text*)
-  } > psram AT > flash
+    *(.text)
+  } > psram
 
   .rodata : {
     *(.rodata*)
-  } > psram AT > flash
+  } > psram
 
   .data : {
     *(.data)
   _data_end = .;
-  } > psram AT > flash
+  } > psram
   _total_size = _data_end - _text_start;
 
   .bss : {
