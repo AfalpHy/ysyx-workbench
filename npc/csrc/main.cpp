@@ -46,6 +46,9 @@ void sigsegv_handler(int sig) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
+  // extern void isa_reg_display();
+  isa_reg_display();
+  iringbuf_display();
   printf("receive SIGSEGV\n");
   exit(1);
 }
