@@ -98,7 +98,6 @@ module ysyx_25010008_LSU (
         end
       end else if (state == HANDLE_WADDR) begin
         if (awready) begin
-          if (awaddr == 32'h10000000) $display("%c",wdata[7:0]);
           if (awaddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
           awvalid <= 0;
           wvalid  <= 1;
