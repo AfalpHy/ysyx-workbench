@@ -6,6 +6,8 @@ MEMORY {
 }
 
 SECTIONS {
+  _load_start = ORIGIN(flash);
+  _sram_start = ORIGIN(sram);
   .text : {
     *(entry)
     *(.text*)

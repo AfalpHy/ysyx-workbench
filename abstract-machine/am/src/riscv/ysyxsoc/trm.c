@@ -28,13 +28,9 @@ void halt(int code) {
 }
 
 void bootload() {
-  extern char _end[];
+  extern char _load_start[], _sram_start[], _total_size[];
   // copy data from flash to sram
-  int size = (int)&_end;
-  size -= 0xf000000;
-  for (int i = 0; i < size; i++) {
-    *(char *)(0xf000000 + i) = *(char *)(0x30000000 + i);
-  }
+  memcpy(_sram_start, _load_start, (size_t)_total_size);
 }
 
 void init_uart() {
