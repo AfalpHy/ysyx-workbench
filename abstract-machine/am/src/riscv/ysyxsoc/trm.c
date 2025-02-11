@@ -28,11 +28,12 @@ void halt(int code) {
 }
 
 void bootload() {
-  extern char _load_start[], _sram_start[], _total_size[];
-  asm volatile("mv a0, %0" : : "r"(_sram_start));
-  
-  asm volatile("mv a1, %0" : : "r"(_load_start));
-  asm volatile("mv a2, %0" : : "r"(_total_size));
+  extern char _sram_start[], _end[];
+  int size = _end - _sram_start;
+  asm volatile("mv a2, %0" : "=r"(size));
+  asm volatile("li a1, 0x30000000");
+  asm volatile("li a0, 0xf000000");
+
   // copy data from flash to sram
   asm volatile("call memcpy");
 }
