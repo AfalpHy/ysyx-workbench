@@ -42,12 +42,12 @@ void sigint_handler(int sig) {
   printf("receive SIGINT\n");
 }
 void sigsegv_handler(int sig) {
-//   fflush_trace();
-// #ifdef TRACE_WAVE
-//   tfp->close();
-// #endif
-  // isa_reg_display();
-  // iringbuf_display();
+  fflush_trace();
+#ifdef TRACE_WAVE
+  tfp->close();
+#endif
+  isa_reg_display();
+  iringbuf_display();
   printf("receive SIGSEGV\n");
   exit(1);
 }
@@ -66,7 +66,7 @@ int load_img(const string &filepath) {
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
-  signal(SIGSEGV, sigsegv_handler);
+  // signal(SIGSEGV, sigsegv_handler);
   struct timeval now;
   gettimeofday(&now, NULL);
   begin_us = now.tv_sec * 1000000 + now.tv_usec;
