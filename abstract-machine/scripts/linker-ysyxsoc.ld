@@ -1,6 +1,6 @@
 ENTRY(_start)
 
-PHDRS { text PT_LOAD; data PT_LOAD; }
+PHDRS { text PT_LOAD FLAGS(6) ; data PT_LOAD FLAGS(5); }
 
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M
