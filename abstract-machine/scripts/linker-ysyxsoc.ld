@@ -12,16 +12,15 @@ SECTIONS {
 
   .text : {
     *(entry)
-    _entry_end = .;
   } > flash
+  _entry_end = .;
 
   .text : {
-    _SSBL_start = .;    
     *(SSBL)
-    _SSBL_end = .;
   } > sram AT > flash
-  _SSBL_size = _SSBL_end - _SSBL_start;
-  _eee = .;
+  _SSBL_size = . - _sram_start;
+  _SSBL_end = _entry_end + _SSBL_size;
+  
   .text : {
   _text_start = .;
     *(.text*)
