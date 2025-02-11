@@ -41,6 +41,7 @@ module ysyx_25010008_CLINT (
       end else if (rstate == READING) begin
         // rdata  <= _araddr[2] ? mtime[63:32] : mtime[31:0];
         rdata <= pmem_read(_araddr);
+        $display("here");
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin
