@@ -18,7 +18,7 @@ SECTIONS {
 
   .SSBL : {
     *(SSBL)
-  } > sram AT > flash
+  } > sram AT > flash : text
   _SSBL_size = . - _sram_start;
   _SSBL_end = _entry_end + _SSBL_size;
   
