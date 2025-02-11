@@ -15,11 +15,13 @@ SECTIONS {
 
   .entry : {
     *(entry)
+    . = ALIGN(8); 
   } > flash : text
   _entry_end = .;
 
   .ssbl : {
     *(SSBL)
+    . = ALIGN(8); 
   } > sram AT > flash : text
   _SSBL_size = . - _sram_start;
   _SSBL_end = _entry_end + _SSBL_size;
@@ -32,6 +34,7 @@ SECTIONS {
 
   .rodata : {
     *(.rodata*)
+    . = ALIGN(8); 
   } > psram AT > flash : text
 
   .data : {
