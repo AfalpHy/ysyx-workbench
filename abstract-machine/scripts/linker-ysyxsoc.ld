@@ -14,7 +14,7 @@ SECTIONS {
   } > flash :text
   _entry_end = .;
 
-  .text : {
+  .ssbl : {
     *(SSBL)
   } > sram AT > flash
   _SSBL_size = . - _sram_start;
