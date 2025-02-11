@@ -1,6 +1,6 @@
 ENTRY(_start)
 MEMORY {
-  flash(rx) : ORIGIN = 0x30000000, LENGTH = 16M
+  flash(wrx) : ORIGIN = 0x30000000, LENGTH = 16M
   sram(xrw) : ORIGIN = 0x0f000000, LENGTH = 8K
   psram(xrw) : ORIGIN = 0x80000000, LENGTH = 4M
 }
