@@ -41,7 +41,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > psram
+  } > psram AT > flash
   _end = .;
   _heap_start = .;
 
