@@ -24,11 +24,13 @@ SECTIONS {
   .text : {
   _text_start = .;
     *(.text*)
+  _text_end = .;
   } > psram AT > flash
+  _text_align = ALIGN(_text_end);
 
-  .rodata : {
+  .rodata : AT(_text_align) {
     *(.rodata*)
-  } > psram AT > flash
+  } > psram
 
   .data : {
     *(.data)
