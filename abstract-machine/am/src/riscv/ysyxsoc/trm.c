@@ -30,7 +30,7 @@ void halt(int code) {
 void bootload() {
   extern char _sram_start[], _end[];
   int size = _end - _sram_start;
-  asm volatile("mv a2, %0" ::"r"(size));
+  asm volatile("mv a2, %0" : : "r"(size));
   asm volatile("li a1, 0x30000000");
   asm volatile("li a0, 0xf000000");
 
