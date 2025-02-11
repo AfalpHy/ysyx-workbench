@@ -7,13 +7,15 @@ SECTIONS {
   . = ORIGIN(flash);
   .text : {
     *(entry)
-    *(.text*)
   } > flash
+  .text : {
+    *(.text*)
+  } > sram AT > flash
   etext = .;
   _etext = .;
   .rodata : {
     *(.rodata*)
-  } > flash
+  } > sram AT > flash
   _data = .;
   .data : {
   _data_start = .;
