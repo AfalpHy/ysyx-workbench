@@ -10,12 +10,12 @@ SECTIONS {
   _sram_start = ORIGIN(sram);
   _psram_start = ORIGIN(psram);
 
-  .text : {
+  .entry : {
     *(entry)
   } > flash AT > flash
   _entry_end = .;
 
-  .text : {
+  .SSBL : {
     *(SSBL)
   } > sram AT > flash
   _SSBL_size = . - _sram_start;
