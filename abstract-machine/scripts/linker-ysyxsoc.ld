@@ -5,8 +5,10 @@ MEMORY {
 }
 SECTIONS {
   . = ORIGIN(flash);
+  _store_start = ORIGIN(sram);
   .text : {
     *(entry)
+    _entry_end = .;
   } > flash
 
   .text : {
