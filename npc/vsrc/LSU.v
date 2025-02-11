@@ -109,7 +109,7 @@ module ysyx_25010008_LSU (
           bready <= 1;
           state  <= HANDLE_BRESP;
           if(awaddr>=32'h80000000)
-          $display("%h",wdata);
+          $display("%h %h",wsrc, wdata);
         end
       end else if (state == HANDLE_BRESP) begin
         if (bvalid) begin
