@@ -44,7 +44,7 @@ SECTIONS {
     *(.scommon)
   _bss_end = ALIGN(8);
   } > psram
-  _total_size = LOADADDR(.bss) - _text_start;
+  _total_size =SIZEOF(.text)+SIZEOF(.data)+SIZEOF(.rodata);
   _end = _bss_end;
   _heap_start = _bss_end;
 
