@@ -75,6 +75,10 @@ word_t read_csr(word_t csr) {
     return cpu.mepc;
   case 0x342:
     return cpu.mcause;
+  case 0xf11:
+    return cpu.mvendorid;
+  case 0xf12:
+    return cpu.marchid;
   default:
     Assert(0, "others csr are not supported");
     return 0;

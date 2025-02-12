@@ -45,7 +45,7 @@ module ysyx_25010008_RegFile (
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
       mstatus   <= 32'h1800;
-      mvendorid <= 32'h79737978;
+      mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
     end else begin
       if (write_back && wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
