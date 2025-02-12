@@ -84,7 +84,7 @@ extern "C" void psram_read(paddr_t addr, int *data) {
             result);
 #endif
   if (addr == 0x10e48) {
-    printf("%x\n", result);
+    printf("read %x\n", result);
   }
   *data = result;
 }
@@ -99,7 +99,7 @@ extern "C" void psram_write(word_t addr, word_t data, int mask) {
             addr, data, mask);
 #endif
   if (addr == 0x10e48) {
-    printf("%x %x\n", data, mask);
+    printf("write %x %x\n", data, mask);
   }
   uint8_t *pmem_addr = (uint8_t *)pmem;
   pmem_addr += addr;
