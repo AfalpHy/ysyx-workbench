@@ -66,6 +66,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 }
 
 word_t read_csr(word_t csr) {
+  csr &= 0xfff;
   switch (csr) {
   case 0x300:
     return cpu.mstatus;
@@ -75,13 +76,18 @@ word_t read_csr(word_t csr) {
     return cpu.mepc;
   case 0x342:
     return cpu.mcause;
+  case 0xf11:
+    return cpu.mvendorid;
+  case 0xf12:
+    return cpu.marchid;
   default:
-    Assert(0, "others csr are not supported");
+    Assert(0, "others csr:%x are not supported", csr);
     return 0;
   }
 }
 
 void write_csr(word_t csr, word_t data) {
+  csr &= 0xfff;
   switch (csr) {
   case 0x300:
     cpu.mstatus = data;
@@ -95,8 +101,14 @@ void write_csr(word_t csr, word_t data) {
   case 0x342:
     cpu.mcause = data;
     break;
+  case 0xf11:
+    cpu.mvendorid = data;
+    break;
+  case 0xf12:
+    cpu.marchid = data;
+    break;
   default:
-    Assert(0, "others csr are not supported");
+    Assert(0, "others csr:%x are not supported", csr);
     return;
   }
 }
