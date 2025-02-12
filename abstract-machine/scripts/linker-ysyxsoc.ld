@@ -31,7 +31,7 @@ SECTIONS {
   } > psram AT > flash
 
   .data : {
-    *(.data)
+    *(.data*)
   } > psram AT > flash : data
 
   .bss : {
