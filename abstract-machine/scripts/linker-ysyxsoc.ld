@@ -45,7 +45,7 @@ SECTIONS {
   } > psram
   _total_size = LOADADDR(.bss) - _text_start;
   
-  _end = LOADADDR(.bss) + SIZEOF(.bss);
+  _end = _total_size + SIZEOF(.bss);
   _heap_start = _end - ORIGIN(flash) + _psram_start;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
