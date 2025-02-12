@@ -34,7 +34,8 @@ static void restart() {
   cpu.pc = RESET_VECTOR;
 #endif
   cpu.mstatus = MUXDEF(CONFIG_ISA_64, 0xa00001800, 0x1800);
-
+  cpu.mvendorid = 0x79737978;
+  cpu.marchid = 0x17D9F58;
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
 }
