@@ -28,7 +28,6 @@ SECTIONS {
   _text_start = LOADADDR(.text);
 
   .rodata : {
-    . = ALIGN(8);
     *(.rodata*)
     *(.srodata*)
     . = ALIGN(8);
