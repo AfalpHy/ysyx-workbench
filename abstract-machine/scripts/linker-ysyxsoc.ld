@@ -29,22 +29,22 @@ SECTIONS {
   .rodata : {
     *(.rodata*)
   } > psram AT > flash
-    . = ALIGN(8);
 
   .data : {
     *(.data*)
     *(.sdata*)
   } > psram AT > flash : data
+
   .bss : {
 	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  _bss_end = ALIGN(8);
   } > psram
-  _total_size =SIZEOF(.text)+SIZEOF(.data)+SIZEOF(.rodata);
-  _end = _bss_end;
-  _heap_start = _bss_end;
+  _total_size = LOADADDR(.bss) - _text_start;
+  
+  _end = LOADADDR(.bss) + SIZEOF(.bss);
+  _heap_start = _end;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
 }
