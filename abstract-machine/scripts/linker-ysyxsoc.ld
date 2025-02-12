@@ -37,7 +37,7 @@ SECTIONS {
   } > psram AT > flash : data
 
   .bss : {
-	_bss_start = .;
+	_bss_start = ALIGN(8);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
