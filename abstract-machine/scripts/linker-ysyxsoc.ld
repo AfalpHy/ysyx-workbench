@@ -46,7 +46,7 @@ SECTIONS {
   _total_size = LOADADDR(.bss) - _text_start;
   
   _end = LOADADDR(.bss) + SIZEOF(.bss);
-  _heap_start = _end;
+  _heap_start = _end + _psram_start;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
 }
