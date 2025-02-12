@@ -36,7 +36,7 @@ SECTIONS {
     *(.data)
     . = ALIGN(8);
   } > psram AT > flash : data
-
+  . = ALIGN(8);
   .bss : {
 	_bss_start = ALIGN(8);
     *(.bss*)
