@@ -44,7 +44,7 @@ SECTIONS {
     *(.scommon)
   } > psram
   _total_size = LOADADDR(.bss) - _text_start;
-  
+  _bss_addr = LOADADDR(.bss);
   _end = _total_size + SIZEOF(.bss);
   _heap_start = _end - ORIGIN(flash) + _psram_start;
 
