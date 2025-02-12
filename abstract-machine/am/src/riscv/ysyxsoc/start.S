@@ -7,7 +7,7 @@ _start:
   la sp, _stack_pointer
 _FSBL:
   la a2, _SSBL_size
-  la a1, _entry_end
+  la a1, _SSBL_start
   la a0, _sram_start
 _memcpy_FSBL:
   lb a3, 0(a1)
@@ -24,7 +24,7 @@ _memcpy_FSBL:
 .type _SSBL, @function
 _SSBL:
   la a2, _total_size
-  la a1, _SSBL_end
+  la a1, _text_start
   la a0, _psram_start
 _memcpy_SSBL:
   lb a3, 0(a1)
