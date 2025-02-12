@@ -35,7 +35,6 @@ SECTIONS {
     *(.data)
   _data_end = .;
   } > psram AT > flash
-  _total_size = SIZEOF(.text) + SIZEOF(.rodata) + SIZEOF(.data);
 
   .bss : {
 	_bss_start = .;
@@ -43,6 +42,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   } > psram
+  _total_size = _bss_start - _text_start;
   _end = .;
   _heap_start = .;
 
