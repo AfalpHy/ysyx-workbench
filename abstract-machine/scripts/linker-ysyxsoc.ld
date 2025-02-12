@@ -42,7 +42,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > psram
+  } > psram AT > flash
   _total_size = LOADADDR(.bss) - _text_start;
   _bss_addr = LOADADDR(.bss);
   _end =  SIZEOF(.bss);
