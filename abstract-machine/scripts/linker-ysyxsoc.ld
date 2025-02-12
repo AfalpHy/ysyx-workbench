@@ -36,7 +36,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
   } > psram AT > flash
-
+  _data_start = LOADADDR(.data);
   .bss : {
 	_bss_start = .;
     *(.bss*)
