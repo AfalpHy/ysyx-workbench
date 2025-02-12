@@ -32,10 +32,12 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 static uint8_t mrom[CONFIG_MROM_SIZE] = {};
 static uint8_t sram[CONFIG_SRAM_SIZE] = {};
 static uint8_t flash[CONFIG_FLASH_SIZE] = {};
+static uint8_t psram[CONFIG_PSRAM_SIZE] = {};
 
 uint8_t *mrom2host(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
 uint8_t *sram2host(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE; }
 uint8_t *flash2host(paddr_t paddr) { return flash + paddr - CONFIG_FLASH_BASE; }
+uint8_t *psram2host(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
 
 static word_t mrom_read(paddr_t addr, int len) {
   word_t ret = host_read(mrom2host(addr), len);
@@ -54,6 +56,15 @@ static void sram_write(paddr_t addr, int len, word_t data) {
 static word_t flash_read(paddr_t addr, int len) {
   word_t ret = host_read(flash2host(addr), len);
   return ret;
+}
+
+static word_t psarm_read(paddr_t addr, int len) {
+  word_t ret = host_read(psram2host(addr), len);
+  return ret;
+}
+
+static void psram_write(paddr_t addr, int len, word_t data) {
+  host_write(psram2host(addr), len, data);
 }
 
 #else
@@ -92,6 +103,8 @@ word_t paddr_read(paddr_t addr, int len) {
     return sram_read(addr, len);
   } else if (in_flash(addr)) {
     return flash_read(addr, len);
+  } else if (in_psram(addr)) {
+    return psarm_read(addr, len);
   }
   out_of_bound(addr);
 #elif defined(CONFIG_MTRACE)
@@ -133,6 +146,9 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 #ifdef CONFIG_TARGET_SHARE
   if (in_sram(addr)) {
     sram_write(addr, len, data);
+    return;
+  } else if (in_psram(addr)) {
+    psram_write(addr, len, data);
     return;
   }
   out_of_bound(addr);
