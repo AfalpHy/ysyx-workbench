@@ -36,6 +36,8 @@ extern FILE *log_fp;
     isa_reg_display();                                                         \
     extern void iringbuf_display();                                            \
     iringbuf_display();                                                        \
+    extern uint64_t total_insts_num;                                           \
+    printf("\n%ld instructions have been executed\n", total_insts_num);        \
     printf(format "\n", ##__VA_ARGS__);                                        \
   }                                                                            \
   assert(cond);

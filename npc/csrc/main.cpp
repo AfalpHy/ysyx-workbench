@@ -46,10 +46,7 @@ void sigsegv_handler(int sig) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  isa_reg_display();
-  iringbuf_display();
-  printf("receive SIGSEGV\n");
-  exit(1);
+  Assert(0, "receive SIGSEGV");
 }
 
 int load_img(const string &filepath) {
