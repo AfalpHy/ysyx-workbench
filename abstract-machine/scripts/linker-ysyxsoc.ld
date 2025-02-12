@@ -13,7 +13,7 @@ SECTIONS {
 
   .entry : {
     *(entry)
-  } > flash : text
+  } > flash : entry
 
   .ssbl : {
     *(SSBL)
