@@ -88,6 +88,8 @@ extern "C" void psram_read(paddr_t addr, int *data) {
 }
 
 extern "C" void psram_write(word_t addr, word_t data, int mask) {
+  printf("write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD "\n",
+         addr, data, mask);
 #ifdef MTRACE
   extern uint64_t total_insts_num;
   if (print_mtrace && total_insts_num < 10000)
