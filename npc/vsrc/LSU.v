@@ -58,8 +58,8 @@ module ysyx_25010008_LSU (
   assign wstrb = suffix_b ? (4'b0001 << addr[1:0]) : (suffix_h ? (4'b0011 << addr[1:0]) : 4'b1111);
 
   wire [31:0] real_rdata = suffix_b ? (rdata >> {addr[1:0], 3'b0}) : (suffix_h ? (rdata >> {addr[1:0], 3'b0}) : rdata);
-  wire [31:0] sextb = {{24{rdata[7]}}, real_rdata[7:0]};
-  wire [31:0] sexth = {{16{rdata[15]}}, real_rdata[15:0]};
+  wire [31:0] sextb = {{24{real_rdata[7]}}, real_rdata[7:0]};
+  wire [31:0] sexth = {{16{real_rdata[15]}}, real_rdata[15:0]};
 
   always @(posedge clock) begin
     if (reset) begin
@@ -83,6 +83,7 @@ module ysyx_25010008_LSU (
         end
       end else if (state == HANDLE_RADDR) begin
         if (arready) begin
+          if (araddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
           arvalid <= 0;
           rready  <= 1;
           state   <= HANDLE_RDATA;
