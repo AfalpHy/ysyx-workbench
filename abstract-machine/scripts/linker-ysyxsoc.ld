@@ -28,11 +28,13 @@ SECTIONS {
   } > psram AT > flash
 
   .rodata : {
+  . = ALIGN(8);
     *(.rodata*)
   . = ALIGN(8);
   } > psram AT > flash
 
   .data : {
+  . = ALIGN(8); 
     *(.data)
   . = ALIGN(8);
   _data_end = .;
