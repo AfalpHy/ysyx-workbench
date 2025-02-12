@@ -33,6 +33,7 @@ SECTIONS {
 
   .data : {
     *(.data)
+    . = ALIGN(8);
   } > psram AT > flash : data
 
   .bss : {
