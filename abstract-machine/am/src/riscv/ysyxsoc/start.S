@@ -5,7 +5,7 @@
 _start:
   mv s0, zero
   la sp, _stack_pointer
-  la a3, _bss_addr
+  la a3, _heap_start
 _FSBL:
   la a2, _SSBL_size
   la a1, _SSBL_start
