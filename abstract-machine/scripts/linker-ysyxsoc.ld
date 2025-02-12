@@ -33,8 +33,6 @@ SECTIONS {
 
   .data : {
     *(.data*)
-  . = ALIGN(8);
-  _data_end = .;
   } > psram AT > flash
 
   .bss : {
@@ -44,7 +42,7 @@ SECTIONS {
     *(.scommon)
   _bss_end = ALIGN(8);
   } > psram
-  _total_size = _data_end + 1;
+  _total_size = _bss_start - _text_start;
   _end = _bss_end;
   _heap_start = _bss_end;
 
