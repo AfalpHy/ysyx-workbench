@@ -93,7 +93,7 @@ module ysyx_25010008_LSU (
           mem_rdata  <= sext ? (suffix_b ? sextb : sexth ) :
           (suffix_b ? {24'b0, real_rdata[7:0]} :
           (suffix_h ? {16'b0, real_rdata[15:0]} : real_rdata));
-          $display(sext, sextb);
+          $display("%d, %h",sext, sextb);
           read_done <= 1;
           state <= WRITE_BACK;
         end
