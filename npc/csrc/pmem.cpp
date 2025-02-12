@@ -83,6 +83,9 @@ extern "C" void psram_read(paddr_t addr, int *data) {
     fprintf(log_fp, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
             result);
 #endif
+  if (addr == 0x10e48) {
+    printf("%x\n", result);
+  }
   *data = result;
 }
 
@@ -95,6 +98,9 @@ extern "C" void psram_write(word_t addr, word_t data, int mask) {
             "\n",
             addr, data, mask);
 #endif
+  if (addr == 0x10e48) {
+    printf("%x %x\n", data, mask);
+  }
   uint8_t *pmem_addr = (uint8_t *)pmem;
   pmem_addr += addr;
   word_t origin_data = *(word_t *)pmem_addr;
