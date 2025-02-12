@@ -43,7 +43,7 @@ SECTIONS {
     *(.scommon)
   _bss_end = ALIGN(8);
   } > psram
-  _total_size = _bss_start + 1;
+  _total_size = _bss_end + 1;
   _end = _bss_end;
   _heap_start = _bss_end;
 
