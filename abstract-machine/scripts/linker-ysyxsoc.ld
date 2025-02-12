@@ -28,6 +28,7 @@ SECTIONS {
 
   .rodata : {
     *(.rodata*)
+    *(.srodata*)
   } > psram AT > flash
 
   .data : {
