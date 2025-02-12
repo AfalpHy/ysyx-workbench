@@ -80,7 +80,7 @@ word_t read_csr(word_t csr) {
   case 0xf12:
     return cpu.marchid;
   default:
-    Assert(0, "others csr are not supported");
+    Assert(0, "others csr:%x are not supported", csr);
     return 0;
   }
 }
@@ -99,8 +99,14 @@ void write_csr(word_t csr, word_t data) {
   case 0x342:
     cpu.mcause = data;
     break;
+  case 0xf11:
+    cpu.mvendorid = data;
+    break;
+  case 0xf12:
+    cpu.marchid = data;
+    break;
   default:
-    Assert(0, "others csr are not supported");
+    Assert(0, "others csr:%x are not supported", csr);
     return;
   }
 }
