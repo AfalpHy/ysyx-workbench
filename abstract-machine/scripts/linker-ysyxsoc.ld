@@ -36,14 +36,14 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
   } > psram AT > flash
-  _data_start = LOADADDR(.data);
+  
   .bss : {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
   } > psram AT > flash : bss
   _total_size = LOADADDR(.bss) - _text_start;
-  _bss_addr = LOADADDR(.bss);
+  _bss_addr = .;
   _end =  SIZEOF(.bss);
   _heap_start = _end - ORIGIN(flash) + _psram_start;
 
