@@ -66,6 +66,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 }
 
 word_t read_csr(word_t csr) {
+  csr &= 0xfff;
   switch (csr) {
   case 0x300:
     return cpu.mstatus;
@@ -86,6 +87,7 @@ word_t read_csr(word_t csr) {
 }
 
 void write_csr(word_t csr, word_t data) {
+  csr &= 0xfff;
   switch (csr) {
   case 0x300:
     cpu.mstatus = data;
