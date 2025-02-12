@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { entry PT_LOAD; ssbl PT_LOAD; text PT_LOAD; data PT_LOAD; }
+PHDRS { entry PT_LOAD; ssbl PT_LOAD; text PT_LOAD; data PT_LOAD; bss PT_LOAD; }
 MEMORY {
   flash(rx) : ORIGIN = 0x30000000, LENGTH = 16M
   sram(xrw) : ORIGIN = 0x0f000000, LENGTH = 8K
@@ -42,7 +42,7 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  } > psram AT > flash
+  } > psram AT > flash : bss
   _total_size = LOADADDR(.bss) - _text_start;
   _bss_addr = LOADADDR(.bss);
   _end =  SIZEOF(.bss);
