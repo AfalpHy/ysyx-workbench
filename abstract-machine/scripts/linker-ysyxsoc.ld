@@ -23,14 +23,14 @@ SECTIONS {
   
   .text : {
     *(.text*)
-  . = ALIGN(8);
   } > psram AT > flash
+  . = ALIGN(8);
   _text_start = LOADADDR(.text);
 
   .rodata : {
     *(.rodata*)
-    . = ALIGN(8);
   } > psram AT > flash
+    . = ALIGN(8);
 
   .data : {
     *(.data)
