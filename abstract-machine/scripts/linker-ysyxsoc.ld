@@ -29,12 +29,12 @@ SECTIONS {
   .rodata : {
     *(.rodata*)
     *(.srodata*)
-  } > psram AT > flash : text
+  } > psram AT > flash : data
 
   .data : {
     *(.data*)
     *(.sdata*)
-  } > psram AT > flash : data
+  } > psram AT > flash
 
   .bss : {
 	_bss_start = .;
