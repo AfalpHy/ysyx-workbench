@@ -28,19 +28,25 @@ SECTIONS {
   _text_start = LOADADDR(.text);
 
   .rodata : {
+    . = ALIGN(8);
     *(.rodata*)
     *(.srodata*)
+    . = ALIGN(8);
   } > psram AT > flash : data
 
   .data : {
+    . = ALIGN(8);
     *(.data*)
     *(.sdata*)
+    . = ALIGN(8);
   } > psram AT > flash
 
   .bss : {
+    . = ALIGN(8);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+    . = ALIGN(8);
   } > psram AT > flash : bss
   _total_size = LOADADDR(.bss) - _text_start;
   _heap_start = .;
