@@ -24,7 +24,6 @@ SECTIONS {
   .text : {
     *(.text*)
   } > psram AT > flash
-  . = ALIGN(8);
   _text_start = LOADADDR(.text);
 
   .rodata : {
@@ -35,11 +34,9 @@ SECTIONS {
   .data : {
     *(.data*)
     *(.sdata*)
-    . = ALIGN(8);
   } > psram AT > flash : data
-  . = ALIGN(8);
   .bss : {
-	_bss_start = ALIGN(8);
+	_bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
