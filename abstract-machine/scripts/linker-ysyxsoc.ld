@@ -29,6 +29,7 @@ SECTIONS {
 
   .rodata : {
     *(.rodata*)
+    . = ALIGN(8);
   } > psram AT > flash
 
   .data : {
