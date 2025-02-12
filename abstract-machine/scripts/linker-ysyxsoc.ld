@@ -32,7 +32,7 @@ SECTIONS {
   } > psram AT > flash
 
   .data : {
-    *(.data)
+    *(.data*)
   . = ALIGN(8);
   _data_end = .;
   } > psram AT > flash
