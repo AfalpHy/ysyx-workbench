@@ -29,7 +29,7 @@ SECTIONS {
   .rodata : {
     *(.rodata*)
     *(.srodata*)
-  } > psram AT > flash
+  } > psram AT > flash : text
 
   .data : {
     *(.data*)
