@@ -41,10 +41,11 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+  _bss_end = ALIGN(8);
   } > psram
   _total_size = _bss_start - _text_start;
-  _end = .;
-  _heap_start = .;
+  _end = _bss_end;
+  _heap_start = _bss_end;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
 }
