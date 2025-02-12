@@ -5,13 +5,12 @@
 _start:
   mv s0, zero
   la sp, _stack_pointer
-  la a3, _heap_start
 _FSBL:
   la a2, _SSBL_size
   la a1, _SSBL_start
   la a0, _sram_start
 _memcpy_FSBL:
-  lb a3, 0(a1)
+  lbu a3, 0(a1)
   sb a3, 0(a0)
   addi a1, a1, 1
   addi a0, a0, 1
@@ -28,7 +27,7 @@ _SSBL:
   la a1, _text_start
   la a0, _psram_start
 _memcpy_SSBL:
-  lb a3, 0(a1)
+  lbu a3, 0(a1)
   sb a3, 0(a0)
   addi a1, a1, 1
   addi a0, a0, 1
