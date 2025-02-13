@@ -22,7 +22,7 @@ extern "C" void set_counter(const svOpenArrayHandle r) {
   counter = (uint8_t *)(((VerilatedDpiOpenVar *)r)->datap());
 }
 extern "C" void set_final(const svOpenArrayHandle r) {
-  counter = (uint8_t *)(((VerilatedDpiOpenVar *)r)->datap());
+  final_counter= (uint8_t *)(((VerilatedDpiOpenVar *)r)->datap());
 }
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 extern "C" void set_inst(int _inst) { inst = _inst; }
