@@ -9,6 +9,11 @@ _FSBL:
   la a2, _SSBL_size
   la a1, _SSBL_start
   la a0, _sram_start
+  la a0, _psram_start
+  la a0, _psram_start
+  la a0, _psram_start
+  la a0, _psram_start
+  lb a0, 0(a0)
 _memcpy_FSBL:
   lbu a3, 0(a1)
   sb a3, 0(a0)
@@ -26,7 +31,6 @@ _SSBL:
   la a2, _total_size
   la a1, _text_start
   la a0, _psram_start
-  lb a0, 0(a0)
 _memcpy_SSBL:
   lbu a3, 0(a1)
   sb a3, 0(a0)
