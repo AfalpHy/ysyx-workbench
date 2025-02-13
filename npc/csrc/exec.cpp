@@ -76,6 +76,9 @@ void single_cycle() {
   top.clock = 1;
   top.eval();
 
+  if(Verilated::time() == 1551290){
+    printf("here\n");
+  }
 #ifdef TRACE_WAVE
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
