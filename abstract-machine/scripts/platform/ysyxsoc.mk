@@ -30,6 +30,6 @@ run: insert-arg
 
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) clean
-	$(MAKE) -C $(NPC_HOME) gdb IMG=$(IMAGE).bin OPT_FAST=""
+	$(MAKE) -C $(NPC_HOME) gdb IMG=$(IMAGE).bin
     
 .PHONY: insert-arg
