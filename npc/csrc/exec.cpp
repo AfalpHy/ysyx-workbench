@@ -16,7 +16,7 @@ extern bool interrupt;
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
 uint32_t inst;
-int *done = nullptr;
+uint8_t *done = nullptr;
 
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 extern "C" void set_inst(int _inst) { inst = _inst; }
@@ -82,7 +82,7 @@ void single_cycle() {
   tfp->dump(Verilated::time());
 #endif
   if (Verilated::time() == 1551293) {
-    printf("here0 %d\n", *done);
+    printf("here %d\n", *done);
     tfp->close();
     exit(0);
   }
