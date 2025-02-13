@@ -78,7 +78,7 @@ void single_cycle() {
   extern bool *done;
 
   if(Verilated::time() == 1551292){
-    printf("here %d\n",*done);
+    printf("here%p %d\n",done, *done);
   }
 #ifdef TRACE_WAVE
   Verilated::timeInc(1);
