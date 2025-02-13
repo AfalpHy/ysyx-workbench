@@ -3,16 +3,6 @@
 .type _start, @function
 
 _start:
-  mv s0, zero
-  la sp, _stack_pointer
-_FSBL:
-  la a2, _SSBL_size
-  la a1, _SSBL_start
-  la a0, _sram_start
-  la a0, _psram_start
-  la a0, _psram_start
-  la a0, _psram_start
-  la a0, _psram_start
   la a0, _psram_start
   lb a0, 0(a0)
 _memcpy_FSBL:
