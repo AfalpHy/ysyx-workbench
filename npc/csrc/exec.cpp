@@ -81,11 +81,11 @@ void single_cycle() {
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
 #endif
-  if (Verilated::time() == 1551293) {
-    printf("here %d\n", *done);
-    tfp->close();
-    exit(0);
-  }
+  // if (Verilated::time() == 1551293) {
+  //   printf("here %d\n", *done);
+  //   tfp->close();
+  //   exit(0);
+  // }
 
   top.clock = 0;
   top.eval();
