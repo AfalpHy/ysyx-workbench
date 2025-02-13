@@ -3,8 +3,12 @@
 .type _start, @function
 
 _start:
-  la a0, _psram_start
-  lb a0, 0(a0)
+  mv s0, zero
+  la sp, _stack_pointer
+_FSBL:
+  la a2, _SSBL_size
+  la a1, _SSBL_start
+  la a0, _sram_start
 _memcpy_FSBL:
   lbu a3, 0(a1)
   sb a3, 0(a0)
