@@ -27,7 +27,7 @@ image: image-dep
 
 run: insert-arg
 	$(MAKE) -C $(NPC_HOME) clean
-	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin OPT_FAST=""
 
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) clean
