@@ -75,9 +75,10 @@ void single_cycle() {
   extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
+  extern bool *done;
 
-  if(Verilated::time() == 1551290){
-    printf("here\n");
+  if(Verilated::time() == 1551292){
+    printf("here %d\n",*done);
   }
 #ifdef TRACE_WAVE
   Verilated::timeInc(1);
