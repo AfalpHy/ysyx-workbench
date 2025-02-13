@@ -17,12 +17,13 @@ uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
 uint32_t inst;
 
-uint8_t * counter,*final_counter;
+uint8_t * counter;
+uint8_t final_counter ;
 extern "C" void set_counter(const svOpenArrayHandle r) {
   counter = (uint8_t *)(((VerilatedDpiOpenVar *)r)->datap());
 }
 extern "C" void set_final(int f) {
-  *final_counter= f;
+  final_counter= f;
 }
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 extern "C" void set_inst(int _inst) { inst = _inst; }
@@ -85,7 +86,7 @@ void single_cycle() {
   extern bool *done;
 
   if(Verilated::time() == 1551292){
-    printf("here%d %d %d \n", *done,*counter,*final_counter);
+    printf("here%d %d %d \n", *done,*counter,final_counter);
   }
 #ifdef TRACE_WAVE
   Verilated::timeInc(1);
