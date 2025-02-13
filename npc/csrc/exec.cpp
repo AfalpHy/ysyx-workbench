@@ -5,9 +5,9 @@
 #include "isa.h"
 #include "pmem.h"
 #include "string.h"
+#include "verilated_dpi.h"
 #include "watchpoint.h"
 #include <verilated_vcd_c.h>
-#include "verilated_dpi.h"
 extern TOP_NAME top;
 extern int status;
 extern bool diff_test_on;
@@ -76,15 +76,15 @@ void single_cycle() {
   top.clock = 1;
   top.eval();
 
-  if(Verilated::time() == 1551292){
-    printf("here \n");
-    tfp->close();
-    exit(0);
-  }
 #ifdef TRACE_WAVE
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
 #endif
+  if (Verilated::time() == 1551293) {
+    printf("here \n");
+    tfp->close();
+    exit(0);
+  }
 
   top.clock = 0;
   top.eval();
