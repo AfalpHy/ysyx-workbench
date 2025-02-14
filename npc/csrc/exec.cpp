@@ -5,9 +5,9 @@
 #include "isa.h"
 #include "pmem.h"
 #include "string.h"
-#include "verilated_dpi.h"
 #include "watchpoint.h"
 #include <verilated_vcd_c.h>
+
 extern TOP_NAME top;
 extern int status;
 extern bool diff_test_on;
@@ -16,7 +16,6 @@ extern bool interrupt;
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
 uint32_t inst;
-uint8_t *done = nullptr;
 
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 extern "C" void set_inst(int _inst) { inst = _inst; }
@@ -81,11 +80,6 @@ void single_cycle() {
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
 #endif
-  if (Verilated::time() == 1551293) {
-    printf("here %d %ld\n", *done, Verilated::time());
-    tfp->close();
-    exit(0);
-  }
 
   top.clock = 0;
   top.eval();
@@ -94,9 +88,6 @@ void single_cycle() {
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
 #endif
-  if (Verilated::time() == 1551292) {
-    printf("here %d %ld\n", *done, Verilated::time());
-  }
 }
 
 void reset() {
