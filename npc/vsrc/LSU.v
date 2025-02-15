@@ -83,7 +83,10 @@ module ysyx_25010008_LSU (
         end
       end else if (state == HANDLE_RADDR) begin
         if (arready) begin
-          if (araddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
+          if (araddr[31:12] == 20'h1_0000) begin
+             set_skip_ref_inst();  //uart
+            $display("%h",araddr);
+          end
           arvalid <= 0;
           rready  <= 1;
           state   <= HANDLE_RDATA;
