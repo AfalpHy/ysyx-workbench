@@ -153,11 +153,11 @@ module ysyx_25010008_Arbiter (
           state  <= TRANSFER;
         end else if (arvalid_1) begin
           master <= MASTER_1;
-          if (araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c) begin
-            slave <= SLAVE_CLINT;
-          end else begin
+          // if (araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c) begin
+          //   slave <= SLAVE_CLINT;
+          // end else begin
             slave <= SLAVE_OTHERS;
-          end
+          // end
           state <= TRANSFER;
         end else if (awvalid_1) begin
           master <= MASTER_1;
