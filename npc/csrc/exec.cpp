@@ -46,6 +46,7 @@ void iringbuf_display() {
       display_one_inst(&buf);
     }
   }
+  printf("\n%ld instructions have been executed\n", total_insts_num);
 }
 
 static int check_regs() {
