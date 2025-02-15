@@ -76,6 +76,7 @@ static word_t sdram_read(paddr_t addr, int len) {
 }
 
 static void sdram_write(paddr_t addr, int len, word_t data) {
+  printf("w %x %d %d\n",addr ,len,data);
   host_write(sdram2host(addr), len, data);
 }
 
