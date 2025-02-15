@@ -71,11 +71,11 @@ static void psram_write(paddr_t addr, int len, word_t data) {
 
 static word_t sdram_read(paddr_t addr, int len) {
   word_t ret = host_read(sdram2host(addr), len);
+  printf("%d %d\n",len,ret);
   return ret;
 }
 
 static void sdram_write(paddr_t addr, int len, word_t data) {
-  printf("%d %d\n",len,data);
   host_write(sdram2host(addr), len, data);
 }
 
