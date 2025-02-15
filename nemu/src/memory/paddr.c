@@ -110,6 +110,7 @@ bool print_mtrace = false;
 
 word_t paddr_read(paddr_t addr, int len) {
 #ifdef CONFIG_TARGET_SHARE
+printf("here %x\n",addr);
   if (in_mrom(addr)) {
     return mrom_read(addr, len);
   } else if (in_sram(addr)) {
