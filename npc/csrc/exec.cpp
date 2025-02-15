@@ -142,9 +142,6 @@ void cpu_exec(uint32_t num) {
 
     total_insts_num++;
 
-    if(total_insts_num==25062){
-      printf("here\n");
-    }
 #if defined(ITRACE) || defined(MTRACE)
     if (total_insts_num <= 10000) // avoid trace file too big
       fprintf(log_fp, "%ld instructions have been executed\n\n",
