@@ -3,6 +3,9 @@
 .type _start, @function
 
 _start:
+  la a0, _sram_start
+  sw a1, 0(a0)
+  ebreak
   mv s0, zero
   la sp, _stack_pointer
 _FSBL:
