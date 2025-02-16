@@ -3,7 +3,7 @@
 .type _start, @function
 
 _start:
-  la a0, _sram_start
+  la a0, _sdram_start
   sw a1, 0(a0)
   ebreak
   mv s0, zero
