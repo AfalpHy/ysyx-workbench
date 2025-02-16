@@ -75,7 +75,6 @@ static word_t sdram_read(paddr_t addr, int len) {
 }
 
 static void sdram_write(paddr_t addr, int len, word_t data) {
-  if(addr == 0xa0001d48) {printf("wr %x,%x\n",addr,data);}
   host_write(sdram2host(addr), len, data);
 }
 
