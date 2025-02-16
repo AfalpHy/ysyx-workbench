@@ -71,10 +71,14 @@ static void psram_write(paddr_t addr, int len, word_t data) {
 
 static word_t sdram_read(paddr_t addr, int len) {
   word_t ret = host_read(sdram2host(addr), len);
+  if(addr == 0xe48)
+  printf("read :%x %x %d", addr, ret, len);
   return ret;
 }
 
 static void sdram_write(paddr_t addr, int len, word_t data) {
+  if(addr == 0xe48)
+  printf("wri :%x %x %d", addr, data, len);
   host_write(sdram2host(addr), len, data);
 }
 
