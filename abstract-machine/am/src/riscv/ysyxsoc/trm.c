@@ -11,11 +11,11 @@
 extern char _heap_start;
 int main(const char *args);
 
-extern char _psram_start;
-#define PSRAM_SIZE (4 * 1024 * 1024)
-#define PSRAM_END  ((uintptr_t)&_psram_start + PSRAM_SIZE)
+extern char _sdram_start;
+#define SDRAM_SIZE (32 * 1024 * 1024)
+#define SDRAM_END  ((uintptr_t)&_sdram_start + SDRAM_SIZE)
 
-Area heap = RANGE(&_heap_start, PSRAM_END);
+Area heap = RANGE(&_heap_start, SDRAM_END);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 static inline uint8_t  inb(uintptr_t addr) { return *(volatile uint8_t  *)addr; }
