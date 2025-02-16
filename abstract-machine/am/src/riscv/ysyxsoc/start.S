@@ -25,7 +25,7 @@ _memcpy_FSBL:
 _SSBL:
   la a2, _total_size
   la a1, _text_start
-  la a0, _psram_start
+  la a0, _sdram_start
 _memcpy_SSBL:
   lbu a3, 0(a1)
   sb a3, 0(a0)

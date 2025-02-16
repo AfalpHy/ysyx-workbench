@@ -3,13 +3,13 @@ PHDRS { entry PT_LOAD; ssbl PT_LOAD; text PT_LOAD; data PT_LOAD; bss PT_LOAD; }
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
-  psram : ORIGIN = 0x80000000, LENGTH = 4M
+  sdram : ORIGIN = 0xa0000000, LENGTH = 32M
 }
 
 SECTIONS {
   . = ORIGIN(flash);
   _sram_start = ORIGIN(sram);
-  _psram_start = ORIGIN(psram);
+  _sdram_start = ORIGIN(sdram);
 
   .entry : {
     *(entry)
@@ -24,7 +24,7 @@ SECTIONS {
   .text : {
     *(.text*)
     . = ALIGN(8);
-  } > psram AT > flash : text
+  } > sdram AT > flash : text
   _text_start = LOADADDR(.text);
 
   .rodata : {
@@ -32,14 +32,14 @@ SECTIONS {
     *(.rodata*)
     *(.srodata*)
     . = ALIGN(8);
-  } > psram AT > flash : data
+  } > sdram AT > flash : data
 
   .data : {
     . = ALIGN(8);
     *(.data*)
     *(.sdata*)
     . = ALIGN(8);
-  } > psram AT > flash
+  } > sdram AT > flash
 
   .bss : {
     . = ALIGN(8);
@@ -47,7 +47,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     . = ALIGN(8);
-  } > psram AT > flash : bss
+  } > sdram AT > flash : bss
   _total_size = LOADADDR(.bss) - _text_start;
   _heap_start = .;
 
