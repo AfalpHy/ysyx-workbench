@@ -5,6 +5,7 @@
 #include "expr.h"
 #include "ftrace.h"
 #include "isa.h"
+#include "nvboard.h"
 #include "pmem.h"
 #include "sdb.h"
 #include "watchpoint.h"
@@ -20,6 +21,8 @@ using namespace std;
 
 VerilatedVcdC *tfp = nullptr;
 TOP_NAME top;
+
+void nvboard_bind_all_pins(TOP_NAME *top);
 
 int status = 0;
 bool diff_test_on = false;
@@ -64,9 +67,9 @@ int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  begin_us = now.tv_sec * 1000000 + now.tv_usec;
+
+  nvboard_bind_all_pins(&top);
+  nvboard_init();
 
 #ifdef TRACE_WAVE
   Verilated::traceEverOn(true);
@@ -74,6 +77,11 @@ int main(int argc, char **argv) {
   top.trace(tfp, 99);
   tfp->open("waveform.vcd");
 #endif
+
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  begin_us = now.tv_sec * 1000000 + now.tv_usec;
+
   // initial
   top.eval();
 
