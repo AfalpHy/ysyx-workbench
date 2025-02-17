@@ -6,6 +6,7 @@ AM_SRCS := riscv/ysyxsoc/start.S \
            riscv/ysyxsoc/cte.c \
            riscv/ysyxsoc/trap.S \
 		   riscv/ysyxsoc/vme.c \
+		   riscv/ysyxsoc/uart.c \
            riscv/ysyxsoc/mpe.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
