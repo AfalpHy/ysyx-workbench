@@ -8,6 +8,11 @@
 #define UART_REG_DLL 0
 #define UART_REG_DLH 1
 
+#define GPIO_BASE 0x10002000
+#define GPIO_LED 0
+#define GPIO_SWITCH 4
+#define GPIO_SEG 8
+
 extern char _heap_start;
 int main(const char *args);
 
@@ -41,17 +46,24 @@ void init_uart() {
   outb(UART_ADDR + UART_REG_LC, 3); // recover
 }
 
-void printId() {
+void display_id() {
   uint32_t id = 0;
   asm volatile("csrr  %0, mvendorid" : "=r"(id));
   printf("ysyx ascii:%x\n", id);
   asm volatile("csrr %0, marchid" : "=r"(id));
-  printf("student id:%x\n", id);
+  *(volatile int *)(GPIO_BASE + GPIO_SEG) = id;
+}
+
+void login() {
+  // loop until get right password
+  while (*(volatile uint16_t *)(GPIO_BASE + GPIO_SWITCH) != 0x0001) {
+  }
 }
 
 void _trm_init() {
   init_uart();
-  printId();
+  display_id();
+  login();
   int ret = main(mainargs);
   halt(ret);
 }
