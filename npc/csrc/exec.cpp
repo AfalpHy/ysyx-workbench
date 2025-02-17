@@ -176,6 +176,6 @@ void cpu_exec(uint32_t num) {
       printf("watch point has been triggered\n");
       return;
     }
-    // nvboard_update();
+    nvboard_update();
   }
 }

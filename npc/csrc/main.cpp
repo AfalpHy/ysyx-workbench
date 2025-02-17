@@ -68,8 +68,8 @@ int main(int argc, char **argv) {
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
 
-  // nvboard_bind_all_pins(&top);
-  // nvboard_init();
+  nvboard_bind_all_pins(&top);
+  nvboard_init();
 
 #ifdef TRACE_WAVE
   Verilated::traceEverOn(true);
