@@ -74,7 +74,6 @@ static int check_regs() {
 }
 
 void single_cycle() {
-  nvboard_update();
   extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
@@ -177,6 +176,6 @@ void cpu_exec(uint32_t num) {
       printf("watch point has been triggered\n");
       return;
     }
-
+    nvboard_update();
   }
 }
