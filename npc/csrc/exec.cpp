@@ -6,6 +6,7 @@
 #include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"
+#include <nvboard.h>
 #include <verilated_vcd_c.h>
 
 extern TOP_NAME top;
@@ -175,5 +176,6 @@ void cpu_exec(uint32_t num) {
       printf("watch point has been triggered\n");
       return;
     }
+    nvboard_update();
   }
 }
