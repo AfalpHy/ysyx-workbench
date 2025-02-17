@@ -27,7 +27,7 @@ static inline uint8_t  inb(uintptr_t addr) { return *(volatile uint8_t  *)addr; 
 static inline void outb(uintptr_t addr, uint8_t  data) { *(volatile uint8_t  *)addr = data; }
 
 void putch(char ch) {
-  // loop until transmitter is not empty
+  // loop until transmitter is empty
   while (!(inb(UART_ADDR + UART_REG_LS) & 0x40)) {
   }
 
