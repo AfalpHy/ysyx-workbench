@@ -1,5 +1,6 @@
 TOPNAME = ysyxSoCFull
 INC_PATH ?= $(NPC_HOME)/include
+NXDC_FILES = constr/$(TOPNAME).nxdc
 YSYX_SOC = $(abspath ../ysyxSoC)
 PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
@@ -13,10 +14,19 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 $(shell mkdir -p $(BUILD_DIR))
 
+# constraint file
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILES)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 VSRCS += $(shell find $(PERIP) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+CSRCS += $(SRC_AUTO_BIND)
+
+# rules for NVBoard
+include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
