@@ -46,7 +46,7 @@ void init_uart() {
   outb(UART_ADDR + UART_REG_LC, 3); // recover
 }
 
-void displayId() {
+void display_id() {
   uint32_t id = 0;
   asm volatile("csrr  %0, mvendorid" : "=r"(id));
   printf("ysyx ascii:%x\n", id);
@@ -54,9 +54,16 @@ void displayId() {
   *(volatile int *)(GPIO_BASE + GPIO_SEG) = id;
 }
 
+void login() {
+  // loop until get right password
+  while (*(volatile int16_t *)(GPIO_BASE + GPIO_SWITCH) != 0xf0) {
+  }
+}
+
 void _trm_init() {
   init_uart();
-  displayId();
+  display_id();
+  login();
   int ret = main(mainargs);
   halt(ret);
 }
