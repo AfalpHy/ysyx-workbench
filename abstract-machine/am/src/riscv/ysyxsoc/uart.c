@@ -1,5 +1,5 @@
 #include <am.h>
-
+#include <klib.h>
 #define UART_ADDR 0x10000000
 #define UART_REG_TR 0
 #define UART_REG_LC 3
@@ -13,6 +13,7 @@ void __am_uart_rx(AM_UART_RX_T *uart) {
   // loop until fifo is not empty
   while (!(inb(UART_ADDR + UART_REG_LS) & 0x01)) {
   }
+  printf("got\n");
 
   uart->data = inb(UART_ADDR + UART_REG_TR);
 }
