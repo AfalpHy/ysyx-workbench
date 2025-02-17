@@ -56,7 +56,7 @@ void display_id() {
 
 void login() {
   // loop until get right password
-  while (*(volatile int16_t *)(GPIO_BASE + GPIO_SWITCH) != 0xff0) {
+  while (*(volatile uint16_t *)(GPIO_BASE + GPIO_SWITCH) != 0xfff0u) {
   }
 }
 
