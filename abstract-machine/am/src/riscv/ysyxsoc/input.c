@@ -371,7 +371,7 @@ typedef enum {
 } SDL_Scancode;
 
 #define XX(k) [SDL_SCANCODE_##k] = AM_KEY_##k,
-static int keymap[256] = {AM_KEYS(XX)};
+// static int keymap[256] = {AM_KEYS(XX)};
 
 static inline uint32_t inl(uintptr_t addr) {
   return *(volatile uint32_t *)addr;
@@ -381,10 +381,10 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint32_t keycode = inl(KBD_ADDR);
   if (keycode == 0xf0) {
     kbd->keydown = 0;
-    kbd->keycode = keymap[inl(KBD_ADDR)];
+    kbd->keycode = inl(KBD_ADDR);
   } else {
     kbd->keydown = 1;
-    kbd->keycode = keymap[keycode];
+    kbd->keycode = keycode;
   }
 
   if (keycode != 0)
