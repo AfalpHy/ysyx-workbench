@@ -1,7 +1,6 @@
 #include <am.h>
-#include <klib.h>
+
 #define KBD_ADDR 0x10011000
-#define KEYDOWN_MASK 0x8000
 
 typedef enum {
   SCANCODE_UNKNOWN = 0,
@@ -88,14 +87,14 @@ typedef enum {
   SCANCODE_DOWN = 0xe0,
   SCANCODE_UP = 0xe0,
 
-  SCANCODE_APPLICATION = 0x65, /**< windows contextual menu, compose */
+  SCANCODE_APPLICATION = 0xe0,
 
   SCANCODE_LCTRL = 0x14,
   SCANCODE_LSHIFT = 0x12,
-  SCANCODE_LALT = 0x11, /**< alt, option */
+  SCANCODE_LALT = 0x11,
   SCANCODE_RCTRL = 0xe0,
   SCANCODE_RSHIFT = 0x59,
-  SCANCODE_RALT = 0xe0 /**< alt gr, option */
+  SCANCODE_RALT = 0xe0
 
 } Scancode;
 
@@ -110,9 +109,10 @@ typedef enum {
   EXTEND_SCANCODE_LEFT = 0x6b,
   EXTEND_SCANCODE_DOWN = 0x72,
   EXTEND_SCANCODE_UP = 0x75,
+  EXTEND_SCANCODE_APPLICATION = 0x2f,
   EXTEND_SCANCODE_RCTRL = 0x14,
   EXTEND_SCANCODE_RSHIFT = 0x59,
-  EXTEND_SCANCODE_RALT = 0x11 /**< alt gr, option */
+  EXTEND_SCANCODE_RALT = 0x11
 } ExtendScancode;
 
 #define XX(k) [SCANCODE_##k] = AM_KEY_##k,
@@ -122,8 +122,8 @@ static int extend_keymap[256] = {
     EXTEND_XX(INSERT),   EXTEND_XX(INSERT), EXTEND_XX(HOME),
     EXTEND_XX(PAGEUP),   EXTEND_XX(DELETE), EXTEND_XX(END),
     EXTEND_XX(PAGEDOWN), EXTEND_XX(RIGHT),  EXTEND_XX(LEFT),
-    EXTEND_XX(DOWN),     EXTEND_XX(UP),     EXTEND_XX(RCTRL),
-    EXTEND_XX(RSHIFT),   EXTEND_XX(RALT)};
+    EXTEND_XX(DOWN),     EXTEND_XX(UP),     EXTEND_XX(APPLICATION),
+    EXTEND_XX(RCTRL),    EXTEND_XX(RSHIFT), EXTEND_XX(RALT)};
 
 static inline uint32_t inl(uintptr_t addr) {
   return *(volatile uint32_t *)addr;
