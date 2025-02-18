@@ -379,8 +379,14 @@ static inline uint32_t inl(uintptr_t addr) {
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint32_t keycode = inl(KBD_ADDR);
-  kbd->keydown = keycode & KEYDOWN_MASK;
-  kbd->keycode = keymap[keycode];
+  if (keycode == 0xf0) {
+    kbd->keydown = 0;
+    kbd->keycode = keymap[inl(KBD_ADDR)];
+  } else {
+    kbd->keydown = 1;
+    kbd->keycode = keymap[keycode];
+  }
+
   if (keycode != 0)
-    printf("%d\n", keycode);
+    printf("%d %d %d\n", keycode, SDL_SCANCODE_A, AM_KEY_A);
 }
