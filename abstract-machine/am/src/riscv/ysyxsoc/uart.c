@@ -10,9 +10,9 @@
 static inline uint8_t inb(uintptr_t addr) { return *(volatile uint8_t *)addr; }
 
 void __am_uart_rx(AM_UART_RX_T *uart) {
-  // loop until fifo is not empty
-  while (!(inb(UART_ADDR + UART_REG_LS) & 0x01)) {
+  if ((inb(UART_ADDR + UART_REG_LS) & 0x01)) {
+    uart->data = inb(UART_ADDR + UART_REG_TR);
+  } else {
+    uart->data = 0xff;
   }
-
-  uart->data = inb(UART_ADDR + UART_REG_TR);
 }
