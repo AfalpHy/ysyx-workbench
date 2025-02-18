@@ -117,7 +117,7 @@ typedef enum {
 
 #define XX(k) [SCANCODE_##k] = AM_KEY_##k,
 #define EXTEND_XX(k) [EXTEND_SCANCODE_##k] = AM_KEY_##k
-static int keymap[256] = {AM_KEYS(XX)};
+static int keymap[256] = {[AM_KEY_NONE] = 0, AM_KEYS(XX)};
 static int extend_keymap[256] = {
     EXTEND_XX(INSERT),   EXTEND_XX(INSERT), EXTEND_XX(HOME),
     EXTEND_XX(PAGEUP),   EXTEND_XX(DELETE), EXTEND_XX(END),
