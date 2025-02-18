@@ -6,13 +6,6 @@
 typedef enum {
   SCANCODE_UNKNOWN = 0,
 
-  /**
-   *  \name Usage page 0x07
-   *
-   *  These values are from usage page 0x07 (USB keyboard page).
-   */
-  /* @{ */
-
   SCANCODE_A = 0x1c,
   SCANCODE_B = 0x32,
   SCANCODE_C = 0x21,
@@ -40,106 +33,97 @@ typedef enum {
   SCANCODE_Y = 0x35,
   SCANCODE_Z = 0x1a,
 
-  SCANCODE_1 = 30,
-  SCANCODE_2 = 31,
-  SCANCODE_3 = 32,
-  SCANCODE_4 = 33,
-  SCANCODE_5 = 34,
-  SCANCODE_6 = 35,
-  SCANCODE_7 = 36,
-  SCANCODE_8 = 37,
-  SCANCODE_9 = 38,
-  SCANCODE_0 = 39,
+  SCANCODE_1 = 0x16,
+  SCANCODE_2 = 0x1e,
+  SCANCODE_3 = 0x26,
+  SCANCODE_4 = 0x25,
+  SCANCODE_5 = 0x2e,
+  SCANCODE_6 = 0x36,
+  SCANCODE_7 = 0x3d,
+  SCANCODE_8 = 0x3e,
+  SCANCODE_9 = 0x46,
+  SCANCODE_0 = 0x45,
 
-  SCANCODE_RETURN = 40,
-  SCANCODE_ESCAPE = 41,
-  SCANCODE_BACKSPACE = 42,
-  SCANCODE_TAB = 43,
-  SCANCODE_SPACE = 44,
+  SCANCODE_RETURN = 0x5a,
+  SCANCODE_ESCAPE = 0x76,
+  SCANCODE_BACKSPACE = 0x66,
+  SCANCODE_TAB = 0xd,
+  SCANCODE_SPACE = 0x29,
 
-  SCANCODE_MINUS = 45,
-  SCANCODE_EQUALS = 46,
-  SCANCODE_LEFTBRACKET = 47,
-  SCANCODE_RIGHTBRACKET = 48,
-  SCANCODE_BACKSLASH = 49, /**< Located at the lower left of the return
-                            *   key on ISO keyboards and at the right end
-                            *   of the QWERTY row on ANSI keyboards.
-                            *   Produces REVERSE SOLIDUS (backslash) and
-                            *   VERTICAL LINE in a US layout, REVERSE
-                            *   SOLIDUS and VERTICAL LINE in a UK Mac
-                            *   layout, NUMBER SIGN and TILDE in a UK
-                            *   Windows layout, DOLLAR SIGN and POUND SIGN
-                            *   in a Swiss German layout, NUMBER SIGN and
-                            *   APOSTROPHE in a German layout, GRAVE
-                            *   ACCENT and POUND SIGN in a French Mac
-                            *   layout, and ASTERISK and MICRO SIGN in a
-                            *   French Windows layout.
-                            */
-
-  SCANCODE_SEMICOLON = 51,
+  SCANCODE_MINUS = 0x4e,
+  SCANCODE_EQUALS = 0x55,
+  SCANCODE_LEFTBRACKET = 0x54,
+  SCANCODE_RIGHTBRACKET = 0x5b,
+  SCANCODE_BACKSLASH = 0x5d,
+  SCANCODE_SEMICOLON = 0x4c,
   SCANCODE_APOSTROPHE = 52,
-  SCANCODE_GRAVE = 53, /**< Located in the top left corner (on both ANSI
-                        *   and ISO keyboards). Produces GRAVE ACCENT and
-                        *   TILDE in a US Windows layout and in US and UK
-                        *   Mac layouts on ANSI keyboards, GRAVE ACCENT
-                        *   and NOT SIGN in a UK Windows layout, SECTION
-                        *   SIGN and PLUS-MINUS SIGN in US and UK Mac
-                        *   layouts on ISO keyboards, SECTION SIGN and
-                        *   DEGREE SIGN in a Swiss German layout (Mac:
-                        *   only on ISO keyboards), CIRCUMFLEX ACCENT and
-                        *   DEGREE SIGN in a German layout (Mac: only on
-                        *   ISO keyboards), SUPERSCRIPT TWO and TILDE in a
-                        *   French Windows layout, COMMERCIAL AT and
-                        *   NUMBER SIGN in a French Mac layout on ISO
-                        *   keyboards, and LESS-THAN SIGN and GREATER-THAN
-                        *   SIGN in a Swiss German, German, or French Mac
-                        *   layout on ANSI keyboards.
-                        */
-  SCANCODE_COMMA = 54,
-  SCANCODE_PERIOD = 55,
-  SCANCODE_SLASH = 56,
+  SCANCODE_GRAVE = 0xe,
+  SCANCODE_COMMA = 0x41,
+  SCANCODE_PERIOD = 0x49,
+  SCANCODE_SLASH = 0x4a,
 
-  SCANCODE_CAPSLOCK = 57,
+  SCANCODE_CAPSLOCK = 0x58,
 
-  SCANCODE_F1 = 58,
-  SCANCODE_F2 = 59,
-  SCANCODE_F3 = 60,
-  SCANCODE_F4 = 61,
-  SCANCODE_F5 = 62,
-  SCANCODE_F6 = 63,
-  SCANCODE_F7 = 64,
-  SCANCODE_F8 = 65,
-  SCANCODE_F9 = 66,
-  SCANCODE_F10 = 67,
-  SCANCODE_F11 = 68,
-  SCANCODE_F12 = 69,
+  SCANCODE_F1 = 0x5,
+  SCANCODE_F2 = 0x6,
+  SCANCODE_F3 = 0x4,
+  SCANCODE_F4 = 0xc,
+  SCANCODE_F5 = 0x3,
+  SCANCODE_F6 = 0xb,
+  SCANCODE_F7 = 0x83,
+  SCANCODE_F8 = 0xa,
+  SCANCODE_F9 = 0x1,
+  SCANCODE_F10 = 0x9,
+  SCANCODE_F11 = 0x78,
+  SCANCODE_F12 = 0x07,
 
-  SCANCODE_INSERT = 73, /**< insert on PC, help on some Mac keyboards (but
-                                 does send code 73, not 117) */
-  SCANCODE_HOME = 74,
-  SCANCODE_PAGEUP = 75,
-  SCANCODE_DELETE = 76,
-  SCANCODE_END = 77,
-  SCANCODE_PAGEDOWN = 78,
-  SCANCODE_RIGHT = 79,
-  SCANCODE_LEFT = 80,
-  SCANCODE_DOWN = 81,
-  SCANCODE_UP = 82,
+  SCANCODE_INSERT = 0xe0,
+  SCANCODE_HOME = 0xe0,
+  SCANCODE_PAGEUP = 0xe0,
+  SCANCODE_DELETE = 0xe0,
+  SCANCODE_END = 0xe0,
+  SCANCODE_PAGEDOWN = 0xe0,
+  SCANCODE_RIGHT = 0xe0,
+  SCANCODE_LEFT = 0xe0,
+  SCANCODE_DOWN = 0xe0,
+  SCANCODE_UP = 0xe0,
 
-  SCANCODE_APPLICATION = 101, /**< windows contextual menu, compose */
+  SCANCODE_APPLICATION = 0x65, /**< windows contextual menu, compose */
 
-  SCANCODE_LCTRL = 224,
-  SCANCODE_LSHIFT = 225,
-  SCANCODE_LALT = 226, /**< alt, option */
-  SCANCODE_LGUI = 227, /**< windows, command (apple), meta */
-  SCANCODE_RCTRL = 228,
-  SCANCODE_RSHIFT = 229,
-  SCANCODE_RALT = 230 /**< alt gr, option */
+  SCANCODE_LCTRL = 0x14,
+  SCANCODE_LSHIFT = 0x12,
+  SCANCODE_LALT = 0x11, /**< alt, option */
+  SCANCODE_RCTRL = 0xe0,
+  SCANCODE_RSHIFT = 0x59,
+  SCANCODE_RALT = 0xe0 /**< alt gr, option */
 
 } Scancode;
 
+typedef enum {
+  EXTEND_SCANCODE_INSERT = 0x70,
+  EXTEND_SCANCODE_HOME = 0x60,
+  EXTEND_SCANCODE_PAGEUP = 0x7d,
+  EXTEND_SCANCODE_DELETE = 0x71,
+  EXTEND_SCANCODE_END = 0x69,
+  EXTEND_SCANCODE_PAGEDOWN = 0x7a,
+  EXTEND_SCANCODE_RIGHT = 0x74,
+  EXTEND_SCANCODE_LEFT = 0x6b,
+  EXTEND_SCANCODE_DOWN = 0x72,
+  EXTEND_SCANCODE_UP = 0x75,
+  EXTEND_SCANCODE_RCTRL = 0x14,
+  EXTEND_SCANCODE_RSHIFT = 0x59,
+  EXTEND_SCANCODE_RALT = 0x11 /**< alt gr, option */
+} ExtendScancode;
+
 #define XX(k) [SCANCODE_##k] = AM_KEY_##k,
+#define EXTEND_XX(k) [EXTEND_SCANCODE_##k] = AM_KEY_##k
 static int keymap[256] = {AM_KEYS(XX)};
+static int extend_keymap[256] = {
+    EXTEND_XX(INSERT),   EXTEND_XX(INSERT), EXTEND_XX(HOME),
+    EXTEND_XX(PAGEUP),   EXTEND_XX(DELETE), EXTEND_XX(END),
+    EXTEND_XX(PAGEDOWN), EXTEND_XX(RIGHT),  EXTEND_XX(LEFT),
+    EXTEND_XX(DOWN),     EXTEND_XX(UP),     EXTEND_XX(RCTRL),
+    EXTEND_XX(RSHIFT),   EXTEND_XX(RALT)};
 
 static inline uint32_t inl(uintptr_t addr) {
   return *(volatile uint32_t *)addr;
@@ -149,12 +133,13 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint32_t keycode = inl(KBD_ADDR);
   if (keycode == 0xf0) {
     kbd->keydown = 0;
-    kbd->keycode = keymap[inl(KBD_ADDR)];
+    keycode = inl(KBD_ADDR);
   } else {
     kbd->keydown = 1;
+  }
+  if (keycode == 0xe0) {
+    kbd->keycode = extend_keymap[inl(KBD_ADDR)];
+  } else {
     kbd->keycode = keymap[keycode];
   }
-
-  if (keycode != 0)
-    printf("%d %d %d\n", keycode, SCANCODE_A, AM_KEY_A);
 }
