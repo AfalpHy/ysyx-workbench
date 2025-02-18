@@ -26,20 +26,20 @@ module ysyx_25010008_EXU (
     output [31:0] csr_wdata2
 );
 
-  wire [31:0] alu_operand2;
+  function [31:0] sel_alu_operand2(input [1:0] alu_operand2_sel, input [31:0] src2,
+                                   input [31:0] imm, input [31:0] csr_src);
+    case (alu_operand2_sel)
+      2'b00:   sel_alu_operand2 = src2;
+      2'b01:   sel_alu_operand2 = imm;  // most I_type inst
+      2'b10:   sel_alu_operand2 = csr_src;  // csrrs or csrrc
+      default: sel_alu_operand2 = 0;
+    endcase
+  endfunction
+
+  wire [31:0] alu_operand2 = sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
 
   wire [31:0] snpc = pc + 4;
   wire [31:0] dnpc = pc + imm;
-
-  ysyx_25010008_MuxKey #(3, 2, 32) mux_alu_operand2 (
-      alu_operand2,
-      alu_operand2_sel,
-      {
-        {2'b00, src2},
-        {2'b01, imm},  // most I_type inst
-        {2'b10, csr_src}  // csrrs or csrrc
-      }
-  );
 
   ysyx_25010008_ALU alu (
       .opcode  (alu_opcode),
@@ -66,9 +66,9 @@ module ysyx_25010008_EXU (
       {
         {3'b000, alu_result},
         {3'b001, snpc},  // jal jalr
-        {3'b010, dnpc}, // auipc 
-        {3'b011, mem_rdata}, // load
-        {3'b100, csr_src} // csrrw csrrs csrrc
+        {3'b010, dnpc},  // auipc 
+        {3'b011, mem_rdata},  // load
+        {3'b100, csr_src}  // csrrw csrrs csrrc
       }
   );
 
@@ -80,7 +80,7 @@ module ysyx_25010008_EXU (
         {1'b1, 32'd11}  // ecall
       }
   );
-  
+
   ysyx_25010008_MuxKey #(2, 1, 32) mux_csr_wdata2 (
       csr_wdata2,
       csr_wdata2_sel,
