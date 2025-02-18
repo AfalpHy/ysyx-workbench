@@ -131,15 +131,16 @@ static inline uint32_t inl(uintptr_t addr) {
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint32_t keycode = inl(KBD_ADDR);
+  bool extend = false;
+  if (keycode == 0xe0) {
+    keycode = inl(KBD_ADDR);
+    extend = true;
+  }
   if (keycode == 0xf0) {
     kbd->keydown = 0;
     keycode = inl(KBD_ADDR);
   } else {
     kbd->keydown = 1;
   }
-  if (keycode == 0xe0) {
-    kbd->keycode = extend_keymap[inl(KBD_ADDR)];
-  } else {
-    kbd->keycode = keymap[keycode];
-  }
+  kbd->keycode = extend ? extend_keymap[keycode] : keymap[keycode];
 }
