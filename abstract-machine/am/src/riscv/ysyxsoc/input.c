@@ -9,5 +9,7 @@ static inline uint32_t inl(uintptr_t addr) { return *(volatile uint32_t *)addr; 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint32_t keycode = inl(KBD_ADDR);
   kbd->keydown = keycode & KEYDOWN_MASK;
-  kbd->keycode = keycode & (~KEYDOWN_MASK);
+  // kbd->keycode = keycode & (~KEYDOWN_MASK);
+  kbd->keycode = 0;
+
 }
