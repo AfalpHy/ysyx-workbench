@@ -1,7 +1,6 @@
 #include <am.h>
-#include <klib.h>
+
 #define KBD_ADDR 0x10011000
-#define KEYDOWN_MASK 0x8000
 
 typedef enum {
   SCANCODE_UNKNOWN = 0,
