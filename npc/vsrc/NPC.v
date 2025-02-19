@@ -144,8 +144,8 @@ module ysyx_25010008_NPC (
       .inst  (inst),
       .ivalid(ivalid),
 
-      .pvalid(arvalid_0),
-      .pready(arready_0),
+      .arvalid(arvalid_0),
+      .arready(arready_0),
 
       .rready(rready_0),
       .rdata (rdata_0),
