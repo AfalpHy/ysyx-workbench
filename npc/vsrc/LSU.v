@@ -60,8 +60,10 @@ module ysyx_25010008_LSU (
   wire [31:0] real_rdata = (suffix_b | suffix_h) ? (rdata >> {addr[1:0], 3'b0}) : rdata;
   wire [31:0] sextb = {{24{real_rdata[7]}}, real_rdata[7:0]};
   wire [31:0] sexth = {{16{real_rdata[15]}}, real_rdata[15:0]};
+  wire [31:0] sign_data = suffix_b ? sextb : sexth;
   wire [31:0] extb = {24'b0, real_rdata[7:0]};
   wire [31:0] exth = {16'b0, real_rdata[15:0]};
+  wire [31:0] unsign_data = suffix_b ? extb : (suffix_h ? exth : real_rdata);
 
   always @(posedge clock) begin
     if (reset) begin
@@ -93,9 +95,7 @@ module ysyx_25010008_LSU (
       end else if (state == TRANSFER_RDATA) begin
         if (rvalid) begin
           rready <= 0;
-          mem_rdata  <= sext ? (suffix_b ? sextb : sexth ) :
-          (suffix_b ? {24'b0, real_rdata[7:0]} :
-          (suffix_h ? {16'b0, real_rdata[15:0]} : real_rdata));
+          mem_rdata <= sext ? sign_data : unsign_data;
           read_done <= 1;
           state <= WRITE_BACK;
         end
@@ -120,7 +120,7 @@ module ysyx_25010008_LSU (
         end
       end else begin
         if (read_done) read_done <= 0;
-        if (write_done) write_done <= 0;
+        else if (write_done) write_done <= 0;
         state <= IDLE;
       end
     end
