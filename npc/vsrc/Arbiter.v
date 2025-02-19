@@ -79,19 +79,6 @@ module ysyx_25010008_Arbiter (
     input         io_master_rlast
 );
 
-  parameter IDLE = 0;
-  parameter TRANSFER = 1;
-
-  reg state;
-
-  parameter MASTER_0 = 0;
-  parameter MASTER_1 = 1;
-
-  parameter SLAVE_CLINT = 0;
-  parameter SLAVE_OTHERS = 1;
-
-  reg master, slave;
-
   reg [31:0] CLINT_araddr;
   reg CLINT_arvalid;
   wire CLINT_arready;
@@ -138,18 +125,18 @@ module ysyx_25010008_Arbiter (
   assign io_master_arsize = arvalid_0 ? 3'b010 : arsize_1;
   assign io_master_awsize = awsize_1;
 
-  // ysyx_25010008_CLINT clint (
-  //     .clock(clock),
-  //     .reset(reset),
+  ysyx_25010008_CLINT clint (
+      .clock(clock),
+      .reset(reset),
 
-  //     .araddr (araddr_1),
-  //     .arvalid(arvalid_1),
-  //     .arready(arvalid_1),
+      .araddr (araddr_1),
+      .arvalid(arvalid_1 & is_clint_addr),
+      .arready(CLINT_arready),
 
-  //     .rready(CLINT_rready),
-  //     .rdata (CLINT_rdata),
-  //     .rresp (CLINT_rresp),
-  //     .rvalid(CLINT_rvalid)
-  // );
+      .rready(CLINT_rready),
+      .rdata (CLINT_rdata),
+      .rresp (CLINT_rresp),
+      .rvalid(CLINT_rvalid)
+  );
 
 endmodule
