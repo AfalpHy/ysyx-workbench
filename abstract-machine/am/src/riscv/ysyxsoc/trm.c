@@ -28,8 +28,8 @@ static inline void outb(uintptr_t addr, uint8_t  data) { *(volatile uint8_t  *)a
 
 void putch(char ch) {
   // loop until transmitter is empty
-  while (!(inb(UART_ADDR + UART_REG_LS) & 0x40)) {
-  }
+  // while (!(inb(UART_ADDR + UART_REG_LS) & 0x40)) {
+  // }
 
   outb(UART_ADDR + UART_REG_TR, ch);
 }
@@ -61,9 +61,9 @@ void login() {
 }
 
 void _trm_init() {
-  // init_uart();
-  // display_id();
-  // login();
+  init_uart();
+  display_id();
+  login();
   int ret = main(mainargs);
   halt(ret);
 }
