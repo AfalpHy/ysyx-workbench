@@ -133,7 +133,7 @@ module ysyx_25010008_Arbiter (
       .arvalid(arvalid_1 & is_clint_addr),
       .arready(CLINT_arready),
 
-      .rready(CLINT_rready),
+      .rready(rready_1),
       .rdata (CLINT_rdata),
       .rresp (CLINT_rresp),
       .rvalid(CLINT_rvalid)
