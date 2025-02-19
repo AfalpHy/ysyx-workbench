@@ -14,8 +14,7 @@ module ysyx_25010008_LSU (
 
     input [31:0] addr,
     output reg [31:0] mem_rdata,
-    output reg read_done,
-    output reg write_done,
+    output reg done,
 
     output reg [31:0] araddr,
     output reg [2:0] arsize,
@@ -100,7 +99,7 @@ module ysyx_25010008_LSU (
         if (rvalid) begin
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
-          read_done <= 1;
+          done <= 1;
           state <= WRITE_BACK;
         end
       end else if (state == TRANSFER_WADDR) begin
@@ -119,12 +118,11 @@ module ysyx_25010008_LSU (
       end else if (state == TRANSFER_BRESP) begin
         if (bvalid) begin
           bready <= 0;
-          write_done <= 1;
-          state <= WRITE_BACK;
+          done   <= 1;
+          state  <= WRITE_BACK;
         end
       end else begin
-        if (read_done) read_done <= 0;
-        else if (write_done) write_done <= 0;
+        done  <= 0;
         state <= IDLE;
       end
     end

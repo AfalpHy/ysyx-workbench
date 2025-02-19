@@ -11,19 +11,6 @@ module ysyx_25010008_Arbiter (
     output reg [1:0] rresp_0,
     output reg rvalid_0,
 
-    input [31:0] awaddr_0,
-    input awvalid_0,
-    output reg awready_0,
-
-    input [31:0] wdata_0,
-    input [3:0] wstrb_0,
-    input wvalid_0,
-    output reg wready_0,
-
-    input bready_0,
-    output reg [1:0] bresp_0,
-    output reg bvalid_0,
-
     input [31:0] araddr_1,
     input [2:0] arsize_1,
     input arvalid_1,
@@ -107,44 +94,40 @@ module ysyx_25010008_Arbiter (
   assign io_master_araddr = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
   assign io_master_arvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
   assign io_master_rready = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? rready_1 : rready_0);
-  assign io_master_awaddr = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? awaddr_1 : awaddr_0);
-  assign io_master_awvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? awvalid_1 : awvalid_0);
-  assign io_master_wdata = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wdata_1 : wdata_0);
-  assign io_master_wstrb = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wstrb_1 : wstrb_0);
-  assign io_master_wvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wvalid_1 : wvalid_0);
-  assign io_master_bready = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? bready_1 : bready_0);
+  assign io_master_awaddr = awaddr_1;
+  assign io_master_awvalid = awvalid_1;
+  assign io_master_wdata = wdata_1;
+  assign io_master_wstrb = wstrb_1;
+  assign io_master_wvalid = wvalid_1;
+  assign io_master_bready = bready_1;
 
-  assign CLINT_araddr = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
-  assign CLINT_arvalid = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
-  assign CLINT_rready = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? rready_1 : rready_0);
+  assign CLINT_araddr = (slave != SLAVE_CLINT) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
+  assign CLINT_arvalid = (slave != SLAVE_CLINT) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
+  assign CLINT_rready = (slave != SLAVE_CLINT) ? 0 : (master == MASTER_1 ? rready_1 : rready_0);
 
-  assign arready_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_arready : CLINT_arready);
-  assign arready_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_arready : CLINT_arready);
+  assign arready_0 = (master != MASTER_0) ? 0 : (slave == SLAVE_OTHERS ? io_master_arready : CLINT_arready);
+  assign arready_1 = (master != MASTER_1) ? 0 : (slave == SLAVE_OTHERS ? io_master_arready : CLINT_arready);
 
-  assign rdata_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_rdata : CLINT_rdata);
-  assign rdata_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_rdata : CLINT_rdata);
+  assign rdata_0 = (master != MASTER_0) ? 0 : (slave == SLAVE_OTHERS ? io_master_rdata : CLINT_rdata);
+  assign rdata_1 = (master != MASTER_1) ? 0 : (slave == SLAVE_OTHERS ? io_master_rdata : CLINT_rdata);
 
-  assign rresp_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_rresp : CLINT_rresp);
-  assign rresp_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_rresp : CLINT_rresp);
+  assign rresp_0 = (master != MASTER_0) ? 0 : (slave == SLAVE_OTHERS ? io_master_rresp : CLINT_rresp);
+  assign rresp_1 = (master != MASTER_1) ? 0 : (slave == SLAVE_OTHERS ? io_master_rresp : CLINT_rresp);
 
-  assign rvalid_0 = (master != MASTER_0 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_rvalid: CLINT_rvalid);
-  assign rvalid_1 = (master != MASTER_1 || slave == SLAVE_NULL) ? 0 : (slave == SLAVE_OTHERS ? io_master_rvalid: CLINT_rvalid);
+  assign rvalid_0 = (master != MASTER_0) ? 0 : (slave == SLAVE_OTHERS ? io_master_rvalid: CLINT_rvalid);
+  assign rvalid_1 = (master != MASTER_1) ? 0 : (slave == SLAVE_OTHERS ? io_master_rvalid: CLINT_rvalid);
 
-  assign awready_0 = (master != MASTER_0 || slave != SLAVE_OTHERS) ? 0 : io_master_awready;
-  assign awready_1 = (master != MASTER_1 || slave != SLAVE_OTHERS) ? 0 : io_master_awready;
+  assign awready_1 = io_master_awready;
 
-  assign wready_0 = (master != MASTER_0 || slave != SLAVE_OTHERS) ? 0 : io_master_wready;
-  assign wready_1 = (master != MASTER_1 || slave != SLAVE_OTHERS) ? 0 : io_master_wready;
+  assign wready_1 = io_master_wready;
 
-  assign bresp_0 = (master != MASTER_0 || slave != SLAVE_OTHERS) ? 0 : io_master_bresp;
-  assign bresp_1 = (master != MASTER_1 || slave != SLAVE_OTHERS) ? 0 : io_master_bresp;
+  assign bresp_1 = io_master_bresp;
 
-  assign bvalid_0 = (master != MASTER_0 || slave != SLAVE_OTHERS) ? 0 : io_master_bvalid;
-  assign bvalid_1 = (master != MASTER_1 || slave != SLAVE_OTHERS) ? 0 : io_master_bvalid;
+  assign bvalid_1 = io_master_bvalid;
 
   assign io_master_wlast = io_master_wvalid;
-  assign io_master_arsize = master == MASTER_0 ? 2 : arsize_1;
-  assign io_master_awsize = master == MASTER_0 ? 2 : awsize_1;
+  assign io_master_arsize = master == MASTER_0 ? 3'b010 : arsize_1;
+  assign io_master_awsize = master == MASTER_0 ? 3'b010 : awsize_1;
 
   always @(posedge clock) begin
     if (reset) begin

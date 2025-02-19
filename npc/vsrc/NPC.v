@@ -85,7 +85,7 @@ module ysyx_25010008_NPC (
   // lsu
   wire mem_ren, mem_wen;
   wire [31:0] mem_rdata;
-  wire read_done, write_done;
+  wire done;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
@@ -100,7 +100,7 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
-  wire write_back = mem_ren ? read_done : (mem_wen ? write_done : ivalid);
+  wire write_back = (mem_ren | mem_wen) ? done : ivalid;
 
   wire [31:0] araddr_0 = pc;
   wire arvalid_0;
@@ -229,9 +229,8 @@ module ysyx_25010008_NPC (
 
       .addr(alu_result),
 
-      .mem_rdata (mem_rdata),
-      .read_done (read_done),
-      .write_done(write_done),
+      .mem_rdata(mem_rdata),
+      .done(done),
 
       .araddr (araddr_1),
       .arsize (arsize_1),
@@ -298,19 +297,6 @@ module ysyx_25010008_NPC (
       .rdata_0 (rdata_0),
       .rresp_0 (rresp_0),
       .rvalid_0(rvalid_0),
-
-      .awaddr_0 (0),
-      .awvalid_0(0),
-      .awready_0(),
-
-      .wdata_0 (0),
-      .wstrb_0 (0),
-      .wvalid_0(0),
-      .wready_0(),
-
-      .bready_0(0),
-      .bresp_0 (),
-      .bvalid_0(),
 
       .araddr_1 (araddr_1),
       .arsize_1 (arsize_1),
