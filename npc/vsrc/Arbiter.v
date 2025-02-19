@@ -107,12 +107,12 @@ module ysyx_25010008_Arbiter (
   assign io_master_araddr = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
   assign io_master_arvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
   assign io_master_rready = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? rready_1 : rready_0);
-  assign io_master_awaddr = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? awaddr_1 : awaddr_0);
-  assign io_master_awvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? awvalid_1 : awvalid_0);
-  assign io_master_wdata = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wdata_1 : wdata_0);
-  assign io_master_wstrb = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wstrb_1 : wstrb_0);
-  assign io_master_wvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? wvalid_1 : wvalid_0);
-  assign io_master_bready = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? bready_1 : bready_0);
+  assign io_master_awaddr = awaddr_1;
+  assign io_master_awvalid = awvalid_1;
+  assign io_master_wdata = wdata_1;
+  assign io_master_wstrb = wstrb_1;
+  assign io_master_wvalid = wvalid_1;
+  assign io_master_bready = bready_1;
 
   assign CLINT_araddr = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
   assign CLINT_arvalid = (slave != SLAVE_CLINT || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
