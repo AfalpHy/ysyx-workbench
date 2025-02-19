@@ -105,7 +105,7 @@ module ysyx_25010008_Arbiter (
 
   // only one master work at the same time, so its logic can be simplified
   assign io_master_araddr = arvalid_0 ? araddr_0 : (arvalid_1 & ~is_clint_addr) ? araddr_1 : 0;
-  assign io_master_arvalid = arvalid_0 | (arvalid_1 & ~is_clint_addr);
+  assign io_master_arvalid = ~reset & (arvalid_0 | (arvalid_1 & ~is_clint_addr));
   assign io_master_rready = rready_0 | rready_1;
   assign io_master_awaddr = awaddr_1;
   assign io_master_awvalid = awvalid_1;
