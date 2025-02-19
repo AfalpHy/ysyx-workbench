@@ -95,7 +95,7 @@ void single_cycle() {
 
 void reset() {
   top.reset = 1;
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 1; i++) {
     single_cycle();
   }
   top.reset = 0;
