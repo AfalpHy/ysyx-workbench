@@ -50,6 +50,7 @@ module ysyx_25010008_IFU (
         end
       end else if (state == TRANSFER_INST) begin
         if (rvalid) begin
+          if(rresp != 0) $finish;
           rready <= 0;
           inst   <= rdata;
           ivalid <= 1;

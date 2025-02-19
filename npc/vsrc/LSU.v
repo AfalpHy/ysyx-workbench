@@ -97,6 +97,7 @@ module ysyx_25010008_LSU (
         end
       end else if (state == TRANSFER_RDATA) begin
         if (rvalid) begin
+          if (rresp != 0) $finish;
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
           done <= 1;
@@ -117,6 +118,7 @@ module ysyx_25010008_LSU (
         end
       end else if (state == TRANSFER_BRESP) begin
         if (bvalid) begin
+          if (bresp != 0) $finish;
           bready <= 0;
           done   <= 1;
           state  <= WRITE_BACK;
