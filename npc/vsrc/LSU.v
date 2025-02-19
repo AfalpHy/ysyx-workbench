@@ -18,6 +18,7 @@ module ysyx_25010008_LSU (
     output reg write_done,
 
     output reg [31:0] araddr,
+    output reg [2:0] arsize,
     output reg arvalid,
     input arready,
 
@@ -27,6 +28,7 @@ module ysyx_25010008_LSU (
     input rvalid,
 
     output reg [31:0] awaddr,
+    output reg [2:0] awsize,
     output reg awvalid,
     input awready,
 
@@ -79,9 +81,11 @@ module ysyx_25010008_LSU (
       if (state == IDLE) begin
         if (ren) begin
           arvalid <= 1;
+          arsize  <= suffix_b ? 0 : suffix_h ? 1 : 2;
           state   <= TRANSFER_RADDR;
         end else if (wen) begin
           awvalid <= 1;
+          awsize  <= suffix_b ? 0 : suffix_h ? 1 : 2;
           state   <= TRANSFER_WADDR;
         end
       end else if (state == TRANSFER_RADDR) begin
