@@ -85,7 +85,7 @@ module ysyx_25010008_NPC (
   // lsu
   wire mem_ren, mem_wen;
   wire [31:0] mem_rdata;
-  wire read_done, write_done;
+  wire done;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
@@ -100,7 +100,7 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
-  wire write_back = mem_ren ? read_done : (mem_wen ? write_done : ivalid);
+  wire write_back = (mem_ren | mem_wen) ? done : ivalid;
 
   wire [31:0] araddr_0 = pc;
   wire arvalid_0;
@@ -112,6 +112,7 @@ module ysyx_25010008_NPC (
   wire rvalid_0;
 
   wire [31:0] araddr_1;
+  wire [2:0] arsize_1;
   wire arvalid_1;
   wire arready_1;
 
@@ -121,6 +122,7 @@ module ysyx_25010008_NPC (
   wire rvalid_1;
 
   wire [31:0] awaddr_1;
+  wire [2:0] awsize_1;
   wire awvalid_1;
   wire awready_1;
 
@@ -144,8 +146,8 @@ module ysyx_25010008_NPC (
       .inst  (inst),
       .ivalid(ivalid),
 
-      .pvalid(arvalid_0),
-      .pready(arready_0),
+      .arvalid(arvalid_0),
+      .arready(arready_0),
 
       .rready(rready_0),
       .rdata (rdata_0),
@@ -227,11 +229,11 @@ module ysyx_25010008_NPC (
 
       .addr(alu_result),
 
-      .mem_rdata (mem_rdata),
-      .read_done (read_done),
-      .write_done(write_done),
+      .mem_rdata(mem_rdata),
+      .done(done),
 
       .araddr (araddr_1),
+      .arsize (arsize_1),
       .arvalid(arvalid_1),
       .arready(arready_1),
 
@@ -241,6 +243,7 @@ module ysyx_25010008_NPC (
       .rvalid(rvalid_1),
 
       .awaddr (awaddr_1),
+      .awsize (awsize_1),
       .awvalid(awvalid_1),
       .awready(awready_1),
 
@@ -309,6 +312,7 @@ module ysyx_25010008_NPC (
       .bvalid_0(),
 
       .araddr_1 (araddr_1),
+      .arsize_1 (arsize_1),
       .arvalid_1(arvalid_1),
       .arready_1(arready_1),
 
@@ -318,6 +322,7 @@ module ysyx_25010008_NPC (
       .rvalid_1(rvalid_1),
 
       .awaddr_1 (awaddr_1),
+      .awsize_1 (awsize_1),
       .awvalid_1(awvalid_1),
       .awready_1(awready_1),
 

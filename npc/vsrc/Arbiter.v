@@ -25,6 +25,7 @@ module ysyx_25010008_Arbiter (
     output reg bvalid_0,
 
     input [31:0] araddr_1,
+    input [2:0] arsize_1,
     input arvalid_1,
     output reg arready_1,
 
@@ -34,6 +35,7 @@ module ysyx_25010008_Arbiter (
     output reg rvalid_1,
 
     input [31:0] awaddr_1,
+    input [2:0] awsize_1,
     input awvalid_1,
     output reg awready_1,
 
@@ -139,6 +141,10 @@ module ysyx_25010008_Arbiter (
 
   assign bvalid_0 = (master != MASTER_0 || slave != SLAVE_OTHERS) ? 0 : io_master_bvalid;
   assign bvalid_1 = (master != MASTER_1 || slave != SLAVE_OTHERS) ? 0 : io_master_bvalid;
+
+  assign io_master_wlast = io_master_wvalid;
+  assign io_master_arsize = master == MASTER_0 ? 3'b010 : arsize_1;
+  assign io_master_awsize = master == MASTER_0 ? 3'b010 : awsize_1;
 
   always @(posedge clock) begin
     if (reset) begin

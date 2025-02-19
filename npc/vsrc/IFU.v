@@ -13,8 +13,8 @@ module ysyx_25010008_IFU (
     output reg [31:0] inst,
     output reg ivalid,
 
-    output reg pvalid,
-    input pready,
+    output reg arvalid,
+    input arready,
 
     output reg rready,
     input [31:0] rdata,
@@ -22,9 +22,9 @@ module ysyx_25010008_IFU (
     input rvalid
 );
 
-  parameter IDLE = 0;
-  parameter HANDLE_PC = 1;
-  parameter HANDLE_INST = 2;
+  parameter TRANSFER_PC = 0;
+  parameter TRANSFER_INST = 1;
+  parameter WAIT_DONE = 2;
 
   reg [1:0] state;
 
@@ -37,31 +37,31 @@ module ysyx_25010008_IFU (
   always @(posedge clock) begin
     if (reset) begin
       pc <= 32'h3000_0000;
-      pvalid <= 1;
-      rready <= 1;
+      arvalid <= 1;
+      rready <= 0;
       ivalid <= 0;
-      state <= HANDLE_PC;
+      state <= TRANSFER_PC;
     end else begin
-      if (state == IDLE) begin
-        if (write_back) begin
-          pc <= npc;
-          pvalid <= 1;
-          ivalid <= 0;
-          state <= HANDLE_PC;
+      if (state == TRANSFER_PC) begin
+        if (arready) begin
+          arvalid <= 0;
+          rready  <= 1;
+          state   <= TRANSFER_INST;
         end
-      end else if (state == HANDLE_PC) begin
-        if (pready) begin
-          pvalid <= 0;
-          rready <= 1;
-          state  <= HANDLE_INST;
-        end
-      end else begin
+      end else if (state == TRANSFER_INST) begin
         if (rvalid) begin
           rready <= 0;
           inst   <= rdata;
           ivalid <= 1;
-          state  <= IDLE;
+          state  <= WAIT_DONE;
           set_inst(rdata);
+        end
+      end else begin
+        if (write_back) begin
+          pc <= npc;
+          arvalid <= 1;
+          ivalid <= 0;
+          state <= TRANSFER_PC;
         end
       end
     end
