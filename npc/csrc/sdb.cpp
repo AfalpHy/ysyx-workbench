@@ -55,6 +55,8 @@ static int cmd_info(char *args) {
     iringbuf_display();
   } else if (strcmp(args, "b") == 0) {
     display_breakpoint();
+  } else {
+    printf("error %s option for `info`\n");
   }
   return 0;
 }
