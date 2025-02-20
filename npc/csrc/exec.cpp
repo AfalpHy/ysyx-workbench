@@ -170,10 +170,13 @@ void cpu_exec(uint32_t num) {
     }
     if (halt || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
+      return;
     } else if (check_wp()) {
       printf("watch point has been triggered\n");
+      return;
     } else if (check_breakpoint(*pc)) {
       printf("break at %x %s\n", *pc, get_fun_name(*pc));
+      return;
     }
   }
 }
