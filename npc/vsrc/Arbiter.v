@@ -4,49 +4,36 @@ module ysyx_25010008_Arbiter (
 
     input [31:0] araddr_0,
     input arvalid_0,
-    output reg arready_0,
+    output arready_0,
 
     input rready_0,
-    output reg [31:0] rdata_0,
-    output reg [1:0] rresp_0,
-    output reg rvalid_0,
-
-    input [31:0] awaddr_0,
-    input awvalid_0,
-    output reg awready_0,
-
-    input [31:0] wdata_0,
-    input [3:0] wstrb_0,
-    input wvalid_0,
-    output reg wready_0,
-
-    input bready_0,
-    output reg [1:0] bresp_0,
-    output reg bvalid_0,
+    output [31:0] rdata_0,
+    output [1:0] rresp_0,
+    output rvalid_0,
 
     input [31:0] araddr_1,
     input [2:0] arsize_1,
     input arvalid_1,
-    output reg arready_1,
+    output arready_1,
 
     input rready_1,
-    output reg [31:0] rdata_1,
-    output reg [1:0] rresp_1,
-    output reg rvalid_1,
+    output [31:0] rdata_1,
+    output [1:0] rresp_1,
+    output rvalid_1,
 
     input [31:0] awaddr_1,
     input [2:0] awsize_1,
     input awvalid_1,
-    output reg awready_1,
+    output awready_1,
 
     input [31:0] wdata_1,
     input [3:0] wstrb_1,
     input wvalid_1,
-    output reg wready_1,
+    output wready_1,
 
     input bready_1,
-    output reg [1:0] bresp_1,
-    output reg bvalid_1,
+    output [1:0] bresp_1,
+    output bvalid_1,
 
     input         io_master_awready,
     output        io_master_awvalid,
@@ -79,11 +66,7 @@ module ysyx_25010008_Arbiter (
     input         io_master_rlast
 );
 
-  reg [31:0] CLINT_araddr;
-  reg CLINT_arvalid;
   wire CLINT_arready;
-
-  reg CLINT_rready;
   wire [31:0] CLINT_rdata;
   wire [1:0] CLINT_rresp;
   wire CLINT_rvalid;
