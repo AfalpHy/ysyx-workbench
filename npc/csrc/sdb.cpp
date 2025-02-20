@@ -56,7 +56,7 @@ static int cmd_info(char *args) {
   } else if (strcmp(args, "b") == 0) {
     display_breakpoint();
   } else {
-    printf("error %s option for `info`\n", args);
+    printf("error '%s' option for 'info'\n", args);
   }
   return 0;
 }
