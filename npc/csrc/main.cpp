@@ -58,7 +58,7 @@ int load_img(const string &filepath) {
   file.seekg(0, ios::end);
   size_t size = file.tellg();
   file.seekg(0, ios::beg);
-  file.read((char *)pmem, size);
+  file.read((char *)flash, size);
   file.close();
   return size;
 }
