@@ -40,8 +40,8 @@ module ysyx_25010008_IFU (
         rready  <= 1;
       end else if (rready & rvalid) begin
         if (rresp != 0) begin
-           $display("%h",pc);
-           $finish;
+          $display("%h", pc);
+          $finish;
         end
         rready <= 0;
         inst   <= rdata;

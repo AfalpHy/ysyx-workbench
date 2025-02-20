@@ -84,7 +84,10 @@ module ysyx_25010008_LSU (
           rready <= 1;
           enable <= 1;
         end else if (rready & rvalid) begin
-          if (rresp != 0) $finish;
+          if (rresp != 0) begin
+            $display("%h", addr);
+            $finish;
+          end
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
           done <= 1;
@@ -96,7 +99,10 @@ module ysyx_25010008_LSU (
           wvalid <= 0;
           bready <= 1;
         end else if (bready & bvalid) begin
-          if (bresp != 0) $finish;
+          if (rresp != 0) begin
+            $display("%h", addr);
+            $finish;
+          end
           bready <= 0;
           done   <= 1;
         end
