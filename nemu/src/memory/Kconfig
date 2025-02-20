@@ -49,6 +49,14 @@ config SDRAM_SIZE
   hex "SDRAM size"
   default 0x4000000
 
+config CHIPLINK_MEM_BASE
+  hex "CHIPLINK_MEM base address"
+  default 0xc0000000
+
+config CHIPLINK_MEM_SIZE
+  hex "CHIPLINK_MEM size"
+  default 0x1000
+
 config PC_RESET_OFFSET
   hex "Offset of reset vector from the base of memory"
   default 0x100000 if ISA_x86
