@@ -1,5 +1,6 @@
 #include "exec.h"
 #include "expr.h"
+#include "ftrace.h"
 #include "isa.h"
 #include "pmem.h"
 #include "watchpoint.h"
@@ -97,6 +98,17 @@ static int cmd_w(char *args) {
 static int cmd_d(char *args) {
   uint64_t order = strtoul(args, NULL, 10);
   free_wp(order);
+  return 0;
+}
+
+static int cmd_b(char *args) {
+#ifdef FTRACE
+  if (!add_break_point(args)) {
+    printf("add break point failed, please check the address\n");
+  }
+#else
+  printf("can't use break without ftrace\n");
+#endif
   return 0;
 }
 

@@ -2,6 +2,7 @@
 #include <elf.h>
 #include <memory>
 #include <string.h>
+#include <unordered_map>
 
 #define FILE_NAME_MAXLEN 256
 #define MAX_FUNCTION_NUM 65536
@@ -22,6 +23,8 @@ typedef struct {
 
 static function_message funs[MAX_FUNCTION_NUM];
 static int fun_num = 0;
+
+static std::unordered_map<int, paddr_t> break_point;
 
 FILE *ftrace_log = NULL;
 
@@ -84,7 +87,7 @@ void init_elf(const std::vector<std::string> &elf_files) {
   }
 }
 
-static char *get_fun_name(word_t addr) {
+char *get_fun_name(word_t addr) {
   for (int i = 0; i < fun_num; i++) {
     if (addr >= funs[i].begin && addr < funs[i].end) {
       return funs[i].fun_name;
@@ -148,4 +151,33 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
       }
     }
   }
+}
+
+paddr_t get_function_addr(char *fun_name) {
+  for (int i = 0; i < fun_num; i++) {
+    if (strcmp(fun_name, funs[i].fun_name) == 0) {
+      return funs[i].begin;
+    }
+  }
+  return -1;
+}
+
+bool add_break_point(char *fun_name) {
+  static int index = 0;
+  auto function_addr = get_function_addr(fun_name);
+  if (function_addr != -1) {
+    break_point[index++] = function_addr;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool check_break_point(paddr_t function_addr) {
+  for (auto &[k, v] : break_point) {
+    if (v == function_addr) {
+      return true;
+    }
+  }
+  return false;
 }
