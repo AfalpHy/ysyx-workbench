@@ -167,7 +167,7 @@ void add_breakpoint(char *fun_name) {
   auto function_addr = get_function_addr(fun_name);
   if (function_addr != -1) {
     breakpoint[index++] = function_addr;
-    printf("breakpoint %d in %s\n", function_addr, fun_name);
+    printf("breakpoint %x in %s\n", function_addr, fun_name);
   } else {
     printf("add break point failed, please check the address\n");
   }
