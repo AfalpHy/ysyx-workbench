@@ -79,8 +79,8 @@ module ysyx_25010008_LSU (
         enable <= 0;
       end else begin
         if (arvalid & arready) begin
-          if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02)
-            set_skip_ref_inst();  //uart or clint
+          if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
+            set_skip_ref_inst();  //uart clint spi gpio ps2
           rready <= 1;
           enable <= 1;
         end else if (rready & rvalid) begin
@@ -92,7 +92,8 @@ module ysyx_25010008_LSU (
           mem_rdata <= sext ? sign_data : unsign_data;
           done <= 1;
         end else if (awvalid & awready) begin
-          if (awaddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
+          if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
+            set_skip_ref_inst();  //uart spi gpio vga
           wvalid <= 1;
           enable <= 1;
         end else if (wvalid & wready) begin
