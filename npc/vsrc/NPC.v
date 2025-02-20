@@ -298,19 +298,6 @@ module ysyx_25010008_NPC (
       .rresp_0 (rresp_0),
       .rvalid_0(rvalid_0),
 
-      .awaddr_0 (0),
-      .awvalid_0(0),
-      .awready_0(),
-
-      .wdata_0 (0),
-      .wstrb_0 (0),
-      .wvalid_0(0),
-      .wready_0(),
-
-      .bready_0(0),
-      .bresp_0 (),
-      .bvalid_0(),
-
       .araddr_1 (araddr_1),
       .arsize_1 (arsize_1),
       .arvalid_1(arvalid_1),

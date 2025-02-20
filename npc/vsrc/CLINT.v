@@ -30,7 +30,7 @@ module ysyx_25010008_CLINT (
       rvalid  <= 0;
       rstate  <= HANDLE_RADDR;
     end else begin
-      mtime <= mtime + 1;  // add 2 to simulate real time acorrding to speed of npc's simulation
+      mtime <= mtime + 2;  // add 2 to simulate real time acorrding to speed of npc's simulation
       if (rstate == HANDLE_RADDR) begin
         if (arvalid) begin
           _araddr <= araddr;

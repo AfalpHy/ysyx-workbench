@@ -14,7 +14,7 @@ module ysyx_25010008_IDU (
     output [4:0] rs1,
     output [4:0] rs2,
     output [4:0] rd,
-    output reg r_wen,
+    output r_wen,
     output [2:0] r_wdata_sel,
 
     output [11:0] csr_s,
@@ -25,7 +25,7 @@ module ysyx_25010008_IDU (
     output csr_wdata1_sel,
     output csr_wdata2_sel,
 
-    output reg mem_ren,
+    output mem_ren,
     output mem_wen,
 
     output [7:0] alu_opcode
