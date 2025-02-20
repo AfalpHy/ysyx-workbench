@@ -173,7 +173,7 @@ void cpu_exec(uint32_t num) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
     } else if (check_wp()) {
       printf("watch point has been triggered\n");
-    } else if (check_break_point(*pc)) {
+    } else if (check_breakpoint(*pc)) {
       printf("break at %x %s\n", *pc, get_fun_name(*pc));
     }
   }

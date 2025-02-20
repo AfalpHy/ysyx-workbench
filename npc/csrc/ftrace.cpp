@@ -24,7 +24,7 @@ typedef struct {
 static function_message funs[MAX_FUNCTION_NUM];
 static int fun_num = 0;
 
-static std::unordered_map<int, paddr_t> break_point;
+static std::unordered_map<int, paddr_t> breakpoint;
 
 FILE *ftrace_log = NULL;
 
@@ -162,19 +162,19 @@ paddr_t get_function_addr(char *fun_name) {
   return -1;
 }
 
-bool add_break_point(char *fun_name) {
+bool add_breakpoint(char *fun_name) {
   static int index = 0;
   auto function_addr = get_function_addr(fun_name);
   if (function_addr != -1) {
-    break_point[index++] = function_addr;
+    breakpoint[index++] = function_addr;
     return true;
   } else {
     return false;
   }
 }
 
-bool check_break_point(paddr_t function_addr) {
-  for (auto &[k, v] : break_point) {
+bool check_breakpoint(paddr_t function_addr) {
+  for (auto &[k, v] : breakpoint) {
     if (v == function_addr) {
       return true;
     }

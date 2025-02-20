@@ -103,7 +103,7 @@ static int cmd_d(char *args) {
 
 static int cmd_b(char *args) {
 #ifdef FTRACE
-  if (!add_break_point(args)) {
+  if (!add_breakpoint(args)) {
     printf("add break point failed, please check the address\n");
   }
 #else
@@ -127,7 +127,8 @@ static struct {
     {"x", "Printf memory message, example: x 10 0x80000000", cmd_x},
     {"p", "Eval the expr", cmd_p},
     {"w", "Set the watchpoint", cmd_w},
-    {"d", "Delete the watchpoint", cmd_d}};
+    {"d", "Delete the watchpoint", cmd_d},
+    {"b", "Add breakpoint", cmd_b}};
 
 #define NR_CMD sizeof(cmd_table) / sizeof(cmd_table[0])
 
