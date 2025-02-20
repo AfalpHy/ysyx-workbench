@@ -42,21 +42,18 @@ module ysyx_25010008_LSU (
     input bvalid
 );
 
-  parameter IDLE = 0;
-  parameter TRANSFER_RADDR = 1;
-  parameter TRANSFER_RDATA = 2;
-  parameter TRANSFER_WADDR = 3;
-  parameter TRANSFER_WDATA = 4;
-  parameter TRANSFER_BRESP = 5;
-  parameter WRITE_BACK = 6;
+  reg enable;
 
-  reg [2:0] state;
+  assign araddr  = addr;
+  assign arsize  = suffix_b ? 0 : suffix_h ? 1 : 2;
+  assign arvalid = ren & ~enable;
 
-  assign araddr = addr;
-  assign awaddr = addr;
+  assign awaddr  = addr;
+  assign awsize  = suffix_b ? 0 : suffix_h ? 1 : 2;
+  assign awvalid = wen & ~enable;
 
-  assign wdata  = (suffix_b | suffix_h) ? (wsrc << {addr[1:0], 3'b0}) : wsrc;
-  assign wstrb  = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr[1:0];
+  assign wdata   = (suffix_b | suffix_h) ? (wsrc << {addr[1:0], 3'b0}) : wsrc;
+  assign wstrb   = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr[1:0];
 
   wire [31:0] real_rdata = (suffix_b | suffix_h) ? (rdata >> {addr[1:0], 3'b0}) : rdata;
   wire [31:0] sextb = {{24{real_rdata[7]}}, real_rdata[7:0]};
@@ -68,64 +65,47 @@ module ysyx_25010008_LSU (
 
   always @(posedge clock) begin
     if (reset) begin
-      arvalid <= 0;
-      rready  <= 0;
+      enable <= 0;
 
-      awvalid <= 0;
-      wvalid  <= 0;
-      bready  <= 0;
+      rready <= 0;
 
-      state   <= IDLE;
+      wvalid <= 0;
+      bready <= 0;
+
+      done   <= 0;
     end else begin
-      if (state == IDLE) begin
-        if (ren) begin
-          arvalid <= 1;
-          arsize  <= suffix_b ? 0 : suffix_h ? 1 : 2;
-          state   <= TRANSFER_RADDR;
-        end else if (wen) begin
-          awvalid <= 1;
-          awsize  <= suffix_b ? 0 : suffix_h ? 1 : 2;
-          state   <= TRANSFER_WADDR;
-        end
-      end else if (state == TRANSFER_RADDR) begin
-        if (arready) begin
+      if (done) begin
+        done   <= 0;
+        enable <= 0;
+      end else begin
+        if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02)
             set_skip_ref_inst();  //uart or clint
-          arvalid <= 0;
-          rready  <= 1;
-          state   <= TRANSFER_RDATA;
-        end
-      end else if (state == TRANSFER_RDATA) begin
-        if (rvalid) begin
-          if (rresp != 0) $finish;
+          rready <= 1;
+          enable <= 1;
+        end else if (rready & rvalid) begin
+          if (rresp != 0) begin
+            $display("%h", addr);
+            $finish;
+          end
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
           done <= 1;
-          state <= WRITE_BACK;
-        end
-      end else if (state == TRANSFER_WADDR) begin
-        if (awready) begin
+        end else if (awvalid & awready) begin
           if (awaddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
-          awvalid <= 0;
-          wvalid  <= 1;
-          state   <= TRANSFER_WDATA;
-        end
-      end else if (state == TRANSFER_WDATA) begin
-        if (wready) begin
+          wvalid <= 1;
+          enable <= 1;
+        end else if (wvalid & wready) begin
           wvalid <= 0;
           bready <= 1;
-          state  <= TRANSFER_BRESP;
-        end
-      end else if (state == TRANSFER_BRESP) begin
-        if (bvalid) begin
-          if (bresp != 0) $finish;
+        end else if (bready & bvalid) begin
+          if (rresp != 0) begin
+            $display("%h", addr);
+            $finish;
+          end
           bready <= 0;
           done   <= 1;
-          state  <= WRITE_BACK;
         end
-      end else begin
-        done  <= 0;
-        state <= IDLE;
       end
     end
   end
