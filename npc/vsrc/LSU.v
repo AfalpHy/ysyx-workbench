@@ -71,9 +71,12 @@ module ysyx_25010008_LSU (
 
       wvalid <= 0;
       bready <= 0;
+
+      done   <= 0;
     end else begin
       if (done) begin
-        done <= 0;
+        done   <= 0;
+        enable <= 0;
       end else begin
         if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02)
@@ -84,7 +87,6 @@ module ysyx_25010008_LSU (
           if (rresp != 0) $finish;
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
-          enable <= 0;
           done <= 1;
         end else if (awvalid & awready) begin
           if (awaddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
@@ -96,7 +98,6 @@ module ysyx_25010008_LSU (
         end else if (bready & bvalid) begin
           if (bresp != 0) $finish;
           bready <= 0;
-          enable <= 0;
           done   <= 1;
         end
       end
