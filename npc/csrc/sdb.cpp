@@ -53,6 +53,8 @@ static int cmd_info(char *args) {
     print_wp();
   } else if (strcmp(args, "i") == 0) {
     iringbuf_display();
+  } else if (strcmp(args, "b") == 0) {
+    display_breakpoint();
   }
   return 0;
 }
@@ -110,6 +112,12 @@ static int cmd_b(char *args) {
   return 0;
 }
 
+static int cmd_db(char *args) {
+  uint64_t order = strtoul(args, NULL, 10);
+  delete_breakpoint(order);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -121,12 +129,13 @@ static struct {
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NPC", cmd_q},
     {"si", "Step forward n instructions", cmd_si},
-    {"info", "Printf reg value or watchpoint", cmd_info},
+    {"info", "Printf reg value or watchpoint or breakpoint", cmd_info},
     {"x", "Printf memory message, example: x 10 0x80000000", cmd_x},
     {"p", "Eval the expr", cmd_p},
     {"w", "Set the watchpoint", cmd_w},
     {"d", "Delete the watchpoint", cmd_d},
-    {"b", "Add breakpoint", cmd_b}};
+    {"b", "Add breakpoint", cmd_b},
+    {"db", "Delete the breakpoint", cmd_db}};
 
 #define NR_CMD sizeof(cmd_table) / sizeof(cmd_table[0])
 

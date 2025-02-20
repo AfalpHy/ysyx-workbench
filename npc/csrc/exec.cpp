@@ -175,7 +175,6 @@ void cpu_exec(uint32_t num) {
       printf("watch point has been triggered\n");
       return;
     } else if (check_breakpoint(*pc)) {
-      printf("breakpoint hit at %x %s\n", *pc, get_fun_name(*pc));
       return;
     }
   }
