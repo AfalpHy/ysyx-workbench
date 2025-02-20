@@ -80,7 +80,6 @@ static void sdram_write(paddr_t addr, int len, word_t data) {
   host_write(sdram2host(addr), len, data);
 }
 
-
 static word_t chiplink_mem_read(paddr_t addr, int len) {
   word_t ret = host_read(chiplink_mem2host(addr), len);
   return ret;
