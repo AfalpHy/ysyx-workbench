@@ -31,7 +31,7 @@ module ysyx_25010008_IFU (
   always @(posedge clock) begin
     if (reset) begin
       pc <= 32'h3000_0000;
-      arvalid <= 0;
+      arvalid <= 1;
       rready <= 0;
       ivalid <= 0;
     end else begin
