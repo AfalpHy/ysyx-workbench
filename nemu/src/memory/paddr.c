@@ -181,6 +181,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     return;
   } else if (in_chiplink_mem(addr)) {
     chiplink_mem_write(addr, len, data);
+    return;
   }
   out_of_bound(addr);
 #else
