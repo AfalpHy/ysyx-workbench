@@ -1,5 +1,6 @@
 #include "ftrace.h"
 #include <elf.h>
+#include <map>
 #include <memory>
 #include <string.h>
 
@@ -22,6 +23,8 @@ typedef struct {
 
 static function_message funs[MAX_FUNCTION_NUM];
 static int fun_num = 0;
+
+static std::map<int, paddr_t> breakpoint;
 
 FILE *ftrace_log = NULL;
 
@@ -84,7 +87,7 @@ void init_elf(const std::vector<std::string> &elf_files) {
   }
 }
 
-static char *get_fun_name(word_t addr) {
+char *get_fun_name(word_t addr) {
   for (int i = 0; i < fun_num; i++) {
     if (addr >= funs[i].begin && addr < funs[i].end) {
       return funs[i].fun_name;
@@ -148,4 +151,47 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
       }
     }
   }
+}
+
+paddr_t get_function_addr(char *fun_name) {
+  for (int i = 0; i < fun_num; i++) {
+    if (strcmp(fun_name, funs[i].fun_name) == 0) {
+      return funs[i].begin;
+    }
+  }
+  return -1;
+}
+
+void add_breakpoint(char *fun_name) {
+  static int index = 0;
+  auto function_addr = get_function_addr(fun_name);
+  if (function_addr != -1) {
+    printf("breakpoint %d, %x in %s\n", index, function_addr, fun_name);
+    breakpoint[index++] = function_addr;
+  } else {
+    printf("add break point failed, please check the address\n");
+  }
+}
+
+void delete_breakpoint(int index) {
+  if (breakpoint.count(index))
+    breakpoint.erase(index);
+  else
+    printf("can not delete breakpoint %d\n", index);
+}
+
+void display_breakpoint() {
+  for (auto &[k, v] : breakpoint) {
+    printf("breakpoint %d %x %s\n", k, v, get_fun_name(v));
+  }
+}
+
+bool check_breakpoint(paddr_t function_addr) {
+  for (auto &[k, v] : breakpoint) {
+    if (v == function_addr) {
+      printf("breakpoint %d, %x in %s\n", k, v, get_fun_name(v));
+      return true;
+    }
+  }
+  return false;
 }
