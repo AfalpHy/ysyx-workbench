@@ -103,9 +103,7 @@ static int cmd_d(char *args) {
 
 static int cmd_b(char *args) {
 #ifdef FTRACE
-  if (!add_breakpoint(args)) {
-    printf("add break point failed, please check the address\n");
-  }
+  add_breakpoint(args);
 #else
   printf("can't use break without ftrace\n");
 #endif

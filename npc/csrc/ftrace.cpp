@@ -162,14 +162,14 @@ paddr_t get_function_addr(char *fun_name) {
   return -1;
 }
 
-bool add_breakpoint(char *fun_name) {
+void add_breakpoint(char *fun_name) {
   static int index = 0;
   auto function_addr = get_function_addr(fun_name);
   if (function_addr != -1) {
     breakpoint[index++] = function_addr;
-    return true;
+    printf("add break point failed, please check the address\n");
   } else {
-    return false;
+    printf("breakpoint %d in %s\n", function_addr, fun_name);
   }
 }
 
