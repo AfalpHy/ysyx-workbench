@@ -50,7 +50,7 @@ module ysyx_25010008_LSU (
 
   assign awaddr  = addr;
   assign awsize  = suffix_b ? 0 : suffix_h ? 1 : 2;
-  assign awvalid = ren & ~enable;
+  assign awvalid = wen & ~enable;
 
   assign wdata   = (suffix_b | suffix_h) ? (wsrc << {addr[1:0], 3'b0}) : wsrc;
   assign wstrb   = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr[1:0];
