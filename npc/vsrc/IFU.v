@@ -1,6 +1,9 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void set_write_back(input logic write_back[]);
-import "DPI-C" function void set_inst(int inst);
+import "DPI-C" function void trace(
+  int inst,
+  int npc
+);
 
 module ysyx_25010008_IFU (
     input clock,
@@ -46,11 +49,11 @@ module ysyx_25010008_IFU (
         rready <= 0;
         inst   <= rdata;
         ivalid <= 1;
-        set_inst(rdata);
       end else if (write_back) begin
         pc <= npc;
         arvalid <= 1;
         ivalid <= 0;
+        trace(inst, npc);
       end
     end
   end

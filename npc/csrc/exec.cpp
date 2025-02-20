@@ -17,9 +17,10 @@ extern bool interrupt;
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
 uint32_t inst;
+bool print_itrace = false;
+bool halt = false;
 
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
-extern "C" void set_inst(int _inst) { inst = _inst; }
 typedef struct {
   paddr_t pc;
   uint32_t inst;
@@ -28,6 +29,28 @@ typedef struct {
 
 #define MAX_IRINGBUF_LEN 20
 static DisasmInst iringbuf[MAX_IRINGBUF_LEN];
+
+extern "C" void trace(int inst, int npc) {
+#ifdef ITRACE
+  int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
+  iringbuf[iringbuf_index].pc = *pc;
+  iringbuf[iringbuf_index].inst = inst;
+  disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str),
+              iringbuf[iringbuf_index].inst, (uint8_t *)&inst, 4);
+  auto str = one_inst_str(&iringbuf[iringbuf_index]);
+  if (print_itrace) {
+    printf("%s", str);
+  }
+  if (total_insts_num < 10000) // avoid trace file too big
+    fprintf(log_fp, "%s", str);
+#endif
+
+#ifdef FTRACE
+  ftrace(*pc, npc, inst);
+#endif
+
+  halt = inst == 0b00000000000100000000000001110011;
+}
 
 char *one_inst_str(const DisasmInst *di) {
   static char buff[256];
@@ -102,18 +125,12 @@ void reset() {
 }
 
 void cpu_exec(uint32_t num) {
-  static bool halt = false;
   if (halt) {
     printf("Program execution has ended\n");
     return;
   }
-  uint32_t print_num = num;
+  print_itrace = num <= 10;
   while (num-- > 0) {
-#ifdef ITRACE
-    int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
-    iringbuf[iringbuf_index].pc = *pc;
-#endif
-
 #ifdef MTRACE
     // only print inst memory access
     print_mtrace = true;
@@ -128,30 +145,12 @@ void cpu_exec(uint32_t num) {
     print_mtrace = false;
 #endif
 
-    halt = inst == 0b00000000000100000000000001110011;
-
-#ifdef ITRACE
-    iringbuf[iringbuf_index].inst = inst;
-    disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str),
-                iringbuf[iringbuf_index].inst, (uint8_t *)&inst, 4);
-    auto str = one_inst_str(&iringbuf[iringbuf_index]);
-    if (print_num <= 10) {
-      printf("%s", str);
-    }
-    if (total_insts_num < 10000) // avoid trace file too big
-      fprintf(log_fp, "%s", str);
-#endif
-
     total_insts_num++;
 
 #if defined(ITRACE) || defined(MTRACE)
     if (total_insts_num <= 10000) // avoid trace file too big
       fprintf(log_fp, "%ld instructions have been executed\n\n",
               total_insts_num); // make trace more clear
-#endif
-
-#ifdef FTRACE
-    ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
 #endif
 
     if (diff_test_on) {
