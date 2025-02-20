@@ -30,6 +30,12 @@ typedef struct {
 #define MAX_IRINGBUF_LEN 20
 static DisasmInst iringbuf[MAX_IRINGBUF_LEN];
 
+char *one_inst_str(const DisasmInst *di) {
+  static char buff[256];
+  sprintf(buff, FMT_WORD ":%08x\t\t%s\n", di->pc, di->inst, di->str);
+  return buff;
+}
+
 extern "C" void trace(int inst, int npc) {
 #ifdef ITRACE
   int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
@@ -50,12 +56,6 @@ extern "C" void trace(int inst, int npc) {
 #endif
 
   halt = inst == 0b00000000000100000000000001110011;
-}
-
-char *one_inst_str(const DisasmInst *di) {
-  static char buff[256];
-  sprintf(buff, FMT_WORD ":%08x\t\t%s\n", di->pc, di->inst, di->str);
-  return buff;
 }
 
 static void display_one_inst(const DisasmInst *di) {
@@ -175,7 +175,7 @@ void cpu_exec(uint32_t num) {
       printf("watch point has been triggered\n");
       return;
     } else if (check_breakpoint(*pc)) {
-      printf("break at %x %s\n", *pc, get_fun_name(*pc));
+      printf("breakpoint hit at %x %s\n", *pc, get_fun_name(*pc));
       return;
     }
   }
