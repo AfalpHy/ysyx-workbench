@@ -76,6 +76,13 @@ module ysyx_25010008_NPC (
   wire suffix_h;
   wire sext;
   wire ivalid;
+  wire iready;
+
+  wire dvalid;
+  wire dready;
+
+  wire evalid;
+  wire eready;
 
   // alu
   wire [7:0] alu_opcode;
@@ -100,7 +107,7 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
-  wire write_back = (mem_ren | mem_wen) ? done : ivalid;
+  wire write_back = mem_wen ? done : evalid;
 
   wire [31:0] araddr_0 = pc;
   wire arvalid_0;
@@ -145,6 +152,7 @@ module ysyx_25010008_NPC (
 
       .inst  (inst),
       .ivalid(ivalid),
+      .iready(iready),
 
       .arvalid(arvalid_0),
       .arready(arready_0),
@@ -156,8 +164,15 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_IDU idu (
+      .clock(clock),
+      .reset(reset),
+
       .inst  (inst),
       .ivalid(ivalid),
+      .iready(iready),
+
+      .dvalid(dvalid),
+      .dready(dready),
 
       .npc_sel(npc_sel),
 
@@ -189,6 +204,15 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_EXU exu (
+      .clock(clock),
+      .reset(reset),
+
+      .dvalid(dvalid),
+      .dready(dready),
+
+      .evalid(evalid),
+      .eready(eready),
+
       .pc(pc),
       .npc_sel(npc_sel),
 
@@ -205,6 +229,7 @@ module ysyx_25010008_NPC (
       .alu_operand2_sel(alu_operand2_sel),
       .alu_result(alu_result),
 
+      .read_done(done),
       .mem_rdata(mem_rdata),
 
       .npc(npc),
