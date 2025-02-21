@@ -152,7 +152,7 @@ module ysyx_25010008_IDU (
   assign rs2 = CSRRW ? 0 : inst[24:20]; // CSRRW always use x0 means imm + 0
   assign rd  = inst[11:7];
 
-  assign r_wen = (U_type | J_type | I_type | R_type) & ivalid;
+  assign r_wen = (U_type | J_type | I_type | R_type);
   assign r_wdata_sel[0] = JAL | JALR | AUIPC;
   assign r_wdata_sel[1] = CSRRW | CSRRS | CSRRC | AUIPC;
   assign r_wdata_sel[2] = load;
@@ -160,13 +160,13 @@ module ysyx_25010008_IDU (
   assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : imm[11:0]);
   assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
   assign csr_d2 = ECALL ? 12'h341 : imm[11:0];
-  assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL) & ivalid;
-  assign csr_wen2 = ECALL & ivalid;
+  assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL);
+  assign csr_wen2 = ECALL;
   assign csr_wdata1_sel = ECALL;
   assign csr_wdata2_sel = ECALL;
 
-  assign mem_ren = load & ivalid;
-  assign mem_wen = store & ivalid;
+  assign mem_ren = load;
+  assign mem_wen = store;
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
   assign alu_opcode[1] = XORI | XOR | BEQ;
