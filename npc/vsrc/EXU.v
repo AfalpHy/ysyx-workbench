@@ -84,9 +84,8 @@ module ysyx_25010008_EXU (
         r_wdata <= mem_rdata;  // load
         evalid <= 1;
         wait_read <= 0;
-      end else if (evalid & eready) begin
+      end else if (evalid) begin
         evalid <= 0;
-        dready <= 1;
       end
     end
   end
