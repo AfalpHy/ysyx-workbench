@@ -76,7 +76,6 @@ module ysyx_25010008_NPC (
   wire suffix_h;
   wire sext;
   wire ivalid;
-  wire iready;
 
   wire dvalid;
   wire dready;
@@ -152,7 +151,6 @@ module ysyx_25010008_NPC (
 
       .inst  (inst),
       .ivalid(ivalid),
-      .iready(iready),
 
       .arvalid(arvalid_0),
       .arready(arready_0),
@@ -169,7 +167,7 @@ module ysyx_25010008_NPC (
 
       .inst  (inst),
       .ivalid(ivalid),
-      .iready(iready),
+      .write_back(write_back),
 
       .dvalid(dvalid),
       .dready(dready),
