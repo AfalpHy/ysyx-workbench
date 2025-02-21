@@ -2,7 +2,7 @@ module ysyx_25010008_IDU (
     input clock,
     input reset,
 
-    input [31:0] inst,
+    input reg [31:0] inst,
     input ivalid,
     output reg iready,
 
