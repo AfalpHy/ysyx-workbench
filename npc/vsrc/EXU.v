@@ -86,6 +86,7 @@ module ysyx_25010008_EXU (
         wait_read <= 0;
       end else if (evalid) begin
         evalid <= 0;
+        dready <= 1;
       end
     end
   end
