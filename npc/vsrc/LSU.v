@@ -16,7 +16,6 @@ module ysyx_25010008_LSU (
 
     input [31:0] addr,
     output reg [31:0] mem_rdata,
-    output reg done,
 
     output reg [31:0] araddr,
     output reg [2:0] arsize,
@@ -27,6 +26,7 @@ module ysyx_25010008_LSU (
     input [31:0] rdata,
     input [1:0] rresp,
     input rvalid,
+    output reg read_done,
 
     output reg [31:0] awaddr,
     output reg [2:0] awsize,
@@ -41,7 +41,8 @@ module ysyx_25010008_LSU (
 
     output reg bready,
     input [1:0] bresp,
-    input bvalid
+    input bvalid,
+    output reg write_done
 );
 
   reg enable;
@@ -74,10 +75,14 @@ module ysyx_25010008_LSU (
       wvalid <= 0;
       bready <= 0;
 
-      done   <= 0;
+      read_done <= 0;
+      write_done <= 0;
     end else begin
-      if (done & ~write_back) begin
-        done   <= 0;
+      if (read_done & write_back) begin
+        read_done <= 0;
+        enable <= 0;
+      end else if (write_done) begin
+        write_done <= 0;
         enable <= 0;
       end else begin
         if (arvalid & arready) begin
@@ -92,7 +97,7 @@ module ysyx_25010008_LSU (
           end
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
-          done <= 1;
+          read_done <= 1;
         end else if (awvalid & awready) begin
           if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
             set_skip_ref_inst();  //uart spi gpio vga
@@ -107,7 +112,7 @@ module ysyx_25010008_LSU (
             $finish;
           end
           bready <= 0;
-          done   <= 1;
+          write_done <= 1;
         end
       end
     end

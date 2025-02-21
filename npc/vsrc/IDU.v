@@ -4,7 +4,7 @@ module ysyx_25010008_IDU (
 
     input [31:0] inst,
     input ivalid,
-    input write_back,
+    output reg iready,
 
     output reg dvalid,
     input dready,
@@ -37,7 +37,6 @@ module ysyx_25010008_IDU (
 
     output [7:0] alu_opcode
 );
-  reg iready;
 
   wire [6:0] opcode = inst[6:0];
   wire [2:0] funct3 = inst[14:12];
@@ -187,9 +186,8 @@ module ysyx_25010008_IDU (
       if (ivalid & iready) begin
         iready <= 0;
         dvalid <= 1;
-      end else if(dready & dvalid) begin
+      end else if (dready & dvalid) begin
         dvalid <= 0;
-      end else if(write_back) begin
         iready <= 1;
       end
     end
