@@ -250,6 +250,8 @@ module ysyx_25010008_NPC (
 
       .wen(mem_wen),
 
+      .write_back(write_back),
+
       .addr(alu_result),
 
       .mem_rdata(mem_rdata),

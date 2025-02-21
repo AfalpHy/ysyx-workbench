@@ -12,6 +12,8 @@ module ysyx_25010008_LSU (
 
     input wen,
 
+    input write_back,
+
     input [31:0] addr,
     output reg [31:0] mem_rdata,
     output reg done,
@@ -74,7 +76,7 @@ module ysyx_25010008_LSU (
 
       done   <= 0;
     end else begin
-      if (done) begin
+      if (done & ~write_back) begin
         done   <= 0;
         enable <= 0;
       end else begin
