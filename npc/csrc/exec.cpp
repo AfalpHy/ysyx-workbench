@@ -72,7 +72,6 @@ extern "C" void ifu_record(int inst, int npc) {
     csr_type += spend_cycles;
     break;
   default:
-    ASSERT_IN_RUNTIME(0, "")
     break;
   }
   last_inst_end_cycles = total_cycles;
@@ -86,7 +85,6 @@ extern "C" void idu_record(bool calc, bool ls, bool csr) {
   ls_type += ls;
   csr_type += csr;
   inst_type = (csr << 2) | (ls << 1) | calc;
-  std::cout<<inst_type<<std::endl;
 }
 
 extern "C" void exu_record(int inst, int npc) {}
