@@ -43,14 +43,14 @@ void sigint_handler(int sig) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  ASSERT_IN_RUNTIME(0, "receive SIGINT");
+  ASSERT_IN_RUNTIME(0, "");
 }
 
 void sigsegv_handler(int sig) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  ASSERT_IN_RUNTIME(0, "receive SIGSEGV");
+  ASSERT_IN_RUNTIME(0, "");
 }
 
 int load_img(const string &filepath) {
@@ -66,7 +66,7 @@ int load_img(const string &filepath) {
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
-  signal(SIGINT, sigint_handler);
+  // signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
 
   nvboard_bind_all_pins(&top);
