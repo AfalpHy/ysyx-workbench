@@ -179,7 +179,7 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
-  always @(posedge ivalid) begin
+  always @(negedge ivalid) begin
     idu_record(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, CSRRW | CSRRS | CSRRC);
   end
 
