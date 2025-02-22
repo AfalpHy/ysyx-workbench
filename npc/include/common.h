@@ -48,8 +48,9 @@ static inline void print_performance_info() {
   printf("                calc_type\tls_type\t\tcsr_type\n");
   printf("counter:        %ld\t\t%ld\t\t%ld\n", calc_type, ls_type, csr_type);
   printf("average cycles: %lf\t%lf\t%lf\n",
-         (double)calc_type_cycles / calc_type, (double)ls_type / ls_type_cycles,
+         (double)calc_type_cycles / calc_type, (double)ls_type_cycles / ls_type,
          (double)csr_type_cycles / csr_type);
+  printf("total cycles:%ld\n", total_cycles);
 
   printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
          (double)total_insts_num / (double)total_cycles);
