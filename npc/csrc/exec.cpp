@@ -65,8 +65,8 @@ extern "C" void ifu_record(int inst, int npc) {
   if (halt) {
     return;
   }
-
-  static uint64_t last_inst_end_cycles = 0;
+  // cpu will be reset extra 10 cycles by soc
+  static uint64_t last_inst_end_cycles = 10;
   uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
   switch (inst_type) {
   case 1:
