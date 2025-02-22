@@ -1,4 +1,13 @@
+import "DPI-C" function void count_inst_type(
+  input calc,
+  input ls,
+  input csr
+);
+
 module ysyx_25010008_IDU (
+    input clock,
+    input reset,
+
     input [31:0] inst,
     input ivalid,
 
@@ -169,6 +178,10 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
+
+  always @(negedge ivalid) begin
+    count_inst_type(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, CSRRW | CSRRS | CSRRC);    
+  end
 
 endmodule
 

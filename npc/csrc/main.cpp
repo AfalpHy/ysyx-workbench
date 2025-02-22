@@ -1,4 +1,3 @@
-#include "device.h"
 #include "difftest.h"
 #include "disasm.h"
 #include "exec.h"
@@ -13,7 +12,6 @@
 #include <fstream>
 #include <iostream>
 #include <signal.h>
-#include <sys/time.h>
 #include <vector>
 #include <verilated_vcd_c.h>
 
@@ -26,7 +24,6 @@ void nvboard_bind_all_pins(TOP_NAME *top);
 
 int status = 0;
 bool diff_test_on = false;
-uint64_t begin_us;
 
 FILE *log_fp = nullptr;
 extern FILE *ftrace_log;
@@ -38,23 +35,28 @@ void fflush_trace() {
   if (ftrace_log) {
     fflush(ftrace_log);
   }
-}
-bool interrupt = false;
-void sigint_handler(int sig) {
-  interrupt = true;
-  printf("receive SIGINT\n");
-}
-void sigsegv_handler(int sig) {
-  fflush_trace();
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  Assert(0, "receive SIGSEGV");
+}
+
+void sigint_handler(int sig) {
+  fflush_trace();
+  print_debug_info();
+  print_performance_info();
+  exit(0);
+}
+
+void sigsegv_handler(int sig) {
+  fflush_trace();
+  print_debug_info();
+  print_performance_info();
+  exit(-1);
 }
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
-  Assert(file.is_open(), "load img failed");
+  ASSERT(file.is_open(), "load img failed");
   file.seekg(0, ios::end);
   size_t size = file.tellg();
   file.seekg(0, ios::beg);
@@ -78,10 +80,6 @@ int main(int argc, char **argv) {
   tfp->open("waveform.vcd");
 #endif
 
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  begin_us = now.tv_sec * 1000000 + now.tv_usec;
-
   // initial
   top.eval();
 
@@ -101,7 +99,7 @@ int main(int argc, char **argv) {
     }
     if (option == "log") {
       log_fp = fopen(tmp.substr(pos + 1).c_str(), "w");
-      Assert(log_fp, "open log file failed");
+      ASSERT(log_fp, "open log file failed");
     } else if (option == "img") {
       img = tmp.substr(pos + 1);
       size = load_img(img);
@@ -113,7 +111,7 @@ int main(int argc, char **argv) {
       elf_files.push_back(tmp.substr(pos + 1));
     } else if (option == "ftrace-log") {
       ftrace_log = fopen(tmp.substr(pos + 1).c_str(), "w");
-      Assert(ftrace_log, "open log file failed");
+      ASSERT(ftrace_log, "open log file failed");
     }
   }
   // expr
@@ -122,8 +120,7 @@ int main(int argc, char **argv) {
   init_disasm("riscv64-pc-linux-gnu");
   // init watchpoint
   init_wp_pool();
-  // init sdl
-  // init_vga();
+
   reset();
   if (!ref_so.empty()) {
     init_difftest(ref_so.c_str(), size);
@@ -134,8 +131,7 @@ int main(int argc, char **argv) {
 #endif
 
   sdb_mainloop();
-  if (status != 0 || isa_reg_str2val("a0") != 0) {
-    status = -1;
+  if (status || isa_reg_str2val("a0") != 0) {
     cout << img << "\033[31m\tBAD TRAP\033[0m" << endl;
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;

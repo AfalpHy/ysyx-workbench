@@ -12,13 +12,15 @@
 extern TOP_NAME top;
 extern int status;
 extern bool diff_test_on;
-extern bool interrupt;
 
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
 uint32_t inst;
 bool print_itrace = false;
 bool halt = false;
+bool finish_one_inst = false;
+uint64_t total_cycles = 0;
+uint64_t calc_type = 0, ls_type = 0, csr_type = 0;
 
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 typedef struct {
@@ -55,7 +57,14 @@ extern "C" void trace(int inst, int npc) {
   ftrace(*pc, npc, inst);
 #endif
 
-  halt = inst == 0b00000000000100000000000001110011;
+  halt = inst == 0x00100073;
+  finish_one_inst = true;
+}
+
+extern "C" void count_inst_type(bool calc, bool ls, bool csr) {
+  calc_type += calc;
+  ls_type += ls;
+  csr_type += csr;
 }
 
 static void display_one_inst(const DisasmInst *di) {
@@ -70,7 +79,6 @@ void iringbuf_display() {
       display_one_inst(&buf);
     }
   }
-  printf("\n%ld instructions have been executed\n", total_insts_num);
 }
 
 static int check_regs() {
@@ -78,15 +86,12 @@ static int check_regs() {
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   if (*pc != ref_pc) {
-    std::cerr << total_insts_num << " instrutions have been executed"
-              << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
+    std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
               << std::endl;
     return -1;
   }
   for (int i = 0; i < REGS_NUM; i++) {
     if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
-      std::cerr << total_insts_num << " instrutions have been executed"
-                << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
                 << std::endl;
@@ -114,6 +119,8 @@ void single_cycle() {
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
 #endif
+
+  total_cycles++;
 }
 
 void reset() {
@@ -125,8 +132,8 @@ void reset() {
 }
 
 void cpu_exec(uint32_t num) {
-  if (halt) {
-    printf("Program execution has ended\n");
+  if (halt | status) {
+    printf("Program execution has finished or has some error\n");
     return;
   }
   print_itrace = num <= 10;
@@ -135,10 +142,9 @@ void cpu_exec(uint32_t num) {
     // only print inst memory access
     print_mtrace = true;
 #endif
-
-    while (!(*write_back) && !interrupt)
+    finish_one_inst = false;
+    while (!finish_one_inst)
       single_cycle();
-    single_cycle(); // write back
 
 #ifdef MTRACE
     // only print inst memory access
@@ -160,19 +166,15 @@ void cpu_exec(uint32_t num) {
       } else {
         ref_difftest_exec(1);
         if (check_regs() != 0) {
-          extern void isa_reg_display();
-          isa_reg_display();
-          iringbuf_display();
           status = -1;
           return;
         }
       }
     }
-    if (halt || interrupt) {
-      printf("\n%ld instructions have been executed\n", total_insts_num);
+    if (halt) {
+      print_performance_info();
       return;
     } else if (check_wp()) {
-      printf("watch point has been triggered\n");
       return;
     } else if (check_breakpoint(*pc)) {
       return;

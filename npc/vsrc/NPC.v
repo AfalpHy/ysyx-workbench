@@ -156,6 +156,9 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_IDU idu (
+      .clock(clock),
+      .reset(reset),
+
       .inst  (inst),
       .ivalid(ivalid),
 
@@ -189,6 +192,9 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_EXU exu (
+      .clock(clock),
+      .reset(reset),
+
       .pc(pc),
       .npc_sel(npc_sel),
 

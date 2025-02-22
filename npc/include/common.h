@@ -27,17 +27,39 @@ typedef uint32_t paddr_t;
 #endif
 
 extern FILE *log_fp;
+extern uint64_t total_insts_num;
 
-#define Assert(cond, format, ...)                                              \
+static inline void print_total_insts_num() {
+  printf("\n%ld instructions have been executed\n", total_insts_num);
+}
+
+static inline void print_debug_info() {
+  extern void isa_reg_display();
+  extern void iringbuf_display();
+  isa_reg_display();
+  iringbuf_display();
+}
+
+static inline void print_performance_info() {
+  extern uint64_t total_cycles, calc_type, ls_type, csr_type;
+  printf("\ncalc_type:\t%ld\nls_type:\t%ld\ncsr_type:\t%ld\n", calc_type, ls_type,
+         csr_type);
+  printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
+         (double)total_insts_num / (double)total_cycles);
+}
+
+#define ASSERT(cond, format, ...)                                              \
+  if (!(cond)) {                                                               \
+    printf(format "\n", ##__VA_ARGS__);                                        \
+  }                                                                            \
+  assert(cond);
+
+#define ASSERT_IN_RUNTIME(cond, format, ...)                                   \
   if (!(cond)) {                                                               \
     extern void fflush_trace();                                                \
     fflush_trace();                                                            \
-    extern void isa_reg_display();                                             \
-    isa_reg_display();                                                         \
-    extern void iringbuf_display();                                            \
-    iringbuf_display();                                                        \
-    extern uint64_t total_insts_num;                                           \
-    printf("\n%ld instructions have been executed\n", total_insts_num);        \
+    print_debug_info();                                                        \
+    print_performance_info();                                                  \
     printf(format "\n", ##__VA_ARGS__);                                        \
   }                                                                            \
   assert(cond);
