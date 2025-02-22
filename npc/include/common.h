@@ -61,7 +61,7 @@ static inline void print_performance_info() {
 
 #define ASSERT_IN_RUNTIME(cond, format, ...)                                   \
   if (!(cond)) {                                                               \
-    extern void fflush_trace();                                                \
+    void fflush_trace();                                                       \
     fflush_trace();                                                            \
     print_debug_info();                                                        \
     print_performance_info();                                                  \

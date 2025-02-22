@@ -24,6 +24,8 @@ uint64_t calc_type = 0, ls_type = 0, csr_type = 0;
 uint64_t calc_type_cycles = 0, ls_type_cycles = 0, csr_type_cycles = 0;
 int inst_type = 0;
 
+void fflush_trace();   
+
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 typedef struct {
   paddr_t pc;
@@ -72,6 +74,7 @@ extern "C" void ifu_record(int inst, int npc) {
     csr_type += spend_cycles;
     break;
   default:
+    fflush_trace();
     break;
   }
   last_inst_end_cycles = total_cycles;
