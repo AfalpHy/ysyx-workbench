@@ -86,6 +86,7 @@ extern "C" void idu_record(bool calc, bool ls, bool csr) {
   ls_type += ls;
   csr_type += csr;
   inst_type = (csr << 2) | (ls << 1) | calc;
+  std::cout<<inst_type<<std::endl;
 }
 
 extern "C" void exu_record(int inst, int npc) {}
