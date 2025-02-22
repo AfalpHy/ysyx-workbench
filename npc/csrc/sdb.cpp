@@ -53,6 +53,7 @@ static int cmd_info(char *args) {
     print_wp();
   } else if (strcmp(args, "i") == 0) {
     iringbuf_display();
+    print_total_insts_num();
   } else if (strcmp(args, "b") == 0) {
     display_breakpoint();
   } else {

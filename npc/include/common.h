@@ -29,6 +29,10 @@ typedef uint32_t paddr_t;
 extern FILE *log_fp;
 extern uint64_t total_insts_num;
 
+static inline void print_total_insts_num() {
+  printf("\n%ld instructions have been executed\n", total_insts_num);
+}
+
 static inline void print_debug_info() {
   extern void isa_reg_display();
   extern void iringbuf_display();
@@ -38,7 +42,7 @@ static inline void print_debug_info() {
 
 static inline void print_performance_info() {
   extern uint64_t total_cycles, calc_type, ls_type, csr_type;
-  printf("\ncalc_type:%ld ls_type:%ld csr_type:%ld\n", calc_type, ls_type,
+  printf("\ncalc_type:%ld\nls_type:%ld\ncsr_type:%ld\n", calc_type, ls_type,
          csr_type);
   printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
          (double)total_insts_num / (double)total_cycles);

@@ -79,7 +79,6 @@ void iringbuf_display() {
       display_one_inst(&buf);
     }
   }
-  printf("\n%ld instructions have been executed\n", total_insts_num);
 }
 
 static int check_regs() {
@@ -168,7 +167,6 @@ void cpu_exec(uint32_t num) {
         ref_difftest_exec(1);
         if (check_regs() != 0) {
           status = -1;
-          print_debug_info();
           return;
         }
       }

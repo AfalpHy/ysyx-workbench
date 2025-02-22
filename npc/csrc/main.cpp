@@ -43,12 +43,14 @@ void fflush_trace() {
 }
 
 void sigint_handler(int sig) {
-  ASSERT_IN_RUNTIME(0, "");
+  fflush_trace();
+  print_debug_info();
   exit(-1);
 }
 
 void sigsegv_handler(int sig) {
-  ASSERT_IN_RUNTIME(0, "");
+  fflush_trace();
+  print_debug_info();
   exit(-1);
 }
 
