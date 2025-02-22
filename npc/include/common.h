@@ -45,7 +45,7 @@ static inline void print_debug_info() {
 static inline void print_performance_info() {
   extern uint64_t total_cycles, calc_type, ls_type, csr_type;
   extern uint64_t calc_type_cycles, ls_type_cycles, csr_type_cycles;
-  printf("                %*scalc_type ls_type\tcsr_type\n",11);
+  printf("                %*calc_type ls_type\tcsr_type\n",11);
   printf("counter:        %20ld%20ld%20ld\n", calc_type, ls_type, csr_type);
   printf("average cycles: %20lf%20lf%20lf\n",
          (double)calc_type_cycles / calc_type, (double)ls_type_cycles / ls_type,
