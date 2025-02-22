@@ -16,7 +16,7 @@ _memcpy_FSBL:
   addi a0, a0, 1
   addi a2, a2, -1
   bnez a2, _memcpy_FSBL 
-  
+  ebreak
   call _SSBL
 
 .section SSBL, "ax"
