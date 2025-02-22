@@ -29,6 +29,8 @@ typedef uint32_t paddr_t;
 extern FILE *log_fp;
 extern uint64_t total_insts_num;
 
+void fflush_trace();
+
 static inline void print_total_insts_num() {
   printf("\n%ld instructions have been executed\n", total_insts_num);
 }
@@ -61,7 +63,6 @@ static inline void print_performance_info() {
 
 #define ASSERT_IN_RUNTIME(cond, format, ...)                                   \
   if (!(cond)) {                                                               \
-    void fflush_trace();                                                       \
     fflush_trace();                                                            \
     print_debug_info();                                                        \
     print_performance_info();                                                  \
