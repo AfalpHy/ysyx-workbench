@@ -10,6 +10,7 @@ module ysyx_25010008_IDU (
 
     input [31:0] inst,
     input ivalid,
+    output reg iready,
 
     output [2:0] npc_sel,
 
@@ -179,8 +180,9 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
-  always @(negedge ivalid) begin
-    idu_record(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, CSRRW | CSRRS | CSRRC);
+  always @(posedge ivalid) begin
+    idu_record(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
+               CSRRW | CSRRS | CSRRC);
   end
 
 endmodule
