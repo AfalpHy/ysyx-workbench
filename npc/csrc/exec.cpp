@@ -21,6 +21,8 @@ bool halt = false;
 bool finish_one_inst = false;
 uint64_t total_cycles = 0;
 uint64_t calc_type = 0, ls_type = 0, csr_type = 0;
+uint64_t calc_type_cycles = 0, ls_type_cycles = 0, csr_type_cycles = 0;
+int inst_type = 0;
 
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 typedef struct {
@@ -38,7 +40,7 @@ char *one_inst_str(const DisasmInst *di) {
   return buff;
 }
 
-extern "C" void trace(int inst, int npc) {
+extern "C" void ifu_record(int inst, int npc) {
 #ifdef ITRACE
   int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
   iringbuf[iringbuf_index].pc = *pc;
@@ -57,14 +59,47 @@ extern "C" void trace(int inst, int npc) {
   ftrace(*pc, npc, inst);
 #endif
 
+  static uint64_t last_inst_end_cycles = 0;
+  uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
+  switch (inst_type) {
+  case 1:
+    calc_type_cycles += spend_cycles;
+    break;
+  case 2:
+    ls_type_cycles += spend_cycles;
+    break;
+  case 4:
+    csr_type += spend_cycles;
+    break;
+  default:
+    break;
+  }
+  last_inst_end_cycles = total_cycles;
+
   halt = inst == 0x00100073;
   finish_one_inst = true;
 }
 
-extern "C" void count_inst_type(bool calc, bool ls, bool csr) {
+extern "C" void idu_record(bool calc, bool ls, bool csr) {
   calc_type += calc;
   ls_type += ls;
   csr_type += csr;
+  inst_type = (csr << 2) | (ls << 1) | calc;
+}
+
+extern "C" void exu_record(int inst, int npc) {}
+
+extern "C" void lsu_record(paddr_t addr, word_t data, word_t mask, bool read) {
+#ifdef MTRACE
+  if (read && total_insts_num < 10000)
+    fprintf(log_fp, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
+            data);
+  if (write && total_insts_num < 10000)
+    fprintf(log_fp,
+            "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
+            "\n",
+            addr, data, mask);
+#endif
 }
 
 static void display_one_inst(const DisasmInst *di) {
@@ -138,18 +173,9 @@ void cpu_exec(uint32_t num) {
   }
   print_itrace = num <= 10;
   while (num-- > 0) {
-#ifdef MTRACE
-    // only print inst memory access
-    print_mtrace = true;
-#endif
     finish_one_inst = false;
     while (!finish_one_inst)
       single_cycle();
-
-#ifdef MTRACE
-    // only print inst memory access
-    print_mtrace = false;
-#endif
 
     total_insts_num++;
 

@@ -1,4 +1,4 @@
-import "DPI-C" function void count_inst_type(
+import "DPI-C" function void idu_record(
   input calc,
   input ls,
   input csr
@@ -180,7 +180,7 @@ module ysyx_25010008_IDU (
   assign alu_opcode[7] = CSRRC;
 
   always @(negedge ivalid) begin
-    count_inst_type(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, CSRRW | CSRRS | CSRRC);    
+    idu_record(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, CSRRW | CSRRS | CSRRC);
   end
 
 endmodule
