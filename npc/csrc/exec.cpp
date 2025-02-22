@@ -69,7 +69,7 @@ extern "C" void ifu_record(int inst, int npc) {
     ls_type_cycles += spend_cycles;
     break;
   case 4:
-    csr_type += spend_cycles;
+    csr_type_cycles += spend_cycles;
     break;
   default:
     break;
