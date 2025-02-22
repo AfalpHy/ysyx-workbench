@@ -53,7 +53,7 @@ void sigsegv_handler(int sig) {
   fflush_trace();
   print_debug_info();
   print_performance_info();
-  exit(0);
+  exit(-1);
 }
 
 int load_img(const string &filepath) {
