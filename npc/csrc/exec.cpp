@@ -62,8 +62,12 @@ extern "C" void ifu_record(int inst, int npc) {
   halt = inst == 0x00100073;
   finish_one_inst = true;
 
-  // cpu will be reset extra 9 cycles by soc, and the total reset cylce is 19.
-  static uint64_t last_inst_end_cycles = 19;
+  if (halt) {
+    total_cycles -= 20;
+    return;
+  }
+  // cpu will be reset extra 10 cycles by soc, and the total reset cylce is 20.
+  static uint64_t last_inst_end_cycles = 20;
   uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
   switch (inst_type) {
   case 1:
@@ -78,7 +82,6 @@ extern "C" void ifu_record(int inst, int npc) {
   default:
     break;
   }
-  inst_type = 0; // clear bit
   last_inst_end_cycles = total_cycles;
 }
 
@@ -139,6 +142,8 @@ static int check_regs() {
 }
 
 void single_cycle() {
+  total_cycles++;
+
   nvboard_update();
   extern VerilatedVcdC *tfp;
   top.clock = 1;
@@ -156,8 +161,6 @@ void single_cycle() {
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
 #endif
-
-  total_cycles++;
 }
 
 void reset() {
