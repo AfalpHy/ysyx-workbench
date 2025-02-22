@@ -62,11 +62,8 @@ extern "C" void ifu_record(int inst, int npc) {
   halt = inst == 0x00100073;
   finish_one_inst = true;
 
-  if (halt) {
-    return;
-  }
-  // cpu will be reset extra 9 cycles by soc
-  static uint64_t last_inst_end_cycles = 9;
+  // cpu will be reset extra 9 cycles by soc, and the total reset cylce is 19.
+  static uint64_t last_inst_end_cycles = 19;
   uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
   switch (inst_type) {
   case 1:
@@ -81,6 +78,7 @@ extern "C" void ifu_record(int inst, int npc) {
   default:
     break;
   }
+  inst_type = 0; // clear bit
   last_inst_end_cycles = total_cycles;
 }
 
@@ -159,8 +157,7 @@ void single_cycle() {
   tfp->dump(Verilated::time());
 #endif
 
-  if (top.reset == 0)
-    total_cycles++;
+  total_cycles++;
 }
 
 void reset() {
