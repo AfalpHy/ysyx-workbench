@@ -9,7 +9,6 @@ _FSBL:
   la a2, _SSBL_size
   la a1, _SSBL_start
   la a0, _sram_start
-  ebreak
 _memcpy_FSBL:
   lbu a3, 0(a1)
   sb a3, 0(a0)
@@ -17,6 +16,7 @@ _memcpy_FSBL:
   addi a0, a0, 1
   addi a2, a2, -1
   bnez a2, _memcpy_FSBL 
+  
   call _SSBL
 
 .section SSBL, "ax"
