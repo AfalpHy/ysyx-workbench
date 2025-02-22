@@ -46,7 +46,7 @@ void sigint_handler(int sig) {
   fflush_trace();
   print_debug_info();
   print_performance_info();
-  exit(-1);
+  exit(0);
 }
 
 void sigsegv_handler(int sig) {
