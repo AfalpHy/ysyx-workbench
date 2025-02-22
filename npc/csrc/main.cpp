@@ -38,21 +38,24 @@ void fflush_trace() {
     fflush(ftrace_log);
   }
 }
-bool interrupt = false;
+
 void sigint_handler(int sig) {
-  interrupt = true;
-  printf("receive SIGINT\n");
+#ifdef TRACE_WAVE
+  tfp->close();
+#endif
+  ASSERT_IN_RUNTIME(0, "receive SIGINT");
 }
+
 void sigsegv_handler(int sig) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  Assert(0, "receive SIGSEGV");
+  ASSERT_IN_RUNTIME(0, "receive SIGSEGV");
 }
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
-  Assert(file.is_open(), "load img failed");
+  ASSERT(file.is_open(), "load img failed");
   file.seekg(0, ios::end);
   size_t size = file.tellg();
   file.seekg(0, ios::beg);
@@ -99,7 +102,7 @@ int main(int argc, char **argv) {
     }
     if (option == "log") {
       log_fp = fopen(tmp.substr(pos + 1).c_str(), "w");
-      Assert(log_fp, "open log file failed");
+      ASSERT(log_fp, "open log file failed");
     } else if (option == "img") {
       img = tmp.substr(pos + 1);
       size = load_img(img);
@@ -111,7 +114,7 @@ int main(int argc, char **argv) {
       elf_files.push_back(tmp.substr(pos + 1));
     } else if (option == "ftrace-log") {
       ftrace_log = fopen(tmp.substr(pos + 1).c_str(), "w");
-      Assert(ftrace_log, "open log file failed");
+      ASSERT(ftrace_log, "open log file failed");
     }
   }
   // expr
@@ -131,8 +134,7 @@ int main(int argc, char **argv) {
 #endif
 
   sdb_mainloop();
-  if (status != 0 || isa_reg_str2val("a0") != 0) {
-    status = -1;
+  if (status || isa_reg_str2val("a0") != 0) {
     cout << img << "\033[31m\tBAD TRAP\033[0m" << endl;
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;

@@ -180,7 +180,7 @@ module ysyx_25010008_IDU (
   assign alu_opcode[7] = CSRRC;
 
   always @(negedge ivalid) begin
-    count_inst_type(LUI | AUIPC | JAL | JALR | op_imm | op, load | store, system);    
+    count_inst_type(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, CSRRW | CSRRS | CSRRC);    
   end
 
 endmodule

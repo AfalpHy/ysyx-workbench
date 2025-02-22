@@ -22,7 +22,7 @@ void init_wp_pool() {
 
 WP *new_wp() {
   if (free_ == NULL) {
-    Assert(0, "There are no free watchpoints");
+    ASSERT_IN_RUNTIME(0, "There are no free watchpoints");
   }
 
   WP *result = free_;
@@ -84,7 +84,7 @@ bool check_wp() {
   for (WP *wp = head; wp != NULL; wp = wp->next) {
     bool success = true;
     word_t result = expr(wp->expr, &success);
-    Assert(success, "eval failed when checking wp");
+    ASSERT_IN_RUNTIME(success, "eval failed when checking wp");
     if (result != wp->val) {
       change = true;
       printf("{%s} old value = " FMT_WORD_D ", new value = " FMT_WORD_D "\n",

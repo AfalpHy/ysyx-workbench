@@ -12,13 +12,13 @@
 extern TOP_NAME top;
 extern int status;
 extern bool diff_test_on;
-extern bool interrupt;
 
 uint64_t total_insts_num = 0;
 bool skip_ref_inst = false;
 uint32_t inst;
 bool print_itrace = false;
 bool halt = false;
+bool finish_one_inst = false;
 uint64_t total_cycles = 0;
 uint64_t calc_type = 0, ls_type = 0, csr_type = 0;
 
@@ -57,7 +57,8 @@ extern "C" void trace(int inst, int npc) {
   ftrace(*pc, npc, inst);
 #endif
 
-  halt = inst == 0b00000000000100000000000001110011;
+  halt = inst == 0x00100073;
+  finish_one_inst = true;
 }
 
 extern "C" void count_inst_type(bool calc, bool ls, bool csr) {
@@ -78,7 +79,7 @@ void iringbuf_display() {
       display_one_inst(&buf);
     }
   }
-  print_total_insts_num();
+  printf("\n%ld instructions have been executed\n", total_insts_num);
 }
 
 static int check_regs() {
@@ -132,8 +133,8 @@ void reset() {
 }
 
 void cpu_exec(uint32_t num) {
-  if (halt) {
-    printf("Program execution has ended\n");
+  if (halt | status) {
+    printf("Program execution has finished or has some error\n");
     return;
   }
   print_itrace = num <= 10;
@@ -142,10 +143,9 @@ void cpu_exec(uint32_t num) {
     // only print inst memory access
     print_mtrace = true;
 #endif
-
-    while (!(*write_back) && !interrupt)
+    finish_one_inst = false;
+    while (!finish_one_inst)
       single_cycle();
-    single_cycle(); // write back
 
 #ifdef MTRACE
     // only print inst memory access
@@ -167,14 +167,14 @@ void cpu_exec(uint32_t num) {
       } else {
         ref_difftest_exec(1);
         if (check_regs() != 0) {
-          print_message_of_npc();
           status = -1;
+          print_debug_info();
           return;
         }
       }
     }
-    if (halt | interrupt) {
-      print_message_of_npc();
+    if (halt) {
+      print_performance_info();
       return;
     } else if (check_wp()) {
       return;

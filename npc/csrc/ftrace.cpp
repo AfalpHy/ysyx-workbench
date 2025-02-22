@@ -30,7 +30,7 @@ FILE *ftrace_log = NULL;
 
 static void add_elf(const std::string &elf_file) {
   FILE *fp = fopen(elf_file.c_str(), "r");
-  Assert(fp, "open elf file failed");
+  ASSERT(fp, "open elf file failed");
 
   fseek(fp, 0, SEEK_END);
   long file_size = ftell(fp);
@@ -56,7 +56,7 @@ static void add_elf(const std::string &elf_file) {
         str_section_hdr = section_header;
       }
     }
-    Assert(sym_section_hdr && str_section_hdr,
+    ASSERT(sym_section_hdr && str_section_hdr,
            "get symtab or strtab header failed");
     Elf_Off str_offset = str_section_hdr->sh_offset;
     Elf_Off sym_offset = sym_section_hdr->sh_offset;
@@ -119,7 +119,7 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
     return;
   }
   char *fun_name = get_fun_name(addr);
-  Assert(fun_name,
+  ASSERT_IN_RUNTIME(fun_name,
          "ftrace get function name failed, pc:" FMT_PADDR " addr:" FMT_PADDR
          " inst:0x%08x",
          pc, addr, inst);
@@ -131,7 +131,7 @@ void ftrace(word_t pc, word_t addr, uint32_t inst) {
     fprintf(ftrace_log, "call %s [" FMT_PADDR "]\n", fun_name, addr);
     strcpy(call_chain[indent], fun_name);
     indent++;
-    Assert(indent <= MAX_DEEP, "too deep function call nesting");
+    ASSERT_IN_RUNTIME(indent <= MAX_DEEP, "too deep function call nesting");
     return;
   }
   int rs1 = BITS(inst, 19, 15);

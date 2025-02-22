@@ -1,5 +1,4 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
-import "DPI-C" function void set_write_back(input logic write_back[]);
 import "DPI-C" function void trace(
   int inst,
   int npc
@@ -28,7 +27,6 @@ module ysyx_25010008_IFU (
   // set pointer of pc for cpp
   initial begin
     set_pc(pc);
-    set_write_back(write_back);
   end
 
   always @(posedge clock) begin
