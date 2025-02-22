@@ -1,13 +1,6 @@
 module ysyx_25010008_IDU (
-    input clock,
-    input reset,
-
     input [31:0] inst,
     input ivalid,
-    output reg iready,
-
-    output reg dvalid,
-    input dready,
 
     output [2:0] npc_sel,
 
@@ -153,9 +146,9 @@ module ysyx_25010008_IDU (
   assign rd  = inst[11:7];
 
   assign r_wen = (U_type | J_type | I_type | R_type) & ivalid;
-  assign r_wdata_sel[0] = JAL | JALR | AUIPC;
-  assign r_wdata_sel[1] = CSRRW | CSRRS | CSRRC | AUIPC;
-  assign r_wdata_sel[2] = load;
+  assign r_wdata_sel[0] = JAL | JALR | load;
+  assign r_wdata_sel[1] = AUIPC | load;
+  assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
 
   assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : imm[11:0]);
   assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
@@ -176,22 +169,6 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
-
-
-  always @(posedge clock) begin
-    if (reset) begin
-      iready <= 1;
-      dvalid <= 0;
-    end else begin
-      if (ivalid & iready) begin
-        iready <= 0;
-        dvalid <= 1;
-      end else if (dready & dvalid) begin
-        dvalid <= 0;
-        iready <= 1;
-      end
-    end
-  end
 
 endmodule
 

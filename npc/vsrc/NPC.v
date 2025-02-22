@@ -76,13 +76,6 @@ module ysyx_25010008_NPC (
   wire suffix_h;
   wire sext;
   wire ivalid;
-  wire iready;
-
-  wire dvalid;
-  wire dready;
-
-  wire evalid;
-  wire eready;
 
   // alu
   wire [7:0] alu_opcode;
@@ -92,7 +85,7 @@ module ysyx_25010008_NPC (
   // lsu
   wire mem_ren, mem_wen;
   wire [31:0] mem_rdata;
-  wire read_done, write_done;
+  wire done;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
@@ -107,7 +100,7 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
-  wire write_back = write_done | evalid;
+  wire write_back = (mem_ren | mem_wen) ? done : ivalid;
 
   wire [31:0] araddr_0 = pc;
   wire arvalid_0;
@@ -152,7 +145,6 @@ module ysyx_25010008_NPC (
 
       .inst  (inst),
       .ivalid(ivalid),
-      .iready(iready),
 
       .arvalid(arvalid_0),
       .arready(arready_0),
@@ -164,15 +156,8 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_IDU idu (
-      .clock(clock),
-      .reset(reset),
-
       .inst  (inst),
       .ivalid(ivalid),
-      .iready(iready),
-
-      .dvalid(dvalid),
-      .dready(dready),
 
       .npc_sel(npc_sel),
 
@@ -204,15 +189,6 @@ module ysyx_25010008_NPC (
   );
 
   ysyx_25010008_EXU exu (
-      .clock(clock),
-      .reset(reset),
-
-      .dvalid(dvalid),
-      .dready(dready),
-
-      .evalid(evalid),
-      .eready(eready),
-
       .pc(pc),
       .npc_sel(npc_sel),
 
@@ -229,7 +205,6 @@ module ysyx_25010008_NPC (
       .alu_operand2_sel(alu_operand2_sel),
       .alu_result(alu_result),
 
-      .read_done(read_done),
       .mem_rdata(mem_rdata),
 
       .npc(npc),
@@ -252,11 +227,10 @@ module ysyx_25010008_NPC (
 
       .wen(mem_wen),
 
-      .write_back(write_back),
-
       .addr(alu_result),
 
       .mem_rdata(mem_rdata),
+      .done(done),
 
       .araddr (araddr_1),
       .arsize (arsize_1),
@@ -264,10 +238,9 @@ module ysyx_25010008_NPC (
       .arready(arready_1),
 
       .rready(rready_1),
-      .rdata(rdata_1),
-      .rresp(rresp_1),
+      .rdata (rdata_1),
+      .rresp (rresp_1),
       .rvalid(rvalid_1),
-      .read_done(read_done),
 
       .awaddr (awaddr_1),
       .awsize (awsize_1),
@@ -281,9 +254,8 @@ module ysyx_25010008_NPC (
       .wready(wready_1),
 
       .bready(bready_1),
-      .bresp(bresp_1),
-      .bvalid(bvalid_1),
-      .write_done(write_done)
+      .bresp (bresp_1),
+      .bvalid(bvalid_1)
   );
 
   ysyx_25010008_RegFile reg_file (

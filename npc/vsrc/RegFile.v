@@ -32,8 +32,6 @@ module ysyx_25010008_RegFile (
   reg [31:0] mvendorid;
   reg [31:0] marchid;
 
-  reg _wen;
-
   assign src1 = regs[rs1[3:0]];
   assign src2 = regs[rs2[3:0]];
 
@@ -50,9 +48,7 @@ module ysyx_25010008_RegFile (
       mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
     end else begin
-      if (wen) _wen <= 1;
-      if (write_back) _wen <= 0;
-      if (write_back && _wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
+      if (write_back && wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
       if (write_back & csr_wen1) begin
         case (csr_d1)
           12'h300: mstatus <= csr_wdata1;

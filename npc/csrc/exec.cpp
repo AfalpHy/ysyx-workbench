@@ -19,6 +19,7 @@ bool skip_ref_inst = false;
 uint32_t inst;
 bool print_itrace = false;
 bool halt = false;
+double total_cycles = 0;
 
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 typedef struct {
@@ -114,6 +115,8 @@ void single_cycle() {
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
 #endif
+
+  total_cycles++;
 }
 
 void reset() {
@@ -170,6 +173,7 @@ void cpu_exec(uint32_t num) {
     }
     if (halt || interrupt) {
       printf("\n%ld instructions have been executed\n", total_insts_num);
+      printf("ipc:%lf\n", total_insts_num / total_cycles);
       return;
     } else if (check_wp()) {
       printf("watch point has been triggered\n");
