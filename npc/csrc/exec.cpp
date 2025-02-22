@@ -62,7 +62,7 @@ extern "C" void ifu_record(int inst, int npc) {
   halt = inst == 0x00100073;
   finish_one_inst = true;
 
-  if (__builtin_expect(halt, 0)) {
+  if (halt) {
     return;
   }
 
