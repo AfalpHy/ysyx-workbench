@@ -53,10 +53,12 @@ void sigsegv_handler(int sig) {
   fflush_trace();
   print_debug_info();
   print_performance_info();
-  exit(-1);
+  exit(0);
 }
 
 int load_img(const string &filepath) {
+  int* a = (int*)(0);
+  int b = *a;
   ifstream file(filepath, ios::binary);
   ASSERT(file.is_open(), "load img failed");
   file.seekg(0, ios::end);
