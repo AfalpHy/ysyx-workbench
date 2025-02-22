@@ -12,7 +12,6 @@
 #include <fstream>
 #include <iostream>
 #include <signal.h>
-#include <sys/time.h>
 #include <vector>
 #include <verilated_vcd_c.h>
 
@@ -25,7 +24,6 @@ void nvboard_bind_all_pins(TOP_NAME *top);
 
 int status = 0;
 bool diff_test_on = false;
-uint64_t begin_us;
 
 FILE *log_fp = nullptr;
 extern FILE *ftrace_log;
@@ -81,10 +79,6 @@ int main(int argc, char **argv) {
   top.trace(tfp, 99);
   tfp->open("waveform.vcd");
 #endif
-
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  begin_us = now.tv_sec * 1000000 + now.tv_usec;
 
   // initial
   top.eval();

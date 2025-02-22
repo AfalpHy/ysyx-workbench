@@ -2,16 +2,9 @@
 #include <common.h>
 #include <sys/time.h>
 
-#define DEVICE_BASE 0xa0000000
-
-#define SERIAL_PORT (DEVICE_BASE + 0x00003f8)
-#define RTC_ADDR (DEVICE_BASE + 0x0000048)
-
 word_t flash[0x10000000] = {};
 word_t psram[0x100000] = {};
 bool print_mtrace = false;
-
-extern uint64_t begin_us;
 
 extern bool skip_ref_inst;
 
