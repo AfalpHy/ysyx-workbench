@@ -1,5 +1,5 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
-import "DPI-C" function void trace(
+import "DPI-C" function void ifu_record(
   int inst,
   int npc
 );
@@ -51,7 +51,7 @@ module ysyx_25010008_IFU (
         pc <= npc;
         arvalid <= 1;
         ivalid <= 0;
-        trace(inst, npc);
+        ifu_record(inst, npc);
       end
     end
   end

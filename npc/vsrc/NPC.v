@@ -76,6 +76,7 @@ module ysyx_25010008_NPC (
   wire suffix_h;
   wire sext;
   wire ivalid;
+  wire iready;
 
   // alu
   wire [7:0] alu_opcode;
@@ -161,6 +162,7 @@ module ysyx_25010008_NPC (
 
       .inst  (inst),
       .ivalid(ivalid),
+      .iready(iready),
 
       .npc_sel(npc_sel),
 

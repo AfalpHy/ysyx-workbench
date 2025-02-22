@@ -29,6 +29,8 @@ typedef uint32_t paddr_t;
 extern FILE *log_fp;
 extern uint64_t total_insts_num;
 
+void fflush_trace();
+
 static inline void print_total_insts_num() {
   printf("\n%ld instructions have been executed\n", total_insts_num);
 }
@@ -42,8 +44,14 @@ static inline void print_debug_info() {
 
 static inline void print_performance_info() {
   extern uint64_t total_cycles, calc_type, ls_type, csr_type;
-  printf("\ncalc_type:\t%ld\nls_type:\t%ld\ncsr_type:\t%ld\n", calc_type, ls_type,
-         csr_type);
+  extern uint64_t calc_type_cycles, ls_type_cycles, csr_type_cycles;
+  printf("%*scalc_type%*sls_type%*scsr_type\n", 27, "", 13, "", 12, "");
+  printf("counter:        %20ld%20ld%20ld\n", calc_type, ls_type, csr_type);
+  printf("average cycles: %20lf%20lf%20lf\n",
+         (double)calc_type_cycles / calc_type, (double)ls_type_cycles / ls_type,
+         (double)csr_type_cycles / csr_type);
+  printf("total cycles:%ld\n", total_cycles);
+
   printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
          (double)total_insts_num / (double)total_cycles);
 }
@@ -56,7 +64,6 @@ static inline void print_performance_info() {
 
 #define ASSERT_IN_RUNTIME(cond, format, ...)                                   \
   if (!(cond)) {                                                               \
-    extern void fflush_trace();                                                \
     fflush_trace();                                                            \
     print_debug_info();                                                        \
     print_performance_info();                                                  \
