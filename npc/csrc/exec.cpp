@@ -59,6 +59,13 @@ extern "C" void ifu_record(int inst, int npc) {
   ftrace(*pc, npc, inst);
 #endif
 
+  halt = inst == 0x00100073;
+  finish_one_inst = true;
+
+  if (__builtin_expect(halt, 0)) {
+    return;
+  }
+
   static uint64_t last_inst_end_cycles = 0;
   uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
   switch (inst_type) {
@@ -75,9 +82,6 @@ extern "C" void ifu_record(int inst, int npc) {
     break;
   }
   last_inst_end_cycles = total_cycles;
-
-  halt = inst == 0x00100073;
-  finish_one_inst = true;
 }
 
 extern "C" void idu_record(bool calc, bool ls, bool csr) {
