@@ -155,7 +155,8 @@ void single_cycle() {
   tfp->dump(Verilated::time());
 #endif
 
-  total_cycles++;
+  if (top.reset == 0)
+    total_cycles++;
 }
 
 void reset() {
