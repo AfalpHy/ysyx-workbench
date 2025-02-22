@@ -1,4 +1,3 @@
-#include "device.h"
 #include "difftest.h"
 #include "disasm.h"
 #include "exec.h"
@@ -45,7 +44,6 @@ void sigint_handler(int sig) {
   printf("receive SIGINT\n");
 }
 void sigsegv_handler(int sig) {
-  fflush_trace();
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
@@ -122,8 +120,7 @@ int main(int argc, char **argv) {
   init_disasm("riscv64-pc-linux-gnu");
   // init watchpoint
   init_wp_pool();
-  // init sdl
-  // init_vga();
+
   reset();
   if (!ref_so.empty()) {
     init_difftest(ref_so.c_str(), size);

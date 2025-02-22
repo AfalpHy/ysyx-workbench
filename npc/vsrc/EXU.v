@@ -1,4 +1,7 @@
 module ysyx_25010008_EXU (
+    input clock,
+    input reset,
+
     input [31:0] pc,
     input [ 2:0] npc_sel,
 

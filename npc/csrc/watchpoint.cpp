@@ -89,6 +89,7 @@ bool check_wp() {
       change = true;
       printf("{%s} old value = " FMT_WORD_D ", new value = " FMT_WORD_D "\n",
              wp->expr, wp->val, result);
+      printf("watch point has been triggered\n");
       wp->val = result;
     }
   }

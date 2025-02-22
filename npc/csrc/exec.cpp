@@ -20,6 +20,7 @@ uint32_t inst;
 bool print_itrace = false;
 bool halt = false;
 uint64_t total_cycles = 0;
+uint64_t calc_type = 0, ls_type = 0, csr_type = 0;
 
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 typedef struct {
@@ -59,6 +60,12 @@ extern "C" void trace(int inst, int npc) {
   halt = inst == 0b00000000000100000000000001110011;
 }
 
+extern "C" void count_inst_type(bool calc, bool ls, bool csr) {
+  calc_type += calc;
+  ls_type += ls;
+  csr_type += csr;
+}
+
 static void display_one_inst(const DisasmInst *di) {
   printf("%s", one_inst_str(di));
 }
@@ -71,7 +78,7 @@ void iringbuf_display() {
       display_one_inst(&buf);
     }
   }
-  printf("\n%ld instructions have been executed\n", total_insts_num);
+  print_total_insts_num();
 }
 
 static int check_regs() {
@@ -79,15 +86,12 @@ static int check_regs() {
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   if (*pc != ref_pc) {
-    std::cerr << total_insts_num << " instrutions have been executed"
-              << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
+    std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
               << std::endl;
     return -1;
   }
   for (int i = 0; i < REGS_NUM; i++) {
     if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
-      std::cerr << total_insts_num << " instrutions have been executed"
-                << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
                 << std::endl;
@@ -163,20 +167,16 @@ void cpu_exec(uint32_t num) {
       } else {
         ref_difftest_exec(1);
         if (check_regs() != 0) {
-          extern void isa_reg_display();
-          isa_reg_display();
-          iringbuf_display();
+          print_message_of_npc();
           status = -1;
           return;
         }
       }
     }
-    if (halt || interrupt) {
-      printf("\n%ld instructions have been executed\n", total_insts_num);
-      printf("ipc:%lf\n", (double)total_insts_num / (double)total_cycles);
+    if (halt | interrupt) {
+      print_message_of_npc();
       return;
     } else if (check_wp()) {
-      printf("watch point has been triggered\n");
       return;
     } else if (check_breakpoint(*pc)) {
       return;

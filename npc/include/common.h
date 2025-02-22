@@ -27,17 +27,28 @@ typedef uint32_t paddr_t;
 #endif
 
 extern FILE *log_fp;
+extern uint64_t total_insts_num;
+
+static inline void print_total_insts_num() {
+  printf("\n%ld instructions have been executed\n", total_insts_num);
+}
+
+static inline void print_message_of_npc() {
+  extern void isa_reg_display();
+  extern void iringbuf_display();
+  extern uint64_t total_cycles, calc_type, ls_type, csr_type;
+  isa_reg_display();
+  iringbuf_display();
+  printf("calc_type:%ld ls_type:%ld csr_type:%ld\n", calc_type, ls_type,
+         csr_type);
+  printf("ipc:%lf\n", (double)total_insts_num / (double)total_cycles);
+}
 
 #define Assert(cond, format, ...)                                              \
   if (!(cond)) {                                                               \
     extern void fflush_trace();                                                \
     fflush_trace();                                                            \
-    extern void isa_reg_display();                                             \
-    isa_reg_display();                                                         \
-    extern void iringbuf_display();                                            \
-    iringbuf_display();                                                        \
-    extern uint64_t total_insts_num;                                           \
-    printf("\n%ld instructions have been executed\n", total_insts_num);        \
+    print_message_of_npc();                                                    \
     printf(format "\n", ##__VA_ARGS__);                                        \
   }                                                                            \
   assert(cond);
