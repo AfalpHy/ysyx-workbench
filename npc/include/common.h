@@ -46,10 +46,6 @@ static inline void print_performance_info() {
 
 #define ASSERT(cond, format, ...)                                              \
   if (!(cond)) {                                                               \
-    extern void fflush_trace();                                                \
-    fflush_trace();                                                            \
-    print_debug_info();                                                        \
-    print_performance_info();                                                  \
     printf(format "\n", ##__VA_ARGS__);                                        \
   }                                                                            \
   assert(cond);

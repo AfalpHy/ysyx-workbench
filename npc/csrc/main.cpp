@@ -37,20 +37,19 @@ void fflush_trace() {
   if (ftrace_log) {
     fflush(ftrace_log);
   }
+#ifdef TRACE_WAVE
+  tfp->close();
+#endif
 }
 
 void sigint_handler(int sig) {
-#ifdef TRACE_WAVE
-  tfp->close();
-#endif
   ASSERT_IN_RUNTIME(0, "");
+  exit(-1);
 }
 
 void sigsegv_handler(int sig) {
-#ifdef TRACE_WAVE
-  tfp->close();
-#endif
   ASSERT_IN_RUNTIME(0, "");
+  exit(-1);
 }
 
 int load_img(const string &filepath) {
