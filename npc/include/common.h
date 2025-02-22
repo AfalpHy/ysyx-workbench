@@ -42,7 +42,7 @@ static inline void print_debug_info() {
 
 static inline void print_performance_info() {
   extern uint64_t total_cycles, calc_type, ls_type, csr_type;
-  printf("\ncalc_type:%ld\nls_type:%ld\ncsr_type:%ld\n", calc_type, ls_type,
+  printf("\ncalc_type:\t%ld\nls_type:\t%ld\ncsr_type:\t%ld\n", calc_type, ls_type,
          csr_type);
   printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
          (double)total_insts_num / (double)total_cycles);
