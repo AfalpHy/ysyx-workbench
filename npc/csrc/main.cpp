@@ -57,7 +57,7 @@ void sigsegv_handler(int sig) {
 }
 
 int load_img(const string &filepath) {
-  int* a = (int*)(0);
+  volatile int* a = (volatile int*)(0);
   int b = *a;
   ifstream file(filepath, ios::binary);
   ASSERT(file.is_open(), "load img failed");
