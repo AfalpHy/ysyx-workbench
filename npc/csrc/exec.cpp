@@ -44,13 +44,6 @@ char *one_inst_str(const DisasmInst *di) {
 }
 
 extern "C" void ifu_record(int inst, int npc) {
-#ifdef MTRACE
-  if (mtrace_buffer[0]) {
-    fprintf(log_fp, "%s\n", mtrace_buffer);
-  }
-  mtrace_buffer[0] = 0;
-#endif
-
 #ifdef ITRACE
   int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
   iringbuf[iringbuf_index].pc = *pc;
@@ -63,6 +56,13 @@ extern "C" void ifu_record(int inst, int npc) {
   }
   if (total_insts_num < 10000) // avoid trace file too big
     fprintf(log_fp, "%s", str);
+#endif
+
+#ifdef MTRACE
+  if (mtrace_buffer[0]) {
+    fprintf(log_fp, "%s\n", mtrace_buffer);
+  }
+  mtrace_buffer[0] = 0;
 #endif
 
 #ifdef FTRACE
