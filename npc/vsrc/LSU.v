@@ -106,7 +106,8 @@ module ysyx_25010008_LSU (
         end else if (wvalid & wready) begin
           wvalid <= 0;
           bready <= 1;
-          lsu_record(araddr, wdata, {28'b0, wstrb}, 0);
+          lsu_record(araddr, wdata, {{8{wstrb[3]}}, {8{wstrb[2]}}, {8{wstrb[1]}}, {8{wstrb[0]}}},
+                     0);
         end else if (bready & bvalid) begin
           if (rresp != 0) begin
             $display("%h", addr);
