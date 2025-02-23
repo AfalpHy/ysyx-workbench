@@ -99,7 +99,7 @@ extern "C" void lsu_record(paddr_t addr, word_t data, word_t mask, bool read) {
   if (read && total_insts_num < 10000)
     fprintf(log_fp, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
             data);
-  if (write && total_insts_num < 10000)
+  if (!read && total_insts_num < 10000)
     fprintf(log_fp,
             "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
             "\n",
