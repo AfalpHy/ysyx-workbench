@@ -1,4 +1,10 @@
 import "DPI-C" function void set_skip_ref_inst();
+import "DPI-C" function void lsu_record(
+  input [31:0] addr,
+  input [31:0] data,
+  input [3:0] mask,
+  input read
+);
 
 module ysyx_25010008_LSU (
     input clock,
@@ -91,6 +97,7 @@ module ysyx_25010008_LSU (
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
           done <= 1;
+          lsu_record(araddr, sext ? sign_data : unsign_data, 0, 1);
         end else if (awvalid & awready) begin
           if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
             set_skip_ref_inst();  //uart spi gpio vga
@@ -99,6 +106,7 @@ module ysyx_25010008_LSU (
         end else if (wvalid & wready) begin
           wvalid <= 0;
           bready <= 1;
+          lsu_record(araddr, wdata, wstrb, 0);
         end else if (bready & bvalid) begin
           if (rresp != 0) begin
             $display("%h", addr);
