@@ -24,6 +24,9 @@ uint64_t calc_type = 0, ls_type = 0, csr_type = 0;
 uint64_t calc_type_cycles = 0, ls_type_cycles = 0, csr_type_cycles = 0;
 int inst_type = 0;
 
+// make mtrace message follows itrace message
+char mtrace_buffer[256] = {};
+
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
 typedef struct {
   paddr_t pc;
@@ -53,6 +56,13 @@ extern "C" void ifu_record(int inst, int npc) {
   }
   if (total_insts_num < 10000) // avoid trace file too big
     fprintf(log_fp, "%s", str);
+#endif
+
+#ifdef MTRACE
+  if (mtrace_buffer[0]) {
+    fprintf(log_fp, "%s", mtrace_buffer);
+  }
+  mtrace_buffer[0] = 0;
 #endif
 
 #ifdef FTRACE
@@ -97,10 +107,10 @@ extern "C" void exu_record(int inst, int npc) {}
 extern "C" void lsu_record(paddr_t addr, word_t data, word_t mask, bool read) {
 #ifdef MTRACE
   if (read && total_insts_num < 10000)
-    fprintf(log_fp, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n", addr,
-            data);
-  if (write && total_insts_num < 10000)
-    fprintf(log_fp,
+    sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
+            addr, data);
+  if (!read && total_insts_num < 10000)
+    sprintf(mtrace_buffer,
             "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
             "\n",
             addr, data, mask);
