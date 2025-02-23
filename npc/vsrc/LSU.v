@@ -1,8 +1,8 @@
 import "DPI-C" function void set_skip_ref_inst();
 import "DPI-C" function void lsu_record(
-  input [31:0] addr,
-  input [31:0] data,
-  input [3:0] mask,
+  int addr,
+  int data,
+  int mask,
   input read
 );
 
@@ -106,7 +106,7 @@ module ysyx_25010008_LSU (
         end else if (wvalid & wready) begin
           wvalid <= 0;
           bready <= 1;
-          lsu_record(araddr, wdata, wstrb, 0);
+          lsu_record(araddr, wdata, {28'b0, wstrb}, 0);
         end else if (bready & bvalid) begin
           if (rresp != 0) begin
             $display("%h", addr);
