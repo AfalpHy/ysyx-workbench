@@ -60,7 +60,7 @@ extern "C" void ifu_record(int inst, int npc) {
 
 #ifdef MTRACE
   if (mtrace_buffer[0]) {
-    fprintf(log_fp, "%s\n", mtrace_buffer);
+    fprintf(log_fp, "%s", mtrace_buffer);
   }
   mtrace_buffer[0] = 0;
 #endif
