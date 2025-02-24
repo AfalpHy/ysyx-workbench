@@ -115,7 +115,7 @@ extern "C" void exu_record() { exu_done++; }
 
 extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
   get_data++;
-  ls_delay += delay;
+  // ls_delay += delay;
 #ifdef MTRACE
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
@@ -125,7 +125,7 @@ extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
 
 extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
                             word_t delay) {
-  // ls_delay += delay;
+  ls_delay += delay;
 #ifdef MTRACE
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer,

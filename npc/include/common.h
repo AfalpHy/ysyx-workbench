@@ -59,7 +59,7 @@ static inline void print_performance_info() {
   printf("ifu get inst:%ld\n", get_inst);
   printf("lsu get data:%ld\n", get_data);
   printf("exu done:%ld\n", exu_done);
-  printf("ls average delay:%lf\n", (double)ls_delay / get_data);
+  printf("ls average delay:%lf\n", (double)ls_delay / (ls_inst - get_data));
   printf("total cycles:%ld\n", total_cycles);
 
   printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
