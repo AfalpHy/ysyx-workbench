@@ -227,7 +227,6 @@ void cpu_exec(uint32_t num) {
       }
     }
     if (halt) {
-      print_performance_info();
       return;
     } else if (check_wp()) {
       return;

@@ -137,5 +137,6 @@ int main(int argc, char **argv) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
+  print_performance_info();
   return status;
 }
