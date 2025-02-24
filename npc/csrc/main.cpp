@@ -41,14 +41,12 @@ void fflush_trace() {
 }
 
 void sigint_handler(int sig) {
-  fflush_trace();
   print_debug_info();
   print_performance_info();
   exit(0);
 }
 
 void sigsegv_handler(int sig) {
-  fflush_trace();
   print_debug_info();
   print_performance_info();
   exit(-1);
@@ -139,5 +137,6 @@ int main(int argc, char **argv) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
+  print_performance_info();
   return status;
 }

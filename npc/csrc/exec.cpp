@@ -14,20 +14,27 @@ extern int status;
 extern bool diff_test_on;
 
 uint64_t total_insts_num = 0;
-bool skip_ref_inst = false;
-uint32_t inst;
+
 bool print_itrace = false;
 bool halt = false;
 bool finish_one_inst = false;
+
+// counter
 uint64_t total_cycles = 0;
-uint64_t calc_type = 0, ls_type = 0, csr_type = 0;
-uint64_t calc_type_cycles = 0, ls_type_cycles = 0, csr_type_cycles = 0;
+uint64_t get_inst = 0;
+uint64_t get_data = 0;
+uint64_t exu_done = 0;
 int inst_type = 0;
+uint64_t calc_inst = 0, ls_inst = 0, csr_inst = 0;
+uint64_t calc_inst_cycles = 0, ls_inst_cycles = 0, csr_inst_cycles = 0;
+uint64_t ls_delay = 0;
 
 // make mtrace message follows itrace message
 char mtrace_buffer[256] = {};
 
+bool skip_ref_inst = false;
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
+
 typedef struct {
   paddr_t pc;
   uint32_t inst;
@@ -43,7 +50,9 @@ char *one_inst_str(const DisasmInst *di) {
   return buff;
 }
 
-extern "C" void ifu_record(int inst, int npc) {
+extern "C" void ifu_record0() { get_inst++; }
+
+extern "C" void ifu_record1(int inst, int npc) {
 #ifdef ITRACE
   int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
   iringbuf[iringbuf_index].pc = *pc;
@@ -81,13 +90,14 @@ extern "C" void ifu_record(int inst, int npc) {
   uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
   switch (inst_type) {
   case 1:
-    calc_type_cycles += spend_cycles;
+    calc_inst_cycles += spend_cycles;
     break;
   case 2:
-    ls_type_cycles += spend_cycles;
+    ls_inst_cycles += spend_cycles;
     break;
   case 4:
-    csr_type_cycles += spend_cycles;
+    printf("%x %ld\n", npc, spend_cycles);
+    csr_inst_cycles += spend_cycles;
     break;
   default:
     break;
@@ -96,20 +106,29 @@ extern "C" void ifu_record(int inst, int npc) {
 }
 
 extern "C" void idu_record(bool calc, bool ls, bool csr) {
-  calc_type += calc;
-  ls_type += ls;
-  csr_type += csr;
+  calc_inst += calc;
+  ls_inst += ls;
+  csr_inst += csr;
   inst_type = (csr << 2) | (ls << 1) | calc;
 }
 
-extern "C" void exu_record(int inst, int npc) {}
+extern "C" void exu_record() { exu_done++; }
 
-extern "C" void lsu_record(paddr_t addr, word_t data, word_t mask, bool read) {
+extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
+  get_data++;
+  ls_delay += delay;
 #ifdef MTRACE
-  if (read && total_insts_num < 10000)
+  if (total_insts_num < 10000)
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
             addr, data);
-  if (!read && total_insts_num < 10000)
+#endif
+}
+
+extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
+                            word_t delay) {
+  ls_delay += delay;
+#ifdef MTRACE
+  if (total_insts_num < 10000)
     sprintf(mtrace_buffer,
             "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
             "\n",
@@ -117,16 +136,12 @@ extern "C" void lsu_record(paddr_t addr, word_t data, word_t mask, bool read) {
 #endif
 }
 
-static void display_one_inst(const DisasmInst *di) {
-  printf("%s", one_inst_str(di));
-}
-
 void iringbuf_display() {
   for (auto i = 0; i < MAX_IRINGBUF_LEN; i++) {
     int iringbuf_index = (total_insts_num + i) % MAX_IRINGBUF_LEN;
     const auto &buf = iringbuf[iringbuf_index];
     if (strcmp(buf.str, "")) {
-      display_one_inst(&buf);
+      printf("%s", one_inst_str(&buf));
     }
   }
 }
@@ -213,7 +228,6 @@ void cpu_exec(uint32_t num) {
       }
     }
     if (halt) {
-      print_performance_info();
       return;
     } else if (check_wp()) {
       return;

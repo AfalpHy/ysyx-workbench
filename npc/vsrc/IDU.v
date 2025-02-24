@@ -12,6 +12,9 @@ module ysyx_25010008_IDU (
     input ivalid,
     output reg iready,
 
+    output reg dvalid,
+    input dready,
+
     output [2:0] npc_sel,
 
     output [31:0] imm,
@@ -183,6 +186,15 @@ module ysyx_25010008_IDU (
   always @(posedge ivalid) begin
     idu_record(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
                CSRRW | CSRRS | CSRRC);
+  end
+
+  always @(posedge clock) begin
+    if (reset) dvalid <= 0;
+    else if (ivalid) begin
+      dvalid <= 1;
+    end else if (dvalid & dready) begin
+      dvalid <= 0;
+    end
   end
 
 endmodule
