@@ -112,15 +112,18 @@ extern "C" void idu_record(bool calc, bool ls, bool csr) {
 
 extern "C" void exu_record() { exu_done++; }
 
-extern "C" void lsu_record(paddr_t addr, word_t data, word_t mask, bool read) {
-  if (read)
-    get_data++;
-
+extern "C" void lsu_record0(paddr_t addr, word_t data) {
+  get_data++;
 #ifdef MTRACE
-  if (read && total_insts_num < 10000)
+  if (total_insts_num < 10000)
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
             addr, data);
-  if (!read && total_insts_num < 10000)
+#endif
+}
+
+extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask) {
+#ifdef MTRACE
+  if (total_insts_num < 10000)
     sprintf(mtrace_buffer,
             "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
             "\n",

@@ -78,6 +78,9 @@ module ysyx_25010008_NPC (
   wire ivalid;
   wire iready;
 
+  wire dvalid;
+  wire dready;
+
   // alu
   wire [7:0] alu_opcode;
   wire [1:0] alu_operand2_sel;
@@ -164,6 +167,9 @@ module ysyx_25010008_NPC (
       .ivalid(ivalid),
       .iready(iready),
 
+      .dvalid(dvalid),
+      .dready(dready),
+
       .npc_sel(npc_sel),
 
       .imm(imm),
@@ -196,6 +202,9 @@ module ysyx_25010008_NPC (
   ysyx_25010008_EXU exu (
       .clock(clock),
       .reset(reset),
+
+      .dvalid(dvalid),
+      .dready(dready),
 
       .pc(pc),
       .npc_sel(npc_sel),

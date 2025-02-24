@@ -1,6 +1,11 @@
+import "DPI-C" function void exu_record();
+
 module ysyx_25010008_EXU (
     input clock,
     input reset,
+
+    input  dvalid,
+    output reg dready,
 
     input [31:0] pc,
     input [ 2:0] npc_sel,
@@ -28,6 +33,9 @@ module ysyx_25010008_EXU (
     output [31:0] csr_wdata1,
     output [31:0] csr_wdata2
 );
+
+  // TODO:change in the future
+  assign dready = 1;
 
   function [31:0] sel_alu_operand2(input [1:0] alu_operand2_sel, input [31:0] src2,
                                    input [31:0] imm, input [31:0] csr_src);
@@ -84,5 +92,9 @@ module ysyx_25010008_EXU (
 
   assign csr_wdata2 = csr_wdata2_sel ? pc // ecall 
                                      : 0; // not used
+
+  always @(posedge dvalid) begin
+    exu_record();
+  end
 
 endmodule
