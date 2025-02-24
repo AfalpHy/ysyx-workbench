@@ -43,13 +43,21 @@ static inline void print_debug_info() {
 }
 
 static inline void print_performance_info() {
-  extern uint64_t total_cycles, calc_type, ls_type, csr_type;
-  extern uint64_t calc_type_cycles, ls_type_cycles, csr_type_cycles;
-  printf("%*scalc_type%*sls_type%*scsr_type\n", 27, "", 13, "", 12, "");
-  printf("counter:        %20ld%20ld%20ld\n", calc_type, ls_type, csr_type);
+  extern uint64_t get_inst, get_data, exu_done;
+  extern uint64_t total_cycles, calc_inst, ls_inst, csr_inst;
+  extern uint64_t calc_inst_cycles, ls_inst_cycles, csr_inst_cycles;
+  printf("%*scalc_inst%*sls_inst%*scsr_inst\n", 27, "", 13, "", 12, "");
+  printf("counter:        %20ld%20ld%20ld\n", calc_inst, ls_inst, csr_inst);
+  printf("percentage:     %19lf%%%19lf%%%19lf%%\n",
+         (double)calc_inst * 100 / total_insts_num,
+         (double)ls_inst * 100 / total_insts_num,
+         (double)csr_inst * 100 / total_insts_num);
   printf("average cycles: %20lf%20lf%20lf\n",
-         (double)calc_type_cycles / calc_type, (double)ls_type_cycles / ls_type,
-         (double)csr_type_cycles / csr_type);
+         (double)calc_inst_cycles / calc_inst, (double)ls_inst_cycles / ls_inst,
+         (double)csr_inst_cycles / csr_inst);
+  printf("ifu get inst:%ld\n", get_inst);
+  printf("lsu get data:%ld\n", get_inst);
+  printf("exu done:%ld\n", exu_done);
   printf("total cycles:%ld\n", total_cycles);
 
   printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
