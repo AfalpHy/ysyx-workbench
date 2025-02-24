@@ -40,12 +40,12 @@ void fflush_trace() {
 #endif
 }
 
-void sigint_handler(int sig) {
-  fflush_trace();
-  print_debug_info();
-  print_performance_info();
-  exit(0);
-}
+// void sigint_handler(int sig) {
+//   fflush_trace();
+//   print_debug_info();
+//   print_performance_info();
+//   exit(0);
+// }
 
 void sigsegv_handler(int sig) {
   fflush_trace();
@@ -67,7 +67,7 @@ int load_img(const string &filepath) {
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
-  signal(SIGINT, sigint_handler);
+  // signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
 
   nvboard_bind_all_pins(&top);
