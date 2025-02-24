@@ -64,6 +64,6 @@ void _trm_init() {
   init_uart();
   display_id();
   login();
-  // int ret = main(mainargs);
-  halt((int)mainargs);
+  int ret = main(mainargs);
+  halt(ret);
 }
