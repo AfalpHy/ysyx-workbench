@@ -48,15 +48,15 @@ static inline void print_performance_info() {
   extern uint64_t calc_inst_cycles, ls_inst_cycles, csr_inst_cycles;
   printf("%*scalc_inst%*sls_inst%*scsr_inst\n", 27, "", 13, "", 12, "");
   printf("counter:        %20ld%20ld%20ld\n", calc_inst, ls_inst, csr_inst);
-  printf("percentage:     %19lf%%%19lf%%%19lf%%\n",
-         (double)calc_inst * 100 / total_insts_num,
-         (double)ls_inst * 100 / total_insts_num,
-         (double)csr_inst * 100 / total_insts_num);
+  printf("percentage:     %18f %%%18f %%%18f %%\n",
+         (float)calc_inst * 100 / total_insts_num,
+         (float)ls_inst * 100 / total_insts_num,
+         (float)csr_inst * 100 / total_insts_num);
   printf("average cycles: %20lf%20lf%20lf\n",
          (double)calc_inst_cycles / calc_inst, (double)ls_inst_cycles / ls_inst,
          (double)csr_inst_cycles / csr_inst);
   printf("ifu get inst:%ld\n", get_inst);
-  printf("lsu get data:%ld\n", get_inst);
+  printf("lsu get data:%ld\n", get_data);
   printf("exu done:%ld\n", exu_done);
   printf("total cycles:%ld\n", total_cycles);
 
