@@ -27,6 +27,7 @@ uint64_t exu_done = 0;
 int inst_type = 0;
 uint64_t calc_inst = 0, ls_inst = 0, csr_inst = 0;
 uint64_t calc_inst_cycles = 0, ls_inst_cycles = 0, csr_inst_cycles = 0;
+uint64_t ls_delay = 0;
 
 // make mtrace message follows itrace message
 char mtrace_buffer[256] = {};
@@ -112,8 +113,9 @@ extern "C" void idu_record(bool calc, bool ls, bool csr) {
 
 extern "C" void exu_record() { exu_done++; }
 
-extern "C" void lsu_record0(paddr_t addr, word_t data) {
+extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
   get_data++;
+  ls_delay += delay;
 #ifdef MTRACE
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
@@ -121,7 +123,9 @@ extern "C" void lsu_record0(paddr_t addr, word_t data) {
 #endif
 }
 
-extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask) {
+extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
+                            word_t delay) {
+  ls_delay += delay;
 #ifdef MTRACE
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer,

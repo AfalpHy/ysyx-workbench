@@ -46,6 +46,7 @@ static inline void print_performance_info() {
   extern uint64_t get_inst, get_data, exu_done;
   extern uint64_t total_cycles, calc_inst, ls_inst, csr_inst;
   extern uint64_t calc_inst_cycles, ls_inst_cycles, csr_inst_cycles;
+  extern uint64_t ls_delay;
   printf("%*scalc_inst%*sls_inst%*scsr_inst\n", 27, "", 13, "", 12, "");
   printf("counter:        %20ld%20ld%20ld\n", calc_inst, ls_inst, csr_inst);
   printf("percentage:     %18f %%%18f %%%18f %%\n",
@@ -58,6 +59,7 @@ static inline void print_performance_info() {
   printf("ifu get inst:%ld\n", get_inst);
   printf("lsu get data:%ld\n", get_data);
   printf("exu done:%ld\n", exu_done);
+  printf("ls average delay: %lf", (double)ls_delay / ls_inst);
   printf("total cycles:%ld\n", total_cycles);
 
   printf("\n%ld instructions have been executed. ipc:%lf\n", total_insts_num,
