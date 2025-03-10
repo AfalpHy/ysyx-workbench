@@ -37,9 +37,6 @@ module ysyx_25010008_EXU (
     output [31:0] csr_wdata2
 );
 
-  // TODO:change in the future
-  assign dready = 1;
-
   function [31:0] sel_alu_operand2(input [1:0] alu_operand2_sel, input [31:0] src2,
                                    input [31:0] imm, input [31:0] csr_src);
     case (alu_operand2_sel)
