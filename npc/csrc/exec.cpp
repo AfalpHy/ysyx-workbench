@@ -96,7 +96,6 @@ extern "C" void ifu_record1(int inst, int npc) {
     ls_inst_cycles += spend_cycles;
     break;
   case 4:
-    printf("%x %ld\n", npc, spend_cycles);
     csr_inst_cycles += spend_cycles;
     break;
   default:
