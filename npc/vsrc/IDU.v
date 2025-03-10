@@ -163,7 +163,7 @@ module ysyx_25010008_IDU (
   assign r_wdata_sel[1] = AUIPC | load;
   assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
 
-  assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : imm[11:0]);
+  assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : inst[31:20]);
   assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
   assign csr_d2 = ECALL ? 12'h341 : imm[11:0];
   assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL) & ivalid;
