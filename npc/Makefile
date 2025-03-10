@@ -98,7 +98,7 @@ gdb: all
 	gdb -args $(BIN) $(ARGS)
 
 perf:
-	make -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc mainargs=train run
+	make -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc mainargs=test run
 
 .PHONY: all clean sim gdb perf
 
