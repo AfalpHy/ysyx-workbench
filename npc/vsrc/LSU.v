@@ -52,18 +52,14 @@ module ysyx_25010008_LSU (
     input bvalid
 );
 
-  reg enable;
+  assign araddr = addr;
+  assign arsize = suffix_b ? 0 : suffix_h ? 1 : 2;
 
-  assign araddr  = addr;
-  assign arsize  = suffix_b ? 0 : suffix_h ? 1 : 2;
-  assign arvalid = ren & ~enable;
+  assign awaddr = addr;
+  assign awsize = suffix_b ? 0 : suffix_h ? 1 : 2;
 
-  assign awaddr  = addr;
-  assign awsize  = suffix_b ? 0 : suffix_h ? 1 : 2;
-  assign awvalid = wen & ~enable;
-
-  assign wdata   = (suffix_b | suffix_h) ? (wsrc << {addr[1:0], 3'b0}) : wsrc;
-  assign wstrb   = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr[1:0];
+  assign wdata  = (suffix_b | suffix_h) ? (wsrc << {addr[1:0], 3'b0}) : wsrc;
+  assign wstrb  = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr[1:0];
 
   wire [31:0] real_rdata = (suffix_b | suffix_h) ? (rdata >> {addr[1:0], 3'b0}) : rdata;
   wire [31:0] sextb = {{24{real_rdata[7]}}, real_rdata[7:0]};
@@ -77,8 +73,6 @@ module ysyx_25010008_LSU (
 
   always @(posedge clock) begin
     if (reset) begin
-      enable <= 0;
-
       rready <= 0;
 
       wvalid <= 0;
@@ -88,15 +82,16 @@ module ysyx_25010008_LSU (
       delay = 0;
     end else begin
       if (done) begin
-        done   <= 0;
-        enable <= 0;
+        done <= 0;
       end else begin
         if (rready | wvalid | bready) delay = delay + 1;
-        if (arvalid & arready) begin
+        if (ren) arvalid <= 1;
+        else if (wen) awvalid <= 1;
+        else if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
             set_skip_ref_inst();  //uart clint spi gpio ps2
-          rready <= 1;
-          enable <= 1;
+          rready  <= 1;
+          arvalid <= 0;
         end else if (rready & rvalid) begin
           if (rresp != 0) begin
             $display("%h", addr);
@@ -110,8 +105,8 @@ module ysyx_25010008_LSU (
         end else if (awvalid & awready) begin
           if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
             set_skip_ref_inst();  //uart spi gpio vga
-          wvalid <= 1;
-          enable <= 1;
+          wvalid  <= 1;
+          awvalid <= 0;
         end else if (wvalid & wready) begin
           wvalid <= 0;
           bready <= 1;
