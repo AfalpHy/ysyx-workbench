@@ -37,6 +37,20 @@ module ysyx_25010008_EXU (
     output [31:0] csr_wdata2
 );
 
+  reg [ 7:0] opcode;
+  reg [31:0] operand1;
+  reg [31:0] operand2;
+
+  reg [31:0] snpc;
+  reg [31:0] dnpc;
+
+  ysyx_25010008_ALU alu (
+      .opcode  (opcode),
+      .operand1(operand1),
+      .operand2(operand2),
+      .result  (alu_result)
+  );
+
   function [31:0] sel_alu_operand2(input [1:0] alu_operand2_sel, input [31:0] src2,
                                    input [31:0] imm, input [31:0] csr_src);
     case (alu_operand2_sel)
@@ -46,20 +60,6 @@ module ysyx_25010008_EXU (
       default: sel_alu_operand2 = 0;
     endcase
   endfunction
-
-  reg [7:0] opcode;
-  reg [31:0] operand1;
-  reg [31:0] operand2;
-
-  wire [31:0] snpc = pc + 4;
-  wire [31:0] dnpc = pc + imm;
-
-  ysyx_25010008_ALU alu (
-      .opcode  (opcode),
-      .operand1(operand1),
-      .operand2(operand2),
-      .result  (alu_result)
-  );
 
   function [31:0] sel_npc(input [2:0] npc_sel, input [31:0] snpc, input [31:0] dnpc,
                           input [31:0] alu_result, input [31:0] csr_src);
@@ -102,11 +102,13 @@ module ysyx_25010008_EXU (
     end else begin
       if (dvalid & dready) begin
         exu_record();
-        opcode   <= alu_opcode;
+        opcode <= alu_opcode;
         operand1 <= src1;
         operand2 <= sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
-        evalid   <= 1;
-        dready   <= 0;
+        snpc <= pc + 4;
+        dnpc <= pc + imm;
+        evalid <= 1;
+        dready <= 0;
       end else if (evalid) begin
         evalid <= 0;
         dready <= 1;
