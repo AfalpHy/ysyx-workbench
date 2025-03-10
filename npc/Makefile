@@ -97,7 +97,9 @@ gdb: all
 	$(call git_commit, "sim RTL")
 	gdb -args $(BIN) $(ARGS)
 
+perf:
+	make -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc mainargs=train run
 
-.PHONY: all clean sim gdb
+.PHONY: all clean sim gdb perf
 
 include ../Makefile
