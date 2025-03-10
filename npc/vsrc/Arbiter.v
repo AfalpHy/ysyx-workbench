@@ -71,58 +71,49 @@ module ysyx_25010008_Arbiter (
   wire [1:0] CLINT_rresp;
   wire CLINT_rvalid;
 
-  reg enable;
-  reg is_clint_addr;
+  wire is_clint_addr = araddr_1 == 32'h0200_0048 || araddr_1 == 32'h0200_004c;
 
   // only one master work at the same time, so its logic can be simplified
-  assign io_master_araddr = arvalid_0 ? araddr_0 : (arvalid_1 & enable & ~is_clint_addr) ? araddr_1 : 0;
-  assign io_master_arvalid = ~reset & (arvalid_0 | (arvalid_1 & enable & ~is_clint_addr));
-  assign io_master_arsize = arvalid_0 ? 3'b010 : arsize_1;
+  assign io_master_araddr = arvalid_0 ? araddr_0 : (arvalid_1 & ~is_clint_addr) ? araddr_1 : 0;
+  assign io_master_arvalid = ~reset & (arvalid_0 | (arvalid_1 & ~is_clint_addr));
   assign io_master_rready = rready_0 | rready_1;
-
   assign io_master_awaddr = awaddr_1;
   assign io_master_awvalid = awvalid_1;
-  assign io_master_awsize = awsize_1;
   assign io_master_wdata = wdata_1;
   assign io_master_wstrb = wstrb_1;
   assign io_master_wvalid = wvalid_1;
   assign io_master_bready = bready_1;
-  assign io_master_wlast = wvalid_1;
 
   assign arready_0 = io_master_arready;
-  assign rdata_0 = io_master_rdata;
-  assign rresp_0 = io_master_rresp;
-  assign rvalid_0 = io_master_rvalid;
+  assign arready_1 = is_clint_addr ? CLINT_arready : io_master_arready;
 
-  assign arready_1 = is_clint_addr ? CLINT_arready & enable : io_master_arready & enable;
+  assign rdata_0 = io_master_rdata;
   assign rdata_1 = is_clint_addr ? CLINT_rdata : io_master_rdata;
+
+  assign rresp_0 = io_master_rresp;
   assign rresp_1 = is_clint_addr ? CLINT_rresp : io_master_rresp;
+
+  assign rvalid_0 = io_master_rvalid;
   assign rvalid_1 = is_clint_addr ? CLINT_rvalid : io_master_rvalid;
+
   assign awready_1 = io_master_awready;
+
   assign wready_1 = io_master_wready;
+
   assign bresp_1 = io_master_bresp;
+
   assign bvalid_1 = io_master_bvalid;
 
-  always @(posedge clock) begin
-    if (reset) begin
-      enable <= 0;
-      is_clint_addr <= 0;
-    end else begin
-      if (arvalid_1) begin
-        enable <= 1;
-        is_clint_addr <= araddr_1 == 32'h0200_0048 || araddr_1 == 32'h0200_004c;
-      end else begin
-        enable <= 0;
-      end
-    end
-  end
+  assign io_master_wlast = io_master_wvalid;
+  assign io_master_arsize = arvalid_0 ? 3'b010 : arsize_1;
+  assign io_master_awsize = awsize_1;
 
   ysyx_25010008_CLINT clint (
       .clock(clock),
       .reset(reset),
 
       .araddr (araddr_1),
-      .arvalid(arvalid_1 & enable & is_clint_addr),
+      .arvalid(arvalid_1 & is_clint_addr),
       .arready(CLINT_arready),
 
       .rready(rready_1),
