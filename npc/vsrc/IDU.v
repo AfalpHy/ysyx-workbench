@@ -44,9 +44,11 @@ module ysyx_25010008_IDU (
     output [7:0] alu_opcode
 );
 
-  wire [6:0] opcode = inst[6:0];
-  wire [2:0] funct3 = inst[14:12];
-  wire [6:0] funct7 = inst[31:25];
+  reg [31:0] inst_q;
+
+  wire [6:0] opcode = inst_q[6:0];
+  wire [2:0] funct3 = inst_q[14:12];
+  wire [6:0] funct7 = inst_q[31:25];
 
   wire funct3_000 = funct3 == 3'b000;
   wire funct3_001 = funct3 == 3'b001;
@@ -126,9 +128,9 @@ module ysyx_25010008_IDU (
   wire CSRRS  = system & funct3_010;
   wire CSRRC  = system & funct3_011;
 
-  wire ECALL  = inst[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
-  wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
-  wire MRET   = inst[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
+  wire ECALL  = inst_q[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
+  wire EBREAK = inst_q[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
+  wire MRET   = inst_q[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
@@ -141,11 +143,11 @@ module ysyx_25010008_IDU (
   wire S_type = store;
   wire R_type = op;
 
-  wire [31:0] U_imm = U_type ? {inst[31:12], {12{1'b0}}} : 0;
-  wire [31:0] J_imm = J_type ? {{12{inst[31]}}, inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0} : 0;
-  wire [31:0] B_imm = B_type ? {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} : 0;
-  wire [31:0] I_imm = I_type ? {{20{inst[31]}}, inst[31:20]} : 0;
-  wire [31:0] S_imm = S_type ? {{20{inst[31]}}, inst[31:25], inst[11:7]} : 0;
+  wire [31:0] U_imm = U_type ? {inst_q[31:12], {12{1'b0}}} : 0;
+  wire [31:0] J_imm = J_type ? {{12{inst_q[31]}}, inst_q[19:12], inst_q[20], inst_q[30:25], inst_q[24:21], 1'b0} : 0;
+  wire [31:0] B_imm = B_type ? {{20{inst_q[31]}}, inst_q[7], inst_q[30:25], inst_q[11:8], 1'b0} : 0;
+  wire [31:0] I_imm = I_type ? {{20{inst_q[31]}}, inst_q[31:20]} : 0;
+  wire [31:0] S_imm = S_type ? {{20{inst_q[31]}}, inst_q[31:25], inst_q[11:7]} : 0;
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
   assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
@@ -154,25 +156,25 @@ module ysyx_25010008_IDU (
   assign suffix_h = LH | LHU | SH;
   assign sext = LB | LH;
 
-  assign rs1 = LUI ? 0 : inst[19:15]; // LUI always use x0 means 0 + imm
-  assign rs2 = CSRRW ? 0 : inst[24:20]; // CSRRW always use x0 means imm + 0
-  assign rd  = inst[11:7];
+  assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
+  assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
+  assign rd  = inst_q[11:7];
 
-  assign r_wen = (U_type | J_type | I_type | R_type) & ivalid;
+  assign r_wen = U_type | J_type | I_type | R_type;
   assign r_wdata_sel[0] = JAL | JALR | load;
   assign r_wdata_sel[1] = AUIPC | load;
   assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
 
-  assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : inst[31:20]);
-  assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
-  assign csr_d2 = ECALL ? 12'h341 : imm[11:0];
-  assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL) & ivalid;
-  assign csr_wen2 = ECALL & ivalid;
+  assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : inst_q[31:20]);
+  assign csr_d1 = ECALL ? 12'h342 : inst_q[31:20];
+  assign csr_d2 = ECALL ? 12'h341 : inst_q[31:20];
+  assign csr_wen1 = CSRRW | CSRRS | CSRRC | ECALL;
+  assign csr_wen2 = ECALL;
   assign csr_wdata1_sel = ECALL;
   assign csr_wdata2_sel = ECALL;
 
-  assign mem_ren = load & ivalid;
-  assign mem_wen = store & ivalid;
+  assign mem_ren = load;
+  assign mem_wen = store;
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
   assign alu_opcode[1] = XORI | XOR | BEQ;
@@ -183,17 +185,19 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
-  always @(posedge ivalid) begin
-    idu_record(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
-               CSRRW | CSRRS | CSRRC);
-  end
-
   always @(posedge clock) begin
-    if (reset) dvalid <= 0;
-    else if (ivalid) begin
-      dvalid <= 1;
-    end else if (dvalid & dready) begin
+    if (reset) begin
       dvalid <= 0;
+      iready <= 1;
+    end else if (ivalid & iready) begin
+      inst_q <= inst;
+      dvalid <= 1;
+      iready <= 0;
+    end else if (dvalid & dready) begin
+      idu_record(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
+               CSRRW | CSRRS | CSRRC);
+      dvalid <= 0;
+      iready <= 1;
     end
   end
 

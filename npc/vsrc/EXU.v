@@ -4,8 +4,11 @@ module ysyx_25010008_EXU (
     input clock,
     input reset,
 
-    input  dvalid,
+    input dvalid,
     output reg dready,
+
+    output reg evalid,
+    input eready,
 
     input [31:0] pc,
     input [ 2:0] npc_sel,
@@ -47,7 +50,7 @@ module ysyx_25010008_EXU (
     endcase
   endfunction
 
-  wire [31:0] alu_operand2 = sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
+  reg [31:0] alu_operand2;
 
   wire [31:0] snpc = pc + 4;
   wire [31:0] dnpc = pc + imm;
@@ -93,8 +96,21 @@ module ysyx_25010008_EXU (
   assign csr_wdata2 = csr_wdata2_sel ? pc // ecall 
                                      : 0; // not used
 
-  always @(posedge dvalid) begin
-    exu_record();
+  always @(posedge clock) begin
+    if (reset) begin
+      dready <= 1;
+      evalid <= 0;
+    end else begin
+      if (dvalid & dready) begin
+        exu_record();
+        alu_operand2 <= sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
+        evalid <= 1;
+        dready <= 0;
+      end else if (evalid) begin
+        evalid <= 0;
+        dready <= 1;
+      end
+    end
   end
 
 endmodule
