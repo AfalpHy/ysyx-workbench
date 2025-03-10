@@ -47,15 +47,17 @@ module ysyx_25010008_EXU (
     endcase
   endfunction
 
-  reg [31:0] alu_operand2;
+  reg [7:0] opcode;
+  reg [31:0] operand1;
+  reg [31:0] operand2;
 
   wire [31:0] snpc = pc + 4;
   wire [31:0] dnpc = pc + imm;
 
   ysyx_25010008_ALU alu (
-      .opcode  (alu_opcode),
-      .operand1(src1),
-      .operand2(alu_operand2),
+      .opcode  (opcode),
+      .operand1(operand1),
+      .operand2(operand2),
       .result  (alu_result)
   );
 
@@ -100,9 +102,11 @@ module ysyx_25010008_EXU (
     end else begin
       if (dvalid & dready) begin
         exu_record();
-        alu_operand2 <= sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
-        evalid <= 1;
-        dready <= 0;
+        opcode   <= alu_opcode;
+        operand1 <= src1;
+        operand2 <= sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
+        evalid   <= 1;
+        dready   <= 0;
       end else if (evalid) begin
         evalid <= 0;
         dready <= 1;
