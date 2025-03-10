@@ -94,7 +94,7 @@ module ysyx_25010008_Arbiter (
   assign rresp_0 = io_master_rresp;
   assign rvalid_0 = io_master_rvalid;
 
-  assign arready_1 = is_clint_addr ? CLINT_arready & enable : io_master_arready & enable;
+  assign arready_1 = enable ? (is_clint_addr ? CLINT_arready : io_master_arready) : 0;
   assign rdata_1 = is_clint_addr ? CLINT_rdata : io_master_rdata;
   assign rresp_1 = is_clint_addr ? CLINT_rresp : io_master_rresp;
   assign rvalid_1 = is_clint_addr ? CLINT_rvalid : io_master_rvalid;
