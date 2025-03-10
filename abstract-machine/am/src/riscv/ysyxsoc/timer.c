@@ -1,5 +1,5 @@
 #include <am.h>
-#include <klib.h>
+
 #define DEVICE_BASE 0x02000000
 #define RTC_ADDR (DEVICE_BASE + 0x0000048)
 
