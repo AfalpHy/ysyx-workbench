@@ -15,6 +15,7 @@ module ysyx_25010008_IFU (
 
     output reg [31:0] inst,
     output reg ivalid,
+    input iready,
 
     output reg arvalid,
     input arready,
@@ -49,10 +50,11 @@ module ysyx_25010008_IFU (
         inst   <= rdata;
         ivalid <= 1;
         ifu_record0();
+      end else if (ivalid & iready) begin
+        ivalid <= 0;
       end else if (write_back) begin
         pc <= npc;
         arvalid <= 1;
-        ivalid <= 0;
         ifu_record1(inst, npc);
       end
     end
