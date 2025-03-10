@@ -48,26 +48,24 @@ module ysyx_25010008_RegFile (
       mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
     end else begin
-      if (write_back) begin
-        if (wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
-        if (csr_wen1) begin
-          case (csr_d1)
-            12'h300: mstatus <= csr_wdata1;
-            12'h305: mtvec <= csr_wdata1;
-            12'h341: mepc <= csr_wdata1;
-            12'h342: mcause <= csr_wdata1;
-            default: ;
-          endcase
-        end
-        if (csr_wen2) begin
-          case (csr_d2)
-            12'h300: mstatus <= csr_wdata2;
-            12'h305: mtvec <= csr_wdata2;
-            12'h341: mepc <= csr_wdata2;
-            12'h342: mcause <= csr_wdata2;
-            default: ;
-          endcase
-        end
+      if (write_back && wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
+      if (write_back & csr_wen1) begin
+        case (csr_d1)
+          12'h300: mstatus <= csr_wdata1;
+          12'h305: mtvec <= csr_wdata1;
+          12'h341: mepc <= csr_wdata1;
+          12'h342: mcause <= csr_wdata1;
+          default: ;
+        endcase
+      end
+      if (write_back & csr_wen2) begin
+        case (csr_d2)
+          12'h300: mstatus <= csr_wdata2;
+          12'h305: mtvec <= csr_wdata2;
+          12'h341: mepc <= csr_wdata2;
+          12'h342: mcause <= csr_wdata2;
+          default: ;
+        endcase
       end
     end
   end

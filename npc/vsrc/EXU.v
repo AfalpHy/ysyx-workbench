@@ -4,11 +4,8 @@ module ysyx_25010008_EXU (
     input clock,
     input reset,
 
-    input dvalid,
+    input  dvalid,
     output reg dready,
-
-    output reg evalid,
-    input eready,
 
     input [31:0] pc,
     input [ 2:0] npc_sel,
@@ -37,6 +34,9 @@ module ysyx_25010008_EXU (
     output [31:0] csr_wdata2
 );
 
+  // TODO:change in the future
+  assign dready = 1;
+
   function [31:0] sel_alu_operand2(input [1:0] alu_operand2_sel, input [31:0] src2,
                                    input [31:0] imm, input [31:0] csr_src);
     case (alu_operand2_sel)
@@ -47,17 +47,15 @@ module ysyx_25010008_EXU (
     endcase
   endfunction
 
-  reg [7:0] opcode;
-  reg [31:0] operand1;
-  reg [31:0] operand2;
+  wire [31:0] alu_operand2 = sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
 
   wire [31:0] snpc = pc + 4;
   wire [31:0] dnpc = pc + imm;
 
   ysyx_25010008_ALU alu (
-      .opcode  (opcode),
-      .operand1(operand1),
-      .operand2(operand2),
+      .opcode  (alu_opcode),
+      .operand1(src1),
+      .operand2(alu_operand2),
       .result  (alu_result)
   );
 
@@ -95,23 +93,8 @@ module ysyx_25010008_EXU (
   assign csr_wdata2 = csr_wdata2_sel ? pc // ecall 
                                      : 0; // not used
 
-  always @(posedge clock) begin
-    if (reset) begin
-      dready <= 1;
-      evalid <= 0;
-    end else begin
-      if (dvalid & dready) begin
-        exu_record();
-        opcode   <= alu_opcode;
-        operand1 <= src1;
-        operand2 <= sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
-        evalid   <= 1;
-        dready   <= 0;
-      end else if (evalid) begin
-        evalid <= 0;
-        dready <= 1;
-      end
-    end
+  always @(posedge dvalid) begin
+    exu_record();
   end
 
 endmodule

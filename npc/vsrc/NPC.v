@@ -86,9 +86,6 @@ module ysyx_25010008_NPC (
   wire [1:0] alu_operand2_sel;
   wire [31:0] alu_result;
 
-  wire evalid;
-  wire eready;
-
   // lsu
   wire mem_ren, mem_wen;
   wire [31:0] mem_rdata;
@@ -106,6 +103,8 @@ module ysyx_25010008_NPC (
   wire csr_wen1, csr_wen2;
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
+
+  wire write_back = (mem_ren | mem_wen) ? done : ivalid;
 
   wire [31:0] araddr_0 = pc;
   wire arvalid_0;
@@ -140,8 +139,6 @@ module ysyx_25010008_NPC (
   wire [1:0] bresp_1;
   wire bvalid_1;
 
-  wire write_back = (mem_ren | mem_wen) ? done : evalid;
-
   ysyx_25010008_IFU ifu (
       .clock(clock),
       .reset(reset),
@@ -152,7 +149,6 @@ module ysyx_25010008_NPC (
 
       .inst  (inst),
       .ivalid(ivalid),
-      .iready(iready),
 
       .arvalid(arvalid_0),
       .arready(arready_0),
@@ -210,9 +206,6 @@ module ysyx_25010008_NPC (
       .dvalid(dvalid),
       .dready(dready),
 
-      .evalid(evalid),
-      .eready(eready),
-
       .pc(pc),
       .npc_sel(npc_sel),
 
@@ -238,6 +231,7 @@ module ysyx_25010008_NPC (
       .csr_wdata2(csr_wdata2)
   );
 
+
   ysyx_25010008_LSU lsu (
       .clock(clock),
       .reset(reset),
@@ -246,9 +240,9 @@ module ysyx_25010008_NPC (
       .suffix_h(suffix_h),
       .sext(sext),
 
-      .ren(evalid & mem_ren),
+      .ren(mem_ren),
 
-      .wen(evalid & mem_wen),
+      .wen(mem_wen),
 
       .addr(alu_result),
 
