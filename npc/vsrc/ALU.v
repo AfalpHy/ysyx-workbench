@@ -16,12 +16,12 @@ module ysyx_25010008_ALU (
       8'b0100_0000: result = $signed(operand1) >>> operand2[4:0];
       8'b1000_0000: result = ~operand1 & operand2;
       8'b0000_0001: result = operand1 - operand2;
-      8'b0000_0011: result[0] = operand1 == operand2;
-      8'b0000_0101: result[0] = operand1 != operand2;
-      8'b0000_1001: result[0] = operand1 < operand2;
-      8'b0001_0001: result[0] = operand1 >= operand2;
-      8'b0010_0001: result[0] = $signed(operand1) < $signed(operand2);
-      8'b0100_0001: result[0] = $signed(operand1) >= $signed(operand2);
+      8'b0000_0011: result = {31'b0, operand1 == operand2};
+      8'b0000_0101: result = {31'b0, operand1 != operand2};
+      8'b0000_1001: result = {31'b0, operand1 < operand2};
+      8'b0001_0001: result = {31'b0, operand1 >= operand2};
+      8'b0010_0001: result = {31'b0, $signed(operand1) < $signed(operand2)};
+      8'b0100_0001: result = {31'b0, $signed(operand1) >= $signed(operand2)};
       default: result = 0;
     endcase
   end
