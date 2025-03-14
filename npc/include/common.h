@@ -47,6 +47,7 @@ static inline void print_performance_info() {
   extern uint64_t total_cycles, calc_inst, ls_inst, csr_inst;
   extern uint64_t calc_inst_cycles, ls_inst_cycles, csr_inst_cycles;
   extern uint64_t ls_delay;
+  extern uint64_t miss_penalty;
   printf("%*scalc_inst%*sls_inst%*scsr_inst\n", 27, "", 13, "", 12, "");
   printf("counter:        %20ld%20ld%20ld\n", calc_inst, ls_inst, csr_inst);
   printf("percentage:     %18f %%%18f %%%18f %%\n",
@@ -57,6 +58,7 @@ static inline void print_performance_info() {
          (double)calc_inst_cycles / calc_inst, (double)ls_inst_cycles / ls_inst,
          (double)csr_inst_cycles / csr_inst);
   printf("ifu get inst:%ld\n", get_inst);
+  printf("AMAT:%lf\n", double(miss_penalty)/total_insts_num + 1);
   printf("lsu get data:%ld\n", get_data);
   printf("exu done:%ld\n", exu_done);
   printf("ls average delay:%lf\n", (double)ls_delay / ls_inst);
