@@ -57,29 +57,24 @@ extern "C" void ifu_record1(int inst, int npc) {
   halt = inst == 0x00100073;
   finish_one_inst = true;
 #ifdef ITRACE
-  static paddr_t last_pc = 0;
   static FILE *pc_trace = nullptr;
-  if (!last_pc)
-    pc_trace = fopen("pc_trace.log", "w");
+  if (!pc_trace) {
+    pc_trace = fopen("pc_trace.bin", "wb");
+    ASSERT(pc_trace, "open pc_trace.bin failed");
+    fwrite(pc, 4, 1, pc_trace);
+  }
   static int follow = 0;
-  if (*pc != last_pc + 4) {
-    if (follow) {
-      fprintf(pc_trace, " %d", follow);
-      follow = 0;
-    }
-    if (last_pc)
-      fprintf(pc_trace, "\n");
-
-    fprintf(pc_trace, FMT_PADDR, *pc);
-  } else {
-    follow++;
-  }
   if (halt) {
-    if (follow)
-      fprintf(pc_trace, " %d", follow);
-    fprintf(pc_trace, "\n");
+    fwrite(&follow, 4, 1, pc_trace);
+  } else {
+    if (npc != *pc + 4) {
+      fwrite(&follow, 4, 1, pc_trace);
+      follow = 0;
+      fwrite(pc, 4, 1, pc_trace);
+    } else {
+      follow++;
+    }
   }
-  last_pc = *pc;
 
   int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
   iringbuf[iringbuf_index].pc = *pc;
