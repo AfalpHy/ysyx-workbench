@@ -67,7 +67,7 @@ extern "C" void ifu_record1(int inst, int npc) {
       fprintf(pc_trace, " %d", follow);
       follow = 0;
     }
-    if (!last_pc)
+    if (last_pc)
       fprintf(pc_trace, "\n");
 
     fprintf(pc_trace, FMT_PADDR, *pc);
@@ -77,8 +77,7 @@ extern "C" void ifu_record1(int inst, int npc) {
   if (halt) {
     if (follow)
       fprintf(pc_trace, " %d", follow);
-    if (!last_pc)
-      fprintf(pc_trace, "\n");
+    fprintf(pc_trace, "\n");
   }
   last_pc = *pc;
 
