@@ -52,8 +52,12 @@ char *one_inst_str(const DisasmInst *di) {
 }
 
 extern "C" void ifu_record0() {
+  static FILE *pc_trace = nullptr;
+  if (!pc_trace) {
+    pc_trace = fopen("pc_trace.txt", "w");
+  }
   get_inst++;
-  std::cout << *pc << std::endl;
+  fprintf(pc_trace, "%x\n", *pc);
 }
 
 extern "C" void ifu_record1(int inst, int npc) {
