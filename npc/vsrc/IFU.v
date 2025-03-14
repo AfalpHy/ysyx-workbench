@@ -8,20 +8,19 @@ import "DPI-C" function void ifu_record2(int delay);
 
 `define M 2
 `define N 4
-`define BLOCK_BYTE_SIZE 2 ** `M
-`define BLOCK_WIDTH `BLOCK_BYTE_SIZE * 8
+`define DATA_BYTE_SIZE 2 ** `M
+`define DATA_WIDTH `DATA_BYTE_SIZE * 8
 `define TAG_WIDTH 32 - (`M + `N) 
 `define CACHE_SIZE 2 ** `N
 
 // in cache
-`define VALID_POS `TAG_WIDTH + `BLOCK_WIDTH
-`define CACHE_TAG_RANGE `TAG_WIDTH + `BLOCK_WIDTH - 1 : `BLOCK_WIDTH
-`define CACHE_BLOCK_RANGE `BLOCK_WIDTH - 1 : 0
+`define VALID_POS `TAG_WIDTH + `DATA_WIDTH
+`define CACHE_TAG_RANGE `TAG_WIDTH + `DATA_WIDTH - 1 : `DATA_WIDTH
+`define CACHE_DATA_RANGE `DATA_WIDTH - 1 : 0
 
 // in pc
 `define PC_TAG_RANGE 31 : `M + `N
 `define PC_INDEX_RANGE `M + `N -1 : `M
-
 
 module ysyx_25010008_IFU (
     input clock,
@@ -49,7 +48,7 @@ module ysyx_25010008_IFU (
     set_pc(pc);
   end
 
-  reg [`TAG_WIDTH + `BLOCK_WIDTH : 0] cache[0:`CACHE_SIZE-1];
+  reg [`TAG_WIDTH + `DATA_WIDTH : 0] cache[0:`CACHE_SIZE-1];
 
   integer i, delay;
 
@@ -74,7 +73,7 @@ module ysyx_25010008_IFU (
       if (state == READ_CACHE) begin
         // sram don't need cache
         if (pc[31:24] != 8'h0f && cache[pc[`PC_INDEX_RANGE]][`VALID_POS] && cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] == pc[`PC_TAG_RANGE]) begin
-          inst   <= cache[pc[`PC_INDEX_RANGE]][`CACHE_BLOCK_RANGE];
+          inst   <= cache[pc[`PC_INDEX_RANGE]][`CACHE_DATA_RANGE];
           ivalid <= 1;
           state  <= IDLE;
           ifu_record0();
@@ -95,7 +94,7 @@ module ysyx_25010008_IFU (
           rready <= 0;
           inst   <= rdata;
           if (pc[31:24] != 8'h0f) begin
-            cache[pc[`PC_INDEX_RANGE]][`CACHE_BLOCK_RANGE] <= rdata;
+            cache[pc[`PC_INDEX_RANGE]][`CACHE_DATA_RANGE] <= rdata;
             cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] <= pc[`PC_TAG_RANGE];
             cache[pc[`PC_INDEX_RANGE]][`VALID_POS] <= 1;
           end
