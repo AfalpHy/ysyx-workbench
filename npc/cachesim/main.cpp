@@ -21,11 +21,6 @@ void vaddr_ifetch(vaddr_t addr) {
   if (BITS(addr, 31, 24) == 0x0f) {
     return;
   }
-  static FILE *pc_trace = nullptr;
-  if (!pc_trace) {
-    pc_trace = fopen("pc_trace.txt", "w");
-  }
-  fprintf(pc_trace, "%x\n", addr);
 
   word_t tag = BITS(addr, 31, 6);
   word_t index = BITS(addr, 5, 2);

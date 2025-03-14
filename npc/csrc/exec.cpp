@@ -51,14 +51,7 @@ char *one_inst_str(const DisasmInst *di) {
   return buff;
 }
 
-extern "C" void ifu_record0() {
-  static FILE *pc_trace = nullptr;
-  if (!pc_trace) {
-    pc_trace = fopen("pc_trace.txt", "w");
-  }
-  get_inst++;
-  fprintf(pc_trace, "%x\n", *pc);
-}
+extern "C" void ifu_record0() { get_inst++; }
 
 extern "C" void ifu_record1(int inst, int npc) {
   halt = inst == 0x00100073;
