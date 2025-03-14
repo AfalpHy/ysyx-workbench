@@ -51,11 +51,14 @@ char *one_inst_str(const DisasmInst *di) {
   return buff;
 }
 
-extern "C" void ifu_record0() { get_inst++; }
+extern "C" void ifu_record0() {
+  get_inst++;
+  std::cout << *pc << std::endl;
+}
 
 extern "C" void ifu_record1(int inst, int npc) {
   halt = inst == 0x00100073;
-  finish_one_inst = true;
+
 #ifdef ITRACE
   static FILE *pc_trace = nullptr;
   if (!pc_trace) {
@@ -99,6 +102,8 @@ extern "C" void ifu_record1(int inst, int npc) {
 #ifdef FTRACE
   ftrace(*pc, npc, inst);
 #endif
+
+  finish_one_inst = true;
 
   if (halt) {
     total_cycles -= 20;
