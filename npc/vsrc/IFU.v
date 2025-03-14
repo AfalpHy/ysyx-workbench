@@ -89,9 +89,12 @@ module ysyx_25010008_IFU (
             $finish;
           end
           rready <= 0;
-          inst   <= rdata;
+          inst <= rdata;
+          cache[pc[`PC_INDEX_RANGE]][`CACHE_BLOCK_RANGE] <= rdata;
+          cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] <= pc[`PC_TAG_RANGE];
+          cache[pc[`PC_INDEX_RANGE]][`VALID_POS] <= 1;
           ivalid <= 1;
-          state  <= IDLE;
+          state <= IDLE;
         end
       end else begin
         if (ivalid & iready) begin
