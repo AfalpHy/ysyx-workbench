@@ -77,7 +77,7 @@ extern "C" void ifu_record1(int inst, int npc) {
     if (npc != *pc + 4) {
       fwrite(&follow, 4, 1, pc_trace);
       follow = 0;
-      fwrite(pc, 4, 1, pc_trace);
+      fwrite(&npc, 4, 1, pc_trace);
     } else {
       follow++;
     }
