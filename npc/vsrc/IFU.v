@@ -73,7 +73,7 @@ module ysyx_25010008_IFU (
     end else begin
       if (state == READ_CACHE) begin
         // sram don't need cache
-        if (pc[31:24] != 8'h0f && cache[pc[`PC_INDEX_RANGE]][`VALID_POS] && cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] == pc[`PC_TAG_RANGE]) begin
+        if (cache[pc[`PC_INDEX_RANGE]][`VALID_POS] && cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] == pc[`PC_TAG_RANGE]) begin
           inst   <= cache[pc[`PC_INDEX_RANGE]][`CACHE_BLOCK_RANGE];
           ivalid <= 1;
           state  <= IDLE;

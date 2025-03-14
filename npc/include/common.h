@@ -58,7 +58,7 @@ static inline void print_performance_info() {
          (double)calc_inst_cycles / calc_inst, (double)ls_inst_cycles / ls_inst,
          (double)csr_inst_cycles / csr_inst);
   printf("ifu get inst:%ld\n", get_inst);
-  printf("AMAT:%lf\n", double(miss_penalty)/total_insts_num + 1);
+  printf("AMAT:%lf\n", double(miss_penalty) / total_insts_num + 1);
   printf("lsu get data:%ld\n", get_data);
   printf("exu done:%ld\n", exu_done);
   printf("ls average delay:%lf\n", (double)ls_delay / ls_inst);
