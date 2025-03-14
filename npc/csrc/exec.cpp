@@ -58,7 +58,7 @@ extern "C" void ifu_record1(int inst, int npc) {
   finish_one_inst = true;
 #ifdef ITRACE
   static paddr_t last_pc = 0;
-  FILE *pc_trace = nullptr;
+  static FILE *pc_trace = nullptr;
   if (!last_pc)
     pc_trace = fopen("pc_trace.log", "w");
   static int follow = 0;
