@@ -17,8 +17,10 @@ typedef struct {
 cache_block icache[16];
 
 int get = 0;
-int miss = 0;
 void vaddr_ifetch(vaddr_t addr) {
+  if (BITS(addr, 31, 24) == 0x0f) {
+    return;
+  }
   word_t tag = BITS(addr, 31, 6);
   word_t index = BITS(addr, 5, 2);
   if (icache[index].valid && icache[index].tag == tag) {
@@ -27,7 +29,6 @@ void vaddr_ifetch(vaddr_t addr) {
   }
   icache[index].tag = tag;
   icache[index].valid = 1;
-  miss++;
 }
 int main() {
   ifstream file("../pc_trace.bin", ios::binary);
@@ -44,6 +45,6 @@ int main() {
       pc += 4;
     }
   }
-  std::cout << "get:" << get << " miss:" << miss << std::endl;
+  std::cout << "get:" << get << std::endl;
   return 0;
 }
