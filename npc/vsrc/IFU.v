@@ -4,12 +4,13 @@ import "DPI-C" function void ifu_record1(
   int inst,
   int npc
 );
+import "DPI-C" function void ifu_record2(int delay);
 
 `define M 2
 `define N 4
 `define BLOCK_BYTE_SIZE 2 ** `M
 `define BLOCK_WIDTH `BLOCK_BYTE_SIZE * 8
-`define TAG_WIDTH 32 - (`M+`N) 
+`define TAG_WIDTH 32 - (`M + `N) 
 `define CACHE_SIZE 2 ** `N
 
 // in cache
@@ -50,7 +51,7 @@ module ysyx_25010008_IFU (
 
   reg [`TAG_WIDTH + `BLOCK_WIDTH : 0] cache[0:`CACHE_SIZE-1];
 
-  integer i;
+  integer i, delay;
 
   parameter READ_CACHE = 0;
   parameter READ_MEMORY = 1;
@@ -67,6 +68,7 @@ module ysyx_25010008_IFU (
       arvalid <= 0;
       rready <= 0;
       ivalid <= 0;
+      delay = 0;
       state <= READ_CACHE;
     end else begin
       if (state == READ_CACHE) begin
@@ -81,6 +83,7 @@ module ysyx_25010008_IFU (
           arvalid <= 1;
         end
       end else if (state == READ_MEMORY) begin
+        delay = delay + 1;
         if (arvalid & arready) begin
           arvalid <= 0;
           rready  <= 1;
@@ -96,6 +99,8 @@ module ysyx_25010008_IFU (
           cache[pc[`PC_INDEX_RANGE]][`VALID_POS] <= 1;
           ivalid <= 1;
           state <= IDLE;
+          ifu_record2(delay);
+          delay = 0;
         end
       end else begin
         if (ivalid & iready) begin

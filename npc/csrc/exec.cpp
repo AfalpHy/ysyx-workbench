@@ -28,6 +28,7 @@ int inst_type = 0;
 uint64_t calc_inst = 0, ls_inst = 0, csr_inst = 0;
 uint64_t calc_inst_cycles = 0, ls_inst_cycles = 0, csr_inst_cycles = 0;
 uint64_t ls_delay = 0;
+uint64_t miss_penalty = 0;
 
 // make mtrace message follows itrace message
 char mtrace_buffer[256] = {};
@@ -103,6 +104,8 @@ extern "C" void ifu_record1(int inst, int npc) {
   }
   last_inst_end_cycles = total_cycles;
 }
+
+extern "C" void ifu_record2(int delay) { miss_penalty += delay; }
 
 extern "C" void idu_record(bool calc, bool ls, bool csr) {
   calc_inst += calc;
