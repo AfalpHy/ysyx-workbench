@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+using namespace std;
 
 #define BITMASK(bits) ((1ull << (bits)) - 1)
 #define BITS(x, hi, lo)                                                        \
@@ -15,15 +16,34 @@ typedef struct {
 
 cache_block icache[16];
 
-bool vaddr_ifetch(vaddr_t addr) {
+int get = 0;
+int miss = 0;
+void vaddr_ifetch(vaddr_t addr) {
   word_t tag = BITS(addr, 31, 6);
   word_t index = BITS(addr, 5, 2);
   if (icache[index].valid && icache[index].tag == tag) {
-    return true;
+    get++;
+    return;
   }
   icache[index].tag = tag;
   icache[index].valid = 1;
-  return false;
+  miss++;
 }
-
-int main() { return 0; }
+int main() {
+  ifstream file("../pc_trace.bin", ios::binary);
+  if (!file.is_open()) {
+    return -1;
+  }
+  while (!file.eof()) {
+    vaddr_t pc;
+    int follow;
+    file.read((char *)&pc, 4);
+    file.read((char *)&follow, 4);
+    while (follow-- >= 0) {
+      vaddr_ifetch(pc);
+      pc += 4;
+    }
+  }
+  std::cout << "get:" << get << " miss:" << miss << std::endl;
+  return 0;
+}
