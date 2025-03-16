@@ -93,11 +93,11 @@ module ysyx_25010008_IFU (
           end
           rready <= 0;
           inst   <= rdata;
-          // if (pc[31:24] != 8'h0f) begin
+          if (pc[31:24] != 8'h0f) begin
             cache[pc[`PC_INDEX_RANGE]][`CACHE_DATA_RANGE] <= rdata;
             cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] <= pc[`PC_TAG_RANGE];
             cache[pc[`PC_INDEX_RANGE]][`VALID_POS] <= 1;
-          // end
+          end
           ivalid <= 1;
           state  <= IDLE;
           ifu_record2(delay);
