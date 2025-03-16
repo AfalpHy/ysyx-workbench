@@ -4,6 +4,23 @@ import "DPI-C" function void ifu_record1(
   int inst,
   int npc
 );
+import "DPI-C" function void ifu_record2(int delay);
+
+`define M 2
+`define N 4
+`define DATA_BYTE_SIZE 2 ** `M
+`define DATA_WIDTH `DATA_BYTE_SIZE * 8
+`define TAG_WIDTH 32 - (`M + `N) 
+`define CACHE_SIZE 2 ** `N
+
+// in cache
+`define VALID_POS `TAG_WIDTH + `DATA_WIDTH
+`define CACHE_TAG_RANGE `TAG_WIDTH + `DATA_WIDTH - 1 : `DATA_WIDTH
+`define CACHE_DATA_RANGE `DATA_WIDTH - 1 : 0
+
+// in pc
+`define PC_TAG_RANGE 31 : `M + `N
+`define PC_INDEX_RANGE `M + `N -1 : `M
 
 module ysyx_25010008_IFU (
     input clock,
@@ -31,31 +48,69 @@ module ysyx_25010008_IFU (
     set_pc(pc);
   end
 
+  reg [`TAG_WIDTH + `DATA_WIDTH : 0] cache[0:`CACHE_SIZE-1];
+
+  integer i, delay;
+
+  parameter READ_CACHE = 0;
+  parameter READ_MEMORY = 1;
+  parameter IDLE = 2;
+
+  reg [1:0] state;
+
   always @(posedge clock) begin
     if (reset) begin
+      for (i = 0; i < 16; i = i + 1) begin
+        cache[i][`VALID_POS] <= 0;
+      end
       pc <= 32'h3000_0000;
-      arvalid <= 1;
+      arvalid <= 0;
       rready <= 0;
       ivalid <= 0;
+      delay = 0;
+      state <= READ_CACHE;
     end else begin
-      if (arvalid & arready) begin
-        arvalid <= 0;
-        rready  <= 1;
-      end else if (rready & rvalid) begin
-        if (rresp != 0) begin
-          $display("%h", pc);
-          $finish;
+      if (state == READ_CACHE) begin
+        // sram don't need cache
+        if (pc[31:24] != 8'h0f && cache[pc[`PC_INDEX_RANGE]][`VALID_POS] && cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] == pc[`PC_TAG_RANGE]) begin
+          inst   <= cache[pc[`PC_INDEX_RANGE]][`CACHE_DATA_RANGE];
+          ivalid <= 1;
+          state  <= IDLE;
+          ifu_record0();
+        end else begin
+          state   <= READ_MEMORY;
+          arvalid <= 1;
         end
-        rready <= 0;
-        inst   <= rdata;
-        ivalid <= 1;
-        ifu_record0();
-      end else if (ivalid & iready) begin
-        ivalid <= 0;
-      end else if (write_back) begin
-        pc <= npc;
-        arvalid <= 1;
-        ifu_record1(inst, npc);
+      end else if (state == READ_MEMORY) begin
+        delay = delay + 1;
+        if (arvalid & arready) begin
+          arvalid <= 0;
+          rready  <= 1;
+        end else if (rready & rvalid) begin
+          if (rresp != 0) begin
+            $display("%h", pc);
+            $finish;
+          end
+          rready <= 0;
+          inst   <= rdata;
+          if (pc[31:24] != 8'h0f) begin
+            cache[pc[`PC_INDEX_RANGE]][`CACHE_DATA_RANGE] <= rdata;
+            cache[pc[`PC_INDEX_RANGE]][`CACHE_TAG_RANGE] <= pc[`PC_TAG_RANGE];
+            cache[pc[`PC_INDEX_RANGE]][`VALID_POS] <= 1;
+          end
+          ivalid <= 1;
+          state  <= IDLE;
+          ifu_record2(delay);
+          delay = 0;
+        end
+      end else begin
+        if (ivalid & iready) begin
+          ivalid <= 0;
+        end else if (write_back) begin
+          pc <= npc;
+          ifu_record1(inst, npc);
+          state <= READ_CACHE;
+        end
       end
     end
   end

@@ -28,6 +28,7 @@ int inst_type = 0;
 uint64_t calc_inst = 0, ls_inst = 0, csr_inst = 0;
 uint64_t calc_inst_cycles = 0, ls_inst_cycles = 0, csr_inst_cycles = 0;
 uint64_t ls_delay = 0;
+uint64_t miss_penalty = 0;
 
 // make mtrace message follows itrace message
 char mtrace_buffer[256] = {};
@@ -53,7 +54,28 @@ char *one_inst_str(const DisasmInst *di) {
 extern "C" void ifu_record0() { get_inst++; }
 
 extern "C" void ifu_record1(int inst, int npc) {
+  halt = inst == 0x00100073;
+
 #ifdef ITRACE
+  static FILE *pc_trace = nullptr;
+  if (!pc_trace) {
+    pc_trace = fopen("pc_trace.bin", "wb");
+    ASSERT(pc_trace, "open pc_trace.bin failed");
+    fwrite(pc, 4, 1, pc_trace);
+  }
+  static int follow = 0;
+  if (halt) {
+    fwrite(&follow, 4, 1, pc_trace);
+  } else {
+    if (npc != *pc + 4) {
+      fwrite(&follow, 4, 1, pc_trace);
+      follow = 0;
+      fwrite(&npc, 4, 1, pc_trace);
+    } else {
+      follow++;
+    }
+  }
+
   int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
   iringbuf[iringbuf_index].pc = *pc;
   iringbuf[iringbuf_index].inst = inst;
@@ -78,7 +100,6 @@ extern "C" void ifu_record1(int inst, int npc) {
   ftrace(*pc, npc, inst);
 #endif
 
-  halt = inst == 0x00100073;
   finish_one_inst = true;
 
   if (halt) {
@@ -103,6 +124,8 @@ extern "C" void ifu_record1(int inst, int npc) {
   }
   last_inst_end_cycles = total_cycles;
 }
+
+extern "C" void ifu_record2(int delay) { miss_penalty += delay; }
 
 extern "C" void idu_record(bool calc, bool ls, bool csr) {
   calc_inst += calc;
