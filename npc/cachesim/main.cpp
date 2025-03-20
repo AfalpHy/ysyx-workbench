@@ -31,8 +31,13 @@ void vaddr_ifetch(vaddr_t addr) {
   icache[index].tag = tag;
   icache[index].valid = 1;
 }
-int main() {
-  ifstream file("../pc_trace.bin", ios::binary);
+int main(int argc, char **argv) {
+  if (argc != 2) {
+    cout << "usage:" << argv[1] << " path/to/*.bin" << endl;
+    return -1;
+  }
+  string filename = argv[1];
+  ifstream file(filename, ios::binary);
   if (!file.is_open()) {
     return -1;
   }
@@ -46,6 +51,6 @@ int main() {
       pc += 4;
     }
   }
-  std::cout << "get:" << get << std::endl;
+  cout << "get:" << get << endl;
   return 0;
 }
