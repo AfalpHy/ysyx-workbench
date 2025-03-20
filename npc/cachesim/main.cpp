@@ -31,9 +31,10 @@ void vaddr_ifetch(vaddr_t addr) {
   icache[index].tag = tag;
   icache[index].valid = 1;
 }
+
 int main(int argc, char **argv) {
   if (argc != 2) {
-    cout << "usage:" << argv[1] << " path/to/*.bin" << endl;
+    cout << "usage:\n" << argv[0] << " path/to/*.bin" << endl;
     return -1;
   }
   string filename = argv[1];
