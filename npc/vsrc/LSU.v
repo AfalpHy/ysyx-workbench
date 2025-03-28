@@ -87,6 +87,7 @@ module ysyx_25010008_LSU (
         if (rready | wvalid | bready) delay = delay + 1;
         if (ren) arvalid <= 1;
         else if (wen) begin
+          // must assert in the same time for sdram axi
           awvalid <= 1;
           wvalid  <= 1;
         end else if (arvalid & arready) begin
