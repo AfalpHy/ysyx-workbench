@@ -87,6 +87,7 @@ module ysyx_25010008_LSU (
         if (rready | wvalid | bready) delay = delay + 1;
         if (ren) arvalid <= 1;
         else if (wen) begin
+          awvalid <= 1;
           wvalid  <= 1;
         end else if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
@@ -108,7 +109,6 @@ module ysyx_25010008_LSU (
             set_skip_ref_inst();  //uart spi gpio vga
           awvalid <= 0;
         end else if (wvalid & wready) begin
-          awvalid <= 1;
           wvalid <= 0;
           bready <= 1;
         end else if (bready & bvalid) begin
