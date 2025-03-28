@@ -103,7 +103,7 @@ module ysyx_25010008_IFU (
             rready <= 0;
             // updata inst if pc[2] is high
             if (pc[2]) inst <= rdata;
-            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, inst, rdata};
+            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
             ivalid <= 1;
             state  <= IDLE;
             ifu_record2(delay);
