@@ -107,7 +107,7 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
-  wire [31:0] araddr_0;
+  wire [31:0] araddr_0 = pc;
   wire arvalid_0;
   wire arready_0;
 
@@ -115,7 +115,6 @@ module ysyx_25010008_NPC (
   wire [31:0] rdata_0;
   wire [1:0] rresp_0;
   wire rvalid_0;
-  wire rlast_0;
 
   wire [31:0] araddr_1;
   wire [2:0] arsize_1;
@@ -155,15 +154,13 @@ module ysyx_25010008_NPC (
       .ivalid(ivalid),
       .iready(iready),
 
-      .araddr (araddr_0),
       .arvalid(arvalid_0),
       .arready(arready_0),
 
       .rready(rready_0),
       .rdata (rdata_0),
       .rresp (rresp_0),
-      .rvalid(rvalid_0),
-      .rlast (rlast_0)
+      .rvalid(rvalid_0)
   );
 
   ysyx_25010008_IDU idu (
@@ -323,7 +320,6 @@ module ysyx_25010008_NPC (
       .rdata_0 (rdata_0),
       .rresp_0 (rresp_0),
       .rvalid_0(rvalid_0),
-      .rlast_0 (rlast_0),
 
       .araddr_1 (araddr_1),
       .arsize_1 (arsize_1),

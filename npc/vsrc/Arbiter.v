@@ -10,7 +10,6 @@ module ysyx_25010008_Arbiter (
     output [31:0] rdata_0,
     output [1:0] rresp_0,
     output rvalid_0,
-    output rlast_0,
 
     input [31:0] araddr_1,
     input [2:0] arsize_1,
@@ -78,9 +77,7 @@ module ysyx_25010008_Arbiter (
   // only one master work at the same time, so its logic can be simplified
   assign io_master_araddr = arvalid_0 ? araddr_0 : (arvalid_1 & enable & ~is_clint_addr) ? araddr_1 : 0;
   assign io_master_arvalid = ~reset & (arvalid_0 | (arvalid_1 & enable & ~is_clint_addr));
-  assign io_master_arlen = arvalid_0 ? 8'b01 : 8'b0;
   assign io_master_arsize = arvalid_0 ? 3'b010 : arsize_1;
-  assign io_master_arburst = 2'b01;
   assign io_master_rready = rready_0 | rready_1;
 
   assign io_master_awaddr = awaddr_1;
@@ -96,7 +93,6 @@ module ysyx_25010008_Arbiter (
   assign rdata_0 = io_master_rdata;
   assign rresp_0 = io_master_rresp;
   assign rvalid_0 = io_master_rvalid;
-  assign rlast_0 = io_master_rlast;
 
   assign arready_1 = enable ? (is_clint_addr ? CLINT_arready : io_master_arready) : 0;
   assign rdata_1 = is_clint_addr ? CLINT_rdata : io_master_rdata;
