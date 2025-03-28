@@ -108,9 +108,6 @@ module ysyx_25010008_LSU (
           if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
             set_skip_ref_inst();  //uart spi gpio vga
           awvalid <= 0;
-        end else if (wvalid & wready) begin
-          wvalid <= 0;
-          bready <= 1;
         end else if (bready & bvalid) begin
           if (rresp != 0) begin
             $display("%h", addr);
@@ -121,6 +118,10 @@ module ysyx_25010008_LSU (
           lsu_record1(araddr, wdata, {{8{wstrb[3]}}, {8{wstrb[2]}}, {8{wstrb[1]}}, {8{wstrb[0]}}},
                       delay);
           delay = 0;
+        end
+        if (wvalid & wready) begin
+          wvalid <= 0;
+          bready <= 1;
         end
       end
     end
