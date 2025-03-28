@@ -6,7 +6,7 @@ import "DPI-C" function void ifu_record1(
 );
 import "DPI-C" function void ifu_record2(int delay);
 
-`define M 2 
+`define M 3 
 `define N 4
 `define DATA_WIDTH (2 ** `M) * 8
 `define TAG_WIDTH 32 - (`M + `N) 
@@ -33,13 +33,15 @@ module ysyx_25010008_IFU (
     output reg ivalid,
     input iready,
 
+    output reg [31:0] araddr,
     output reg arvalid,
     input arready,
 
     output reg rready,
     input [31:0] rdata,
     input [1:0] rresp,
-    input rvalid
+    input rvalid,
+    input rlast
 );
 
   // set pointer of pc for cpp
@@ -62,6 +64,8 @@ module ysyx_25010008_IFU (
   wire valid = cache_block[`VALID_POS];
   wire [`TAG_WIDTH-1:0] cache_tag = cache_block[`CACHE_TAG_RANGE];
 
+  assign araddr = {pc[31:`M], 1'b0, pc[`M-2:0]};
+
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) begin
@@ -77,7 +81,7 @@ module ysyx_25010008_IFU (
       if (state == READ_CACHE) begin
         // sram don't need cache
         if (pc[31:24] != 8'h0f && valid && cache_tag == pc_tag) begin
-          inst   <= cache_block[31:0];
+          inst   <= pc[2] ? cache_block[63:32] : cache_block[31:0];
           ivalid <= 1;
           state  <= IDLE;
           ifu_record0();
@@ -95,15 +99,19 @@ module ysyx_25010008_IFU (
             $display("%h", pc);
             $finish;
           end
-          rready <= 0;
-          inst   <= rdata;
-          if (pc[31:24] != 8'h0f) begin
-            cache[index] <= {1'b1, pc_tag, rdata};
+          if (rlast) begin
+            rready <= 0;
+            // updata inst if pc[2] is high
+            if (pc[2]) inst <= rdata;
+            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, inst, rdata};
+            ivalid <= 1;
+            state  <= IDLE;
+            ifu_record2(delay);
+            delay = 0;
+          end else begin
+            // use inst to save data for write cache if needed
+            inst <= rdata;
           end
-          ivalid <= 1;
-          state  <= IDLE;
-          ifu_record2(delay);
-          delay = 0;
         end
       end else begin
         if (ivalid & iready) begin
