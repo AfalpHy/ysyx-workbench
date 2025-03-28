@@ -80,6 +80,7 @@ module ysyx_25010008_Arbiter (
   assign io_master_arvalid = ~reset & (arvalid_0 | (arvalid_1 & enable & ~is_clint_addr));
   assign io_master_arlen = arvalid_0 ? 8'b01 : 8'b0;
   assign io_master_arsize = arvalid_0 ? 3'b010 : arsize_1;
+  assign io_master_arburst = 2'b01;
   assign io_master_rready = rready_0 | rready_1;
 
   assign io_master_awaddr = awaddr_1;
