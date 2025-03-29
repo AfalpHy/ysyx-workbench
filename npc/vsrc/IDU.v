@@ -131,6 +131,7 @@ module ysyx_25010008_IDU (
   wire ECALL  = inst_q[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
   wire EBREAK = inst_q[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
   wire MRET   = inst_q[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
+  // wire FENCE_I = 
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
