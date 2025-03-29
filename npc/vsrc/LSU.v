@@ -81,48 +81,49 @@ module ysyx_25010008_LSU (
       done   <= 0;
       delay = 0;
     end else begin
-      if (done) begin
-        done <= 0;
-      end else begin
+      if (done) done <= 0;
+      else begin
         if (rready | wvalid | bready) delay = delay + 1;
+
         if (ren) arvalid <= 1;
-        else if (wen) begin
+        if (wen) begin
           // must assert in the same time for sdram axi
           awvalid <= 1;
           wvalid  <= 1;
-        end else if (arvalid & arready) begin
+        end
+
+        if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
             set_skip_ref_inst();  //uart clint spi gpio ps2
           rready  <= 1;
           arvalid <= 0;
-        end else if (rready & rvalid) begin
-          if (rresp != 0) begin
-            $display("%h", addr);
-            $finish;
-          end
+        end
+
+        if (rready & rvalid) begin
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
           done <= 1;
           lsu_record0(araddr, sext ? sign_data : unsign_data, delay);
           delay = 0;
-        end else if (awvalid & awready) begin
+        end
+
+        if (awvalid & awready) begin
           if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
             set_skip_ref_inst();  //uart spi gpio vga
           awvalid <= 0;
-        end else if (bready & bvalid) begin
-          if (rresp != 0) begin
-            $display("%h", addr);
-            $finish;
-          end
+        end
+
+        if (wvalid & wready) begin
+          wvalid <= 0;
+          bready <= 1;
+        end
+
+        if (bready & bvalid) begin
           bready <= 0;
           done   <= 1;
           lsu_record1(araddr, wdata, {{8{wstrb[3]}}, {8{wstrb[2]}}, {8{wstrb[1]}}, {8{wstrb[0]}}},
                       delay);
           delay = 0;
-        end
-        if (wvalid & wready) begin
-          wvalid <= 0;
-          bready <= 1;
         end
       end
     end
