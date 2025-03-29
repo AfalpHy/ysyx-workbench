@@ -41,7 +41,8 @@ module ysyx_25010008_IFU (
     input [31:0] rdata,
     input [1:0] rresp,
     input rvalid,
-    input rlast
+    input rlast,
+    input clear_cache
 );
 
   // set pointer of pc for cpp
@@ -113,6 +114,11 @@ module ysyx_25010008_IFU (
         if (ivalid & iready) begin
           ivalid <= 0;
         end else if (write_back) begin
+          if (clear_cache) begin
+            for (i = 0; i < 16; i = i + 1) begin
+              cache[i][`VALID_POS] <= 0;
+            end
+          end
           pc <= npc;
           ifu_record1(inst, npc);
           state <= READ_CACHE;

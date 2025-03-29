@@ -107,6 +107,8 @@ module ysyx_25010008_NPC (
   wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
+  wire clear_cache;
+
   wire [31:0] araddr_0;
   wire arvalid_0;
   wire arready_0;
@@ -163,7 +165,8 @@ module ysyx_25010008_NPC (
       .rdata (rdata_0),
       .rresp (rresp_0),
       .rvalid(rvalid_0),
-      .rlast (rlast_0)
+      .rlast (rlast_0),
+      .clear_cache(clear_cache)
   );
 
   ysyx_25010008_IDU idu (
@@ -203,7 +206,8 @@ module ysyx_25010008_NPC (
       .mem_ren(mem_ren),
       .mem_wen(mem_wen),
 
-      .alu_opcode(alu_opcode)
+      .alu_opcode(alu_opcode),
+      .clear_cache(clear_cache)
   );
 
   ysyx_25010008_EXU exu (

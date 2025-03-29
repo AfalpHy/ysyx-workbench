@@ -41,7 +41,8 @@ module ysyx_25010008_IDU (
     output mem_ren,
     output mem_wen,
 
-    output [7:0] alu_opcode
+    output [7:0] alu_opcode,
+    output clear_cache
 );
 
   reg [31:0] inst_q;
@@ -132,6 +133,8 @@ module ysyx_25010008_IDU (
   wire EBREAK = inst_q[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
   wire MRET   = inst_q[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
+  wire FENCE_I = funct3_001 & opcode == 7'b00_011_11;
+
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
   assign npc_sel[2] = ECALL | MRET;
@@ -184,6 +187,8 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
+
+  assign clear_cache = FENCE_I;
 
   always @(posedge clock) begin
     if (reset) begin
