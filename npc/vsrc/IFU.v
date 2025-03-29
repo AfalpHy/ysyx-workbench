@@ -95,10 +95,6 @@ module ysyx_25010008_IFU (
           arvalid <= 0;
           rready  <= 1;
         end else if (rready & rvalid) begin
-          if (rresp != 0) begin
-            $display("%h", pc);
-            $finish;
-          end
           if (rlast) begin
             rready <= 0;
             // updata inst if pc[2] is high

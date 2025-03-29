@@ -100,10 +100,6 @@ module ysyx_25010008_LSU (
         end
 
         if (rready & rvalid) begin
-          if (rresp != 0) begin
-            $display("%h", addr);
-            $finish;
-          end
           rready <= 0;
           mem_rdata <= sext ? sign_data : unsign_data;
           done <= 1;
@@ -123,10 +119,6 @@ module ysyx_25010008_LSU (
         end
 
         if (bready & bvalid) begin
-          if (rresp != 0) begin
-            $display("%h", addr);
-            $finish;
-          end
           bready <= 0;
           done   <= 1;
           lsu_record1(araddr, wdata, {{8{wstrb[3]}}, {8{wstrb[2]}}, {8{wstrb[1]}}, {8{wstrb[0]}}},
