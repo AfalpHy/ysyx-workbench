@@ -30,12 +30,9 @@ int total_fetch = 0;
 cache_block *get_cache_block(vaddr_t addr) {
   word_t tag = BITS(addr, 31, tag_right_range);
   word_t index = BITS(addr, index_left_range, index_right_range);
-  bool success = false;
   for (auto &tmp : icache[index]) {
-    if (tmp.valid) {
-      if (tmp.tag == tag) {
-        return &tmp;
-      }
+    if (tmp.valid && tmp.tag == tag) {
+      return &tmp;
     }
   }
   return nullptr;
