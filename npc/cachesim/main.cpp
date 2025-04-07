@@ -25,7 +25,7 @@ int tag_right_range;
 int index_left_range;
 int index_right_range;
 int fetch_success = 0;
-int total_inst = 0;
+int total_fetch = 0;
 
 cache_block *get_cache_block(vaddr_t addr) {
   word_t tag = BITS(addr, 31, tag_right_range);
@@ -42,7 +42,7 @@ cache_block *get_cache_block(vaddr_t addr) {
 }
 
 void cache_fetch(vaddr_t addr) {
-  total_inst++;
+  total_fetch++;
   if (BITS(addr, 31, 24) == 0x0f) {
     return;
   }
@@ -147,7 +147,10 @@ int main(int argc, char **argv) {
       if (read) {
         cache_fetch(addr);
       } else {
-        get_cache_block(addr)->valid = 0;
+        if (auto tmp = get_cache_block(addr)) {
+          cout << hex << addr << endl;
+          tmp->valid = 0;
+        }
       }
     } else {
       vaddr_t pc;
@@ -161,6 +164,6 @@ int main(int argc, char **argv) {
     }
   }
   cout << "fetch_success:" << fetch_success << endl;
-  cout << "total instructions:" << total_inst << endl;
+  cout << "total fetch:" << total_fetch << endl;
   return 0;
 }
