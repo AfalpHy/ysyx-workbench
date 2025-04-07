@@ -40,9 +40,9 @@ cache_block *get_cache_block(vaddr_t addr) {
 
 void cache_fetch(vaddr_t addr) {
   total_fetch++;
-  if (BITS(addr, 31, 24) == 0x0f) {
-    return;
-  }
+  // if (BITS(addr, 31, 24) == 0x0f) {
+  //   return;
+  // }
 
   word_t tag = BITS(addr, 31, tag_right_range);
   word_t index = BITS(addr, index_left_range, index_right_range);
@@ -137,15 +137,15 @@ int main(int argc, char **argv) {
   bool mem_mode = options["mem"].second;
   while (!file.eof()) {
     if (mem_mode) {
-      bool read;
+      int read = 0;
       vaddr_t addr;
       file.read((char *)&read, 1);
       file.read((char *)&addr, 4);
+
       if (read) {
         cache_fetch(addr);
       } else {
         if (auto tmp = get_cache_block(addr)) {
-          cout << hex << addr << endl;
           tmp->valid = 0;
         }
       }
