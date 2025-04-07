@@ -32,6 +32,7 @@ uint64_t miss_penalty = 0;
 
 // make mtrace message follows itrace message
 char mtrace_buffer[256] = {};
+FILE *mtarce_bin = nullptr;
 
 bool skip_ref_inst = false;
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
@@ -140,6 +141,12 @@ extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
   get_data++;
   ls_delay += delay;
 #ifdef MTRACE
+  if (!mtarce_bin) {
+    mtarce_bin = fopen("mtrace.bin", "wb");
+    ASSERT(mtarce_bin, "open mtrace.bin failed");
+  }
+  fwrite("\1", 1, 1, mtarce_bin);
+  fwrite(&addr, 4, 1, mtarce_bin);
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
             addr, data);
@@ -150,6 +157,12 @@ extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
                             word_t delay) {
   ls_delay += delay;
 #ifdef MTRACE
+  if (!mtarce_bin) {
+    mtarce_bin = fopen("mtrace.bin", "wb");
+    ASSERT(mtarce_bin, "open mtrace.bin failed");
+  }
+  fwrite("\0", 1, 1, mtarce_bin);
+  fwrite(&addr, 4, 1, mtarce_bin);
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer,
             "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
