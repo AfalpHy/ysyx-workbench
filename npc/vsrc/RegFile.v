@@ -24,7 +24,7 @@ module ysyx_25010008_RegFile (
 
     output [31:0] src1,
     output [31:0] src2,
-    output [31:0] csr_src
+    output reg [31:0] csr_src
 );
 
   reg [31:0] regs[15:0];
@@ -71,20 +71,16 @@ module ysyx_25010008_RegFile (
       end
     end
   end
-
-  function [31:0] sel_csr_src(input [11:0] csr_s);
+  always @(csr_s) begin
     case (csr_s)
-      12'h300: sel_csr_src = mstatus;
-      12'h305: sel_csr_src = mtvec;
-      12'h341: sel_csr_src = mepc;
-      12'h342: sel_csr_src = mcause;
-      12'hF11: sel_csr_src = mvendorid;
-      12'hF12: sel_csr_src = marchid;
-      default: sel_csr_src = 0;
+      12'h300: csr_src = mstatus;
+      12'h305: csr_src = mtvec;
+      12'h341: csr_src = mepc;
+      12'h342: csr_src = mcause;
+      12'hF11: csr_src = mvendorid;
+      12'hF12: csr_src = marchid;
+      default: csr_src = 0;
     endcase
-  endfunction
-
-
-  assign csr_src = sel_csr_src(csr_s);
+  end
 
 endmodule
