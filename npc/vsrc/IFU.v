@@ -7,7 +7,7 @@ import "DPI-C" function void ifu_record1(
 import "DPI-C" function void ifu_record2(int delay);
 
 `define M 3 
-`define N 4
+`define N 3
 `define DATA_WIDTH (2 ** `M) * 8
 `define TAG_WIDTH 32 - (`M + `N) 
 `define CACHE_WIDTH `TAG_WIDTH + `DATA_WIDTH + 1
