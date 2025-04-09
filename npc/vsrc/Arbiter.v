@@ -2,6 +2,7 @@ module ysyx_25010008_Arbiter (
     input clock,
     input reset,
 
+    input ifu_enable,
     input [31:0] araddr_0,
     input arvalid_0,
     output arready_0,
@@ -12,6 +13,7 @@ module ysyx_25010008_Arbiter (
     output rvalid_0,
     output rlast_0,
 
+    input lsu_enable,
     input [31:0] araddr_1,
     input [2:0] arsize_1,
     input arvalid_1,

@@ -27,12 +27,14 @@ module ysyx_25010008_IFU (
 
     input npc_valid,
     input [31:0] npc,
-    output [31:0] pc,
+    output reg [31:0] old_pc,
 
     output reg inst_valid,
     output reg [31:0] inst,
+    input idu_ready,
     input block,
 
+    output enable,
     output reg [31:0] araddr,
     output reg arvalid,
     input arready,
@@ -42,7 +44,8 @@ module ysyx_25010008_IFU (
     input [1:0] rresp,
     input rvalid,
     input rlast,
-    input clear_cache
+    input clear_cache,
+    input clear_pipeline
 );
 
   // set pointer of pc for cpp
@@ -50,8 +53,7 @@ module ysyx_25010008_IFU (
     set_pc(pc);
   end
 
-  reg [31:0] pc_queue[0:3];
-  reg [1:0] top, bottom;
+  reg [31:0] pc;
 
   reg [`TAG_WIDTH + `DATA_WIDTH : 0] cache[0 : `CACHE_SIZE - 1];
 
@@ -69,69 +71,72 @@ module ysyx_25010008_IFU (
 
   assign araddr = {pc[31 : `M], 1'b0, pc[`M-2 : 0]};
 
-  assign pc = pc_queue[top];
+  assign enable = state;
+
+  reg discard;
 
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) begin
         cache[i][`VALID_POS] <= 0;
       end
-      pc_queue[0] <= 32'h3000_0000;
+      pc <= 32'h3000_0000;
       arvalid <= 0;
       rready <= 0;
       inst_valid <= 0;
       delay = 0;
-      state <= READ_CACHE;
-      top <= 0;
-      bottom <= 0;
+      state   <= READ_CACHE;
+      discard <= 0;
     end else begin
-      // success
-      if (npc_valid && npc == pc_queue[bottom]) begin
-        bottom <= bottom + 1;
-      end
-      // fail
-      if (npc_valid && npc != pc_queue[bottom]) begin
-        pc_queue[bottom] <= npc;
-        top <= bottom;
+      if (clear_pipeline) begin
+        discard <= 1;
+        pc <= npc;
         inst_valid <= 0;
       end else begin
-        if (state == READ_CACHE & !block) begin
+        if (state == READ_CACHE & !block & idu_ready) begin
+          discard <= 0;
           // sram don't need cache
           if (pc[31:24] != 8'h0f && cache_valid && cache_tag == pc_tag) begin
             inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
-            pc_queue[top+1] <= pc + 4;
-            top <= top + 1;
+            old_pc <= pc;
+            pc <= pc + 4;
             ifu_record0();
           end else begin
             state <= READ_MEMORY;
             arvalid <= 1;
             inst_valid <= 0;
           end
-        end else if (state == READ_MEMORY) begin
-          delay = delay + 1;
-          if (arvalid & arready) begin
-            arvalid <= 0;
-            rready  <= 1;
-          end else if (rready & rvalid) begin
-            if (rlast) begin
-              rready <= 0;
-              // updata inst if pc[2] is high
-              if (pc[2]) inst <= rdata;
-              if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
-              inst_valid <= 1;
-              pc_queue[top+1] <= pc + 4;
-              top <= top + 1;
-              state <= READ_CACHE;
-              ifu_record2(delay);
-              delay = 0;
-            end else begin
-              // use inst to save data for write cache if needed
-              inst <= rdata;
-            end
-          end
+        end
+      end
+
+      if (state == READ_MEMORY) begin
+        delay = delay + 1;
+        if (arvalid & arready) begin
+          arvalid <= 0;
+          rready  <= 1;
         end
 
+        if (rready & rvalid) begin
+          if (rlast) begin
+            rready <= 0;
+            // updata inst if pc[2] is high
+            if (pc[2]) inst <= rdata;
+            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
+            if (!discard) begin
+              inst_valid <= 1;
+              old_pc <= pc;
+              pc <= pc + 4;
+            end
+            discard <= 0;
+            state   <= READ_CACHE;
+            ifu_record2(delay);
+            delay = 0;
+          end else begin
+            // use inst to save data for write cache if needed
+            inst <= rdata;
+          end
+        end
       end
     end
   end

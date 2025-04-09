@@ -8,12 +8,14 @@ module ysyx_25010008_IDU (
     input clock,
     input reset,
 
+    input [31:0] pc,
     input [31:0] inst,
     input inst_valid,
     input block,
 
     output idu_ready,
     output reg decode_valid,
+    output reg [31:0] idu_pc,
     output [2:0] npc_sel,
 
     output [31:0] imm,
@@ -34,13 +36,12 @@ module ysyx_25010008_IDU (
 
     output [11:0] csr_s,
     output reg [11:0] csr_d1,
-    output reg [11:0] csr_d2,
     output reg csr_wen1,
     output reg csr_wen2,
     output csr_wdata1_sel,
-    output csr_wdata2_sel,
 
-    output clear_cache
+    output clear_cache,
+    input clear_pipeline
 );
 
   reg [31:0] inst_q;
@@ -162,7 +163,6 @@ module ysyx_25010008_IDU (
 
   assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : inst_q[31:20]);
   assign csr_wdata1_sel = ECALL;
-  assign csr_wdata2_sel = ECALL;
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
   assign alu_opcode[1] = XORI | XOR | BEQ;
@@ -176,42 +176,86 @@ module ysyx_25010008_IDU (
   assign clear_cache = FENCE_I;
 
   reg [4:0] rd_buffer;
-  reg [11:0] csr_d1_buffer, csr_d2_buffer;
+  reg [11:0] csr_d1_buffer;
   reg r_wen_buffer,csr_wen1_buffer,csr_wen2_buffer;
 
   wire [4:0] rs1_tmp = inst[19:15];
   wire [4:0] rs2_tmp = inst[24:20];
   assign idu_ready = rs1_tmp != inst_q[11:7] && rs1_tmp != rd_buffer && rs2_tmp != inst_q[11:7] && rs2_tmp != rd_buffer;
 
+//                     T1   T2   T3   T4   T5   T6   T7   T8   T9
+//                   +----+----+----+----+----+
+// I1: add a0,t0,s0  | IF | ID | EX | LS | WB |
+//                   +----+----+----+----+----+
+//                       +----+----+----+----+----+
+// I2: sub a1,a0,t0       | IF | ID | EX | LS | WB |
+//                       +----+----+----+----+----+
+//                             +----+----+----+----+----+
+// I3: and a2,a0,s0            | IF | ID | EX | LS | WB |
+//                             +----+----+----+----+----+
+//                                 +----+----+----+----+----+
+// I4: xor a3,a0,t1                 | IF | ID | EX | LS | WB |
+//                                 +----+----+----+----+----+
+//                                       +----+----+----+----+----+
+// I5: sll a4,a0,1                       | IF | ID | EX | LS | WB |
+//                                       +----+----+----+----+----+
   always @(posedge clock) begin
     if (reset) begin
-      inst_q <= 0;
-      decode_valid <= 0;
+      inst_q          <= 0;
+      decode_valid    <= 0;
+      suffix_b        <= 0;
+      suffix_h        <= 0;
+      sext            <= 0;
+      mem_ren         <= 0;
+      mem_wen         <= 0;
+
+      r_wen_buffer    <= 0;
+      csr_wen1_buffer <= 0;
+      csr_wen2_buffer <= 0;
+      
+      r_wen           <= 0;
+      csr_wen1        <= 0;
+      csr_wen2        <= 0;
     end else if (!block) begin
-      if (inst_valid & idu_ready) begin
+      if (!clear_pipeline & inst_valid & idu_ready) begin
         inst_q <= inst;
         decode_valid <= 1;
+        idu_pc <= pc;
       end else begin
         inst_q <= 0;
         decode_valid <= 0;
       end
+      // clear I2
+      if (clear_pipeline) begin
+        // clear lsu
+        suffix_b <= 0;
+        suffix_h <= 0;
+        sext <= 0;
+        mem_ren <= 0;
+        mem_wen <= 0;
+        // clear wbu
+        r_wen_buffer <= 0;
+        csr_wen1_buffer <= 0;
+        csr_wen2_buffer <= 0;
+      end else begin
+        suffix_b <= LB | LBU | SB;
+        suffix_h <= LH | LHU | SH;
+        sext <= LB | LH;
+        mem_ren <= load;
+        mem_wen <= store;
 
-      suffix_b <= LB | LBU | SB;
-      suffix_h <= LH | LHU | SH;
-      sext <= LB | LH;
-      mem_ren <= load;
-      mem_wen <= store;
+        r_wen_buffer <= U_type | J_type | I_type | R_type;
+        csr_wen1_buffer <= CSRRW | CSRRS | CSRRC | ECALL;
+        csr_wen2_buffer <= ECALL;
+      end
 
+      // clear or not, it doesn't matter
       rd_buffer <= inst_q[11:7];
       csr_d1_buffer <= ECALL ? 12'h342 : inst_q[31:20];
-      csr_d2_buffer <= ECALL ? 12'h341 : inst_q[31:20];
-      r_wen_buffer = U_type | J_type | I_type | R_type;
-      csr_wen1_buffer <= CSRRW | CSRRS | CSRRC | ECALL;
-      csr_wen2_buffer <= ECALL;
 
+      // alway continue wbu
       rd <= rd_buffer;
       csr_d1 <= csr_d1_buffer;
-      csr_d2 <= csr_d2_buffer;
       r_wen <= r_wen_buffer;
       csr_wen1 <= csr_wen1_buffer;
       csr_wen2 <= csr_wen2_buffer;

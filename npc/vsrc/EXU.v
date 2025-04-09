@@ -18,7 +18,6 @@ module ysyx_25010008_EXU (
 
     input [31:0] csr_src,
     input csr_wdata1_sel,
-    input csr_wdata2_sel,
 
     input  [ 7:0] alu_opcode,
     input  [ 1:0] alu_operand2_sel,
@@ -27,10 +26,11 @@ module ysyx_25010008_EXU (
     output reg npc_valid,
     output [31:0] npc,
 
+    output reg [31:0] exu_r_wdata,
+    output reg [31:0] csr_wdata1,
+    output reg [31:0] csr_wdata2,
 
-    output [31:0] exu_r_wdata,
-    output [31:0] csr_wdata1,
-    output [31:0] csr_wdata2
+    output clear_pipeline
 );
 
   reg [ 7:0] opcode;
@@ -71,23 +71,37 @@ module ysyx_25010008_EXU (
     endcase
   endfunction
 
-  assign exu_r_wdata = sel_exu_r_wdata(exu_r_wdata_sel, alu_result, snpc, dnpc, csr_src);
+  assign exu_r_wdata = sel_exu_r_wdata(exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src);
 
-  assign csr_wdata1  = csr_wdata1_sel ? 32'd11 : alu_result;
+  reg [1:0] exu_r_wdata_sel_buffer;
+  reg csr_wdata1_sel_buffer;
 
-  assign csr_wdata2  = csr_wdata2_sel ? pc : 0;
+  reg [31:0] csr_wdata2_buffer;
+
+  assign clear_pipeline = npc_valid && npc != snpc;
 
   always @(posedge clock) begin
     if (reset) begin
       npc_valid <= 0;
     end else if (!block) begin
       exu_record();
-      if (decode_valid) npc_valid <= 1;
+      if (!clear_pipeline & decode_valid) begin
+        npc_valid <= 1;
+      end else begin
+        npc_valid <= 0;
+      end
+
       opcode <= alu_opcode;
       operand1 <= src1;
       operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src : src2;
       snpc <= pc + 4;
       dnpc <= pc + imm;
+
+      exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
+      csr_wdata1_sel_buffer <= csr_wdata1_sel;
+      csr_wdata1 <= csr_wdata1_sel_buffer ? 32'd11 : alu_result;
+      csr_wdata2_buffer <= pc;
+      csr_wdata2 <= csr_wdata2_buffer;
     end
 
   end

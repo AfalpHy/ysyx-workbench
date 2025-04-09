@@ -15,7 +15,6 @@ module ysyx_25010008_RegFile (
 
     input [11:0] csr_s,
     input [11:0] csr_d1,
-    input [11:0] csr_d2,
 
     input csr_wen1,
     input [31:0] csr_wdata1,
@@ -61,13 +60,7 @@ module ysyx_25010008_RegFile (
           endcase
         end
         if (csr_wen2) begin
-          case (csr_d2)
-            12'h300: mstatus <= csr_wdata2;
-            12'h305: mtvec <= csr_wdata2;
-            12'h341: mepc <= csr_wdata2;
-            12'h342: mcause <= csr_wdata2;
-            default: ;
-          endcase
+          mepc <= csr_wdata2;
         end
       end
     end
