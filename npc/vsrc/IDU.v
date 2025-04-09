@@ -181,7 +181,7 @@ module ysyx_25010008_IDU (
 
   wire [4:0] rs1_tmp = inst[19:15];
   wire [4:0] rs2_tmp = inst[24:20];
-  assign idu_ready = rs1_tmp != inst_q[11:7] && rs1_tmp != rd_buffer && rs2_tmp != inst_q[11:7] && rs2_tmp != rd_buffer;
+  assign idu_ready = !inst_valid | (rs1_tmp != inst_q[11:7] && rs1_tmp != rd_buffer && rs2_tmp != inst_q[11:7] && rs2_tmp != rd_buffer);
 
 //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
 //                   +----+----+----+----+----+
