@@ -1,11 +1,11 @@
 import "DPI-C" function void set_skip_ref_inst();
 import "DPI-C" function void lsu_record0(
-  int addr,
+  int addr_q,
   int data,
   int delay
 );
 import "DPI-C" function void lsu_record1(
-  int addr,
+  int addr_q,
   int data,
   int mask,
   int delay
@@ -52,16 +52,17 @@ module ysyx_25010008_LSU (
     input bvalid
 );
 
-  assign araddr = addr;
+  reg [31:0] addr_q;
+  assign araddr = addr_q;
   assign arsize = suffix_b ? 0 : suffix_h ? 1 : 2;
 
-  assign awaddr = addr;
+  assign awaddr = addr_q;
   assign awsize = suffix_b ? 0 : suffix_h ? 1 : 2;
 
-  assign wdata  = (suffix_b | suffix_h) ? (wsrc << {addr[1:0], 3'b0}) : wsrc;
-  assign wstrb  = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr[1:0];
+  assign wdata  = (suffix_b | suffix_h) ? (wsrc << {addr_q[1:0], 3'b0}) : wsrc;
+  assign wstrb  = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr_q[1:0];
 
-  wire [31:0] real_rdata = (suffix_b | suffix_h) ? (rdata >> {addr[1:0], 3'b0}) : rdata;
+  wire [31:0] real_rdata = (suffix_b | suffix_h) ? (rdata >> {addr_q[1:0], 3'b0}) : rdata;
   wire [31:0] sextb = {{24{real_rdata[7]}}, real_rdata[7:0]};
   wire [31:0] sexth = {{16{real_rdata[15]}}, real_rdata[15:0]};
   wire [31:0] sign_data = suffix_b ? sextb : sexth;
@@ -125,12 +126,14 @@ module ysyx_25010008_LSU (
 
         if (ren) begin
           arvalid <= 1;
+          addr_q  <= addr;
         end
 
         if (wen) begin
           // must assert in the same time for sdram axi
           awvalid <= 1;
           wvalid  <= 1;
+          addr_q  <= addr;
         end
       end
     end
