@@ -84,8 +84,8 @@ module ysyx_25010008_EXU (
     if (reset) begin
       npc_valid <= 0;
     end else if (!block) begin
-      exu_record();
       if (!clear_pipeline & decode_valid) begin
+        exu_record();
         npc_valid <= 1;
       end else begin
         npc_valid <= 0;

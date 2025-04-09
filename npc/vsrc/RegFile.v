@@ -49,7 +49,10 @@ module ysyx_25010008_RegFile (
       marchid   <= 32'h17D_9F58;
     end else begin
       if (!block) begin
-        if (wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
+        if (wen && rd[3:0] != 0) begin
+          regs[rd[3:0]] <= wdata;
+          ifu_record1(32'h00000413, 32'h30000004);
+        end
         if (csr_wen1) begin
           case (csr_d1)
             12'h300: mstatus <= csr_wdata1;
