@@ -19,16 +19,17 @@ module ysyx_25010008_LSU (
     input sext,
 
     input ren,
-
     input wen,
 
     input [31:0] addr,
-    output reg [31:0] mem_rdata,
-    output reg done,
+    input [31:0] wsrc,
+    input [31:0] exu_r_wdata,
+    output reg [31:0] r_wdata,
+    output reg block,
 
-    output reg [31:0] araddr,
-    output reg [2:0] arsize,
     output reg arvalid,
+    output [31:0] araddr,
+    output [2:0] arsize,
     input arready,
 
     output reg rready,
@@ -36,15 +37,14 @@ module ysyx_25010008_LSU (
     input [1:0] rresp,
     input rvalid,
 
-    output reg [31:0] awaddr,
-    output reg [2:0] awsize,
     output reg awvalid,
+    output [31:0] awaddr,
+    output [2:0] awsize,
     input awready,
 
-    input [31:0] wsrc,
-    output reg [31:0] wdata,
-    output reg [3:0] wstrb,
     output reg wvalid,
+    output [31:0] wdata,
+    output [3:0] wstrb,
     input wready,
 
     output reg bready,
@@ -73,24 +73,18 @@ module ysyx_25010008_LSU (
 
   always @(posedge clock) begin
     if (reset) begin
-      rready <= 0;
+      arvalid <= 0;
+      rready  <= 0;
 
-      wvalid <= 0;
-      bready <= 0;
+      awvalid <= 0;
+      wvalid  <= 0;
+      bready  <= 0;
 
-      done   <= 0;
+      block   <= 0;
       delay = 0;
     end else begin
-      if (done) done <= 0;
-      else begin
-        if (rready | wvalid | bready) delay = delay + 1;
-
-        if (ren) arvalid <= 1;
-        if (wen) begin
-          // must assert in the same time for sdram axi
-          awvalid <= 1;
-          wvalid  <= 1;
-        end
+      if (block) begin
+        delay = delay + 1;
 
         if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
@@ -100,9 +94,9 @@ module ysyx_25010008_LSU (
         end
 
         if (rready & rvalid) begin
-          rready <= 0;
-          mem_rdata <= sext ? sign_data : unsign_data;
-          done <= 1;
+          rready  <= 0;
+          r_wdata <= sext ? sign_data : unsign_data;
+          block   <= 0;
           lsu_record0(araddr, sext ? sign_data : unsign_data, delay);
           delay = 0;
         end
@@ -120,10 +114,23 @@ module ysyx_25010008_LSU (
 
         if (bready & bvalid) begin
           bready <= 0;
-          done   <= 1;
-          lsu_record1(araddr, wdata, {{8{wstrb[3]}}, {8{wstrb[2]}}, {8{wstrb[1]}}, {8{wstrb[0]}}},
-                      delay);
+          block  <= 0;
+          lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
+        end
+      end else begin
+        block   <= ren | wen;
+
+        r_wdata <= exu_r_wdata;
+
+        if (ren) begin
+          arvalid <= 1;
+        end
+
+        if (wen) begin
+          // must assert in the same time for sdram axi
+          awvalid <= 1;
+          wvalid  <= 1;
         end
       end
     end

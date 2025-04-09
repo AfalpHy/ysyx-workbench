@@ -4,11 +4,12 @@ module ysyx_25010008_RegFile (
     input clock,
     input reset,
 
+    input block,
+
     input [4:0] rs1,
     input [4:0] rs2,
     input [4:0] rd,
 
-    input write_back,
     input wen,
     input [31:0] wdata,
 
@@ -48,7 +49,7 @@ module ysyx_25010008_RegFile (
       mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
     end else begin
-      if (write_back) begin
+      if (!block) begin
         if (wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
         if (csr_wen1) begin
           case (csr_d1)
@@ -71,6 +72,7 @@ module ysyx_25010008_RegFile (
       end
     end
   end
+
   always @(csr_s) begin
     case (csr_s)
       12'h300: csr_src = mstatus;
