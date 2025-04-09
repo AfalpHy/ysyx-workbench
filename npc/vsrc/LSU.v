@@ -53,22 +53,26 @@ module ysyx_25010008_LSU (
 );
 
   reg [31:0] addr_q;
+  reg suffix_b_q;
+  reg suffix_h_q;
+  reg sext_q;
+
   assign araddr = addr_q;
-  assign arsize = suffix_b ? 0 : suffix_h ? 1 : 2;
+  assign arsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
 
   assign awaddr = addr_q;
-  assign awsize = suffix_b ? 0 : suffix_h ? 1 : 2;
+  assign awsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
 
-  assign wdata  = (suffix_b | suffix_h) ? (wsrc << {addr_q[1:0], 3'b0}) : wsrc;
-  assign wstrb  = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr_q[1:0];
+  assign wdata  = (suffix_b_q | suffix_h_q) ? (wsrc << {addr_q[1:0], 3'b0}) : wsrc;
+  assign wstrb  = (suffix_b_q ? 4'b0001 : (suffix_h_q ? 4'b0011 : 4'b1111)) << addr_q[1:0];
 
-  wire [31:0] real_rdata = (suffix_b | suffix_h) ? (rdata >> {addr_q[1:0], 3'b0}) : rdata;
+  wire [31:0] real_rdata = (suffix_b_q | suffix_h_q) ? (rdata >> {addr_q[1:0], 3'b0}) : rdata;
   wire [31:0] sextb = {{24{real_rdata[7]}}, real_rdata[7:0]};
   wire [31:0] sexth = {{16{real_rdata[15]}}, real_rdata[15:0]};
-  wire [31:0] sign_data = suffix_b ? sextb : sexth;
+  wire [31:0] sign_data = suffix_b_q ? sextb : sexth;
   wire [31:0] extb = {24'b0, real_rdata[7:0]};
   wire [31:0] exth = {16'b0, real_rdata[15:0]};
-  wire [31:0] unsign_data = suffix_b ? extb : (suffix_h ? exth : real_rdata);
+  wire [31:0] unsign_data = suffix_b_q ? extb : (suffix_h_q ? exth : real_rdata);
 
   integer delay;
 
@@ -96,9 +100,9 @@ module ysyx_25010008_LSU (
 
         if (rready & rvalid) begin
           rready  <= 0;
-          r_wdata <= sext ? sign_data : unsign_data;
+          r_wdata <= sext_q ? sign_data : unsign_data;
           block   <= 0;
-          lsu_record0(araddr, sext ? sign_data : unsign_data, delay);
+          lsu_record0(araddr, sext_q ? sign_data : unsign_data, delay);
           delay = 0;
         end
 
@@ -120,20 +124,24 @@ module ysyx_25010008_LSU (
           delay = 0;
         end
       end else begin
-        block   <= ren | wen;
+        if (ren | wen) begin
+          block <= 1;
+          addr_q <= addr;
+          suffix_b_q <= suffix_b;
+          suffix_h_q <= suffix_h;
+          sext_q <= sext;
+        end
 
         r_wdata <= exu_r_wdata;
 
         if (ren) begin
           arvalid <= 1;
-          addr_q  <= addr;
         end
 
         if (wen) begin
           // must assert in the same time for sdram axi
           awvalid <= 1;
           wvalid  <= 1;
-          addr_q  <= addr;
         end
       end
     end
