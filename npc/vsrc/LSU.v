@@ -56,7 +56,7 @@ module ysyx_25010008_LSU (
   reg suffix_b_q;
   reg suffix_h_q;
   reg sext_q;
-  
+  reg [31:0] wsrc_q;
 
   assign araddr = addr_q;
   assign arsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
@@ -64,7 +64,7 @@ module ysyx_25010008_LSU (
   assign awaddr = addr_q;
   assign awsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
 
-  assign wdata  = (suffix_b_q | suffix_h_q) ? (wsrc << {addr_q[1:0], 3'b0}) : wsrc;
+  assign wdata  = (suffix_b_q | suffix_h_q) ? (wsrc_q << {addr_q[1:0], 3'b0}) : wsrc_q;
   assign wstrb  = (suffix_b_q ? 4'b0001 : (suffix_h_q ? 4'b0011 : 4'b1111)) << addr_q[1:0];
 
   wire [31:0] real_rdata = (suffix_b_q | suffix_h_q) ? (rdata >> {addr_q[1:0], 3'b0}) : rdata;
@@ -143,6 +143,7 @@ module ysyx_25010008_LSU (
           // must assert in the same time for sdram axi
           awvalid <= 1;
           wvalid  <= 1;
+          wsrc_q  <= wsrc;
         end
       end
     end
