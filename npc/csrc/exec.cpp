@@ -61,7 +61,6 @@ extern "C" void ifu_record1(int delay) { miss_penalty += delay; }
 
 void record_inst(int inst, int npc, int pc) {
   halt = inst == 0x00100073;
-  printf("%x %x\n", npc, pc);
 
 #ifdef ITRACE
   static FILE *pc_trace = nullptr;
