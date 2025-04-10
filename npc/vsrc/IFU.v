@@ -116,10 +116,10 @@ module ysyx_25010008_IFU (
         if (rready & rvalid) begin
           if (rlast) begin
             rready <= 0;
-            // updata inst if pc[2] is high
-            if (pc[2]) inst <= rdata;
-            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
             if (!discard) begin
+              // updata inst if pc[2] is high
+              if (pc[2]) inst <= rdata;
+              if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
               inst_valid <= 1;
               old_pc <= pc;
               pc <= pc + 4;
