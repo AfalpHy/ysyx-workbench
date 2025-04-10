@@ -90,6 +90,7 @@ module ysyx_25010008_NPC (
   wire [31:0] alu_result;
 
   // lsu
+  wire [31:0] wsrc;
   wire mem_ren, mem_wen;
   wire block;
 
@@ -233,6 +234,8 @@ module ysyx_25010008_NPC (
       .alu_operand2_sel(alu_operand2_sel),
       .alu_result(alu_result),
 
+      .wsrc(wsrc),
+
       .npc_valid(npc_valid),
       .npc(npc),
 
@@ -255,7 +258,7 @@ module ysyx_25010008_NPC (
       .wen(mem_wen),
 
       .addr(alu_result),
-      .wsrc(src2),
+      .wsrc(wsrc),
       .exu_r_wdata(exu_r_wdata),
       .r_wdata(r_wdata),
       .block(block),

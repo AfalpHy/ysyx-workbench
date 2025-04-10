@@ -23,6 +23,8 @@ module ysyx_25010008_EXU (
     input  [ 1:0] alu_operand2_sel,
     output [31:0] alu_result,
 
+    output reg [31:0] wsrc,
+
     output reg npc_valid,
     output [31:0] npc,
 
@@ -100,6 +102,8 @@ module ysyx_25010008_EXU (
       operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src : src2;
       snpc <= pc + 4;
       dnpc <= pc + imm;
+
+      wsrc <= src2;
 
       npc_sel_buffer <= npc_sel;
 

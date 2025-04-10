@@ -56,6 +56,7 @@ module ysyx_25010008_LSU (
   reg suffix_b_q;
   reg suffix_h_q;
   reg sext_q;
+  
 
   assign araddr = addr_q;
   assign arsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
