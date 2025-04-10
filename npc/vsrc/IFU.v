@@ -1,10 +1,6 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void ifu_record0();
-import "DPI-C" function void ifu_record1(
-  int inst,
-  int npc
-);
-import "DPI-C" function void ifu_record2(int delay);
+import "DPI-C" function void ifu_record1(int delay);
 
 `define M 3 
 `define N 4
@@ -25,14 +21,16 @@ module ysyx_25010008_IFU (
     input clock,
     input reset,
 
-    input write_back,
+    input npc_valid,
     input [31:0] npc,
-    output reg [31:0] pc,
+    output reg [31:0] old_pc,
 
+    output reg inst_valid,
     output reg [31:0] inst,
-    output reg ivalid,
-    input iready,
+    input idu_ready,
+    input block,
 
+    output enable,
     output reg [31:0] araddr,
     output reg arvalid,
     input arready,
@@ -42,7 +40,8 @@ module ysyx_25010008_IFU (
     input [1:0] rresp,
     input rvalid,
     input rlast,
-    input clear_cache
+    input clear_cache,
+    input clear_pipeline
 );
 
   // set pointer of pc for cpp
@@ -50,22 +49,27 @@ module ysyx_25010008_IFU (
     set_pc(pc);
   end
 
-  reg [`TAG_WIDTH + `DATA_WIDTH : 0] cache[0:`CACHE_SIZE-1];
+  reg [31:0] pc;
+
+  reg [`TAG_WIDTH + `DATA_WIDTH : 0] cache[0 : `CACHE_SIZE - 1];
 
   integer i, delay;
 
   parameter READ_CACHE = 0;
   parameter READ_MEMORY = 1;
-  parameter IDLE = 2;
 
-  reg [1:0] state;
+  reg state;
   wire [`N-1:0] index = pc[`PC_INDEX_RANGE];
   wire [`TAG_WIDTH-1:0] pc_tag = pc[`PC_TAG_RANGE];
   wire [`CACHE_WIDTH-1:0] cache_block = cache[index];
-  wire valid = cache_block[`VALID_POS];
+  wire cache_valid = cache_block[`VALID_POS];
   wire [`TAG_WIDTH-1:0] cache_tag = cache_block[`CACHE_TAG_RANGE];
 
-  assign araddr = {pc[31:`M], 1'b0, pc[`M-2:0]};
+  assign araddr = {pc[31 : `M], 1'b0, pc[`M-2 : 0]};
+
+  assign enable = state;
+
+  reg discard;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -75,53 +79,59 @@ module ysyx_25010008_IFU (
       pc <= 32'h3000_0000;
       arvalid <= 0;
       rready <= 0;
-      ivalid <= 0;
+      inst_valid <= 0;
       delay = 0;
-      state <= READ_CACHE;
+      state   <= READ_CACHE;
+      discard <= 0;
     end else begin
-      if (state == READ_CACHE) begin
-        // sram don't need cache
-        if (pc[31:24] != 8'h0f && valid && cache_tag == pc_tag) begin
-          inst   <= pc[2] ? cache_block[63:32] : cache_block[31:0];
-          ivalid <= 1;
-          state  <= IDLE;
-          ifu_record0();
-        end else begin
-          state   <= READ_MEMORY;
-          arvalid <= 1;
+      if (clear_pipeline) begin
+        discard <= 1;
+        pc <= npc;
+        inst_valid <= 0;
+      end else begin
+        if (state == READ_CACHE & !block & idu_ready) begin
+          discard <= 0;
+          // sram don't need cache
+          if (pc[31:24] != 8'h0f && cache_valid && cache_tag == pc_tag) begin
+            inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
+            inst_valid <= 1;
+            old_pc <= pc;
+            pc <= pc + 4;
+            ifu_record0();
+          end else begin
+            state <= READ_MEMORY;
+            arvalid <= 1;
+            inst_valid <= 0;
+          end
         end
-      end else if (state == READ_MEMORY) begin
+      end
+
+      if (state == READ_MEMORY) begin
         delay = delay + 1;
         if (arvalid & arready) begin
           arvalid <= 0;
           rready  <= 1;
-        end else if (rready & rvalid) begin
+        end
+
+        if (rready & rvalid) begin
           if (rlast) begin
             rready <= 0;
-            // updata inst if pc[2] is high
-            if (pc[2]) inst <= rdata;
-            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
-            ivalid <= 1;
-            state  <= IDLE;
-            ifu_record2(delay);
+            if (!discard) begin
+              // updata inst if pc[2] is high
+              if (pc[2]) inst <= rdata;
+              if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
+              inst_valid <= 1;
+              old_pc <= pc;
+              pc <= pc + 4;
+            end
+            discard <= 0;
+            state   <= READ_CACHE;
+            ifu_record1(delay);
             delay = 0;
           end else begin
             // use inst to save data for write cache if needed
             inst <= rdata;
           end
-        end
-      end else begin
-        if (ivalid & iready) begin
-          ivalid <= 0;
-        end else if (write_back) begin
-          if (clear_cache) begin
-            for (i = 0; i < 16; i = i + 1) begin
-              cache[i][`VALID_POS] <= 0;
-            end
-          end
-          pc <= npc;
-          ifu_record1(inst, npc);
-          state <= READ_CACHE;
         end
       end
     end
