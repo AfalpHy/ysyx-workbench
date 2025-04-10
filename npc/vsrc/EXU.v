@@ -1,4 +1,4 @@
-import "DPI-C" function void exu_record();
+import "DPI-C" function void exu_record(int npc);
 
 module ysyx_25010008_EXU (
     input clock,
@@ -26,7 +26,7 @@ module ysyx_25010008_EXU (
     output reg npc_valid,
     output [31:0] npc,
 
-    output reg [31:0] exu_r_wdata,
+    output [31:0] exu_r_wdata,
     output reg [31:0] csr_wdata1,
     output reg [31:0] csr_wdata2,
 
@@ -71,12 +71,15 @@ module ysyx_25010008_EXU (
     endcase
   endfunction
 
-  assign exu_r_wdata = sel_exu_r_wdata(exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src);
-
   reg [1:0] exu_r_wdata_sel_buffer;
   reg csr_wdata1_sel_buffer;
 
   reg [31:0] csr_wdata2_buffer;
+  reg [31:0] csr_src_buffer;
+
+  assign exu_r_wdata = sel_exu_r_wdata(
+      exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src_buffer
+  );
 
   assign clear_pipeline = npc_valid && npc != snpc;
 
@@ -85,7 +88,6 @@ module ysyx_25010008_EXU (
       npc_valid <= 0;
     end else if (!block) begin
       if (!clear_pipeline & decode_valid) begin
-        exu_record();
         npc_valid <= 1;
       end else begin
         npc_valid <= 0;
@@ -97,13 +99,17 @@ module ysyx_25010008_EXU (
       snpc <= pc + 4;
       dnpc <= pc + imm;
 
+      csr_src_buffer <= csr_src;
       exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
       csr_wdata1_sel_buffer <= csr_wdata1_sel;
       csr_wdata1 <= csr_wdata1_sel_buffer ? 32'd11 : alu_result;
       csr_wdata2_buffer <= pc;
       csr_wdata2 <= csr_wdata2_buffer;
-    end
 
+      if (npc_valid) begin
+        exu_record(npc);
+      end
+    end
   end
 
 endmodule

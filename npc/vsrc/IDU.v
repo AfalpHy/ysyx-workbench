@@ -1,8 +1,15 @@
-import "DPI-C" function void idu_record(
+import "DPI-C" function void idu_record0(
   input calc,
   input ls,
   input csr
 );
+
+import "DPI-C" function void idu_record1(
+  int inst,
+  int npc
+);
+
+import "DPI-C" function void inst_done();
 
 module ysyx_25010008_IDU (
     input clock,
@@ -183,6 +190,7 @@ module ysyx_25010008_IDU (
   wire [4:0] rs2_tmp = inst[24:20];
   assign idu_ready = !inst_valid | ((rs1_tmp == 0 | (rs1_tmp != inst_q[11:7] && rs1_tmp != rd_buffer)) && (rs2_tmp == 0 | (rs2_tmp != inst_q[11:7] && rs2_tmp != rd_buffer)));
 
+  reg [2:0] done;
 //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
 //                   +----+----+----+----+----+
 // I1: add a0,t0,s0  | IF | ID | EX | LS | WB |
@@ -221,9 +229,11 @@ module ysyx_25010008_IDU (
         inst_q <= inst;
         decode_valid <= 1;
         idu_pc <= pc;
+        done[0] <= 1;
       end else begin
         inst_q <= 0;
         decode_valid <= 0;
+        done[0] <= 0;
       end
       // clear I2
       if (clear_pipeline) begin
@@ -237,6 +247,8 @@ module ysyx_25010008_IDU (
         r_wen_buffer <= 0;
         csr_wen1_buffer <= 0;
         csr_wen2_buffer <= 0;
+
+        done[1] <= 0;
       end else begin
         suffix_b <= LB | LBU | SB;
         suffix_h <= LH | LHU | SH;
@@ -247,6 +259,8 @@ module ysyx_25010008_IDU (
         r_wen_buffer <= U_type | J_type | I_type | R_type;
         csr_wen1_buffer <= CSRRW | CSRRS | CSRRC | ECALL;
         csr_wen2_buffer <= ECALL;
+
+        done[1] <= done[0];
       end
 
       // clear or not, it doesn't matter
@@ -259,6 +273,16 @@ module ysyx_25010008_IDU (
       r_wen <= r_wen_buffer;
       csr_wen1 <= csr_wen1_buffer;
       csr_wen2 <= csr_wen2_buffer;
+      
+      done[2] <= done[1];
+
+      if (decode_valid)
+        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
+                   CSRRW | CSRRS | CSRRC);
+      
+      if(done[2]) inst_done();
+
+      idu_record1(inst, pc);
     end
   end
 

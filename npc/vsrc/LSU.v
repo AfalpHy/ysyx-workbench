@@ -1,11 +1,11 @@
 import "DPI-C" function void set_skip_ref_inst();
 import "DPI-C" function void lsu_record0(
-  int addr_q,
+  int addr,
   int data,
   int delay
 );
 import "DPI-C" function void lsu_record1(
-  int addr_q,
+  int addr,
   int data,
   int mask,
   int delay

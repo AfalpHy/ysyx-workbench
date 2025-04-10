@@ -51,7 +51,6 @@ module ysyx_25010008_RegFile (
       if (!block) begin
         if (wen && rd[3:0] != 0) begin
           regs[rd[3:0]] <= wdata;
-          ifu_record1(32'h00000413, 32'h30000004);
         end
         if (csr_wen1) begin
           case (csr_d1)

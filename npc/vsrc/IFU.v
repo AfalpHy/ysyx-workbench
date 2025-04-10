@@ -1,10 +1,6 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void ifu_record0();
-import "DPI-C" function void ifu_record1(
-  int inst,
-  int npc
-);
-import "DPI-C" function void ifu_record2(int delay);
+import "DPI-C" function void ifu_record1(int delay);
 
 `define M 3 
 `define N 4
@@ -130,7 +126,7 @@ module ysyx_25010008_IFU (
             end
             discard <= 0;
             state   <= READ_CACHE;
-            ifu_record2(delay);
+            ifu_record1(delay);
             delay = 0;
           end else begin
             // use inst to save data for write cache if needed
