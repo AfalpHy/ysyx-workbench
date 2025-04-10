@@ -47,6 +47,14 @@ module ysyx_25010008_EXU (
       .result  (alu_result)
   );
 
+  reg [2:0] npc_sel_buffer;
+
+  reg [1:0] exu_r_wdata_sel_buffer;
+  reg csr_wdata1_sel_buffer;
+
+  reg [31:0] csr_wdata2_buffer;
+  reg [31:0] csr_src_buffer;
+
   function [31:0] sel_npc(input [2:0] npc_sel, input [31:0] snpc, input [31:0] dnpc,
                           input [31:0] alu_result, input [31:0] csr_src);
     case (npc_sel)
@@ -59,7 +67,7 @@ module ysyx_25010008_EXU (
     endcase
   endfunction
 
-  assign npc = sel_npc(npc_sel, snpc, dnpc, alu_result, csr_src);
+  assign npc = sel_npc(npc_sel_buffer, snpc, dnpc, alu_result, csr_src_buffer);
 
   function [31:0] sel_exu_r_wdata(input [1:0] exu_r_wdata_sel, input [31:0] alu_result,
                                   input [31:0] snpc, input [31:0] dnpc, input [31:0] csr_src);
@@ -70,12 +78,6 @@ module ysyx_25010008_EXU (
       2'b11: sel_exu_r_wdata = csr_src;  // csrrw csrrs csrrc
     endcase
   endfunction
-
-  reg [1:0] exu_r_wdata_sel_buffer;
-  reg csr_wdata1_sel_buffer;
-
-  reg [31:0] csr_wdata2_buffer;
-  reg [31:0] csr_src_buffer;
 
   assign exu_r_wdata = sel_exu_r_wdata(
       exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src_buffer
@@ -98,6 +100,8 @@ module ysyx_25010008_EXU (
       operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src : src2;
       snpc <= pc + 4;
       dnpc <= pc + imm;
+
+      npc_sel_buffer <= npc_sel;
 
       csr_src_buffer <= csr_src;
       exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
