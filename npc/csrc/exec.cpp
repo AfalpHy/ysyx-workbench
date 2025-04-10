@@ -54,7 +54,7 @@ char *one_inst_str(const DisasmInst *di) {
 
 word_t inst_buffer[4];
 word_t pc_buffer[4];
-word_t inst_type_buffer[4];
+word_t inst_type_buffer[3];
 word_t npc_buffer[2];
 
 extern "C" void ifu_record0() { get_inst++; }
@@ -134,7 +134,6 @@ void record_inst(int inst, int npc, int pc, int inst_type) {
 }
 
 extern "C" void idu_record0(bool calc, bool ls, bool csr) {
-  inst_type_buffer[3] = inst_type_buffer[2];
   inst_type_buffer[2] = inst_type_buffer[1];
   inst_type_buffer[1] = inst_type_buffer[0];
   inst_type_buffer[0] = (csr << 2) | (ls << 1) | calc;
@@ -266,7 +265,7 @@ void cpu_exec(uint32_t num) {
       single_cycle();
 
     record_inst(inst_buffer[3], npc_buffer[1], pc_buffer[3],
-                inst_type_buffer[3]);
+                inst_type_buffer[2]);
     total_insts_num++;
 
 #if defined(ITRACE) || defined(MTRACE)
