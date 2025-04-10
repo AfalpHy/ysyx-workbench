@@ -267,7 +267,7 @@ module ysyx_25010008_IDU (
       rd_buffer <= inst_q[11:7];
       csr_d1_buffer <= ECALL ? 12'h342 : inst_q[31:20];
 
-      // alway continue wbu
+      // first inst in pipeline always continue
       rd <= rd_buffer;
       csr_d1 <= csr_d1_buffer;
       r_wen <= r_wen_buffer;
