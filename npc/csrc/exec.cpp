@@ -54,12 +54,13 @@ char *one_inst_str(const DisasmInst *di) {
 
 word_t inst_buffer[4];
 word_t pc_buffer[4];
+word_t inst_type_buffer[3];
 word_t npc_buffer[2];
 
 extern "C" void ifu_record0() { get_inst++; }
 extern "C" void ifu_record1(int delay) { miss_penalty += delay; }
 
-void record_inst(int inst, int npc, int pc) {
+void record_inst(int inst, int npc, int pc, int inst_type) {
   halt = inst == 0x00100073;
 
 #ifdef ITRACE
@@ -115,12 +116,15 @@ void record_inst(int inst, int npc, int pc) {
   uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
   switch (inst_type) {
   case 1:
+    calc_inst += 1;
     calc_inst_cycles += spend_cycles;
     break;
   case 2:
+    ls_inst += 1;
     ls_inst_cycles += spend_cycles;
     break;
   case 4:
+    csr_inst += 1;
     csr_inst_cycles += spend_cycles;
     break;
   default:
@@ -130,10 +134,9 @@ void record_inst(int inst, int npc, int pc) {
 }
 
 extern "C" void idu_record0(bool calc, bool ls, bool csr) {
-  calc_inst += calc;
-  ls_inst += ls;
-  csr_inst += csr;
-  inst_type = (csr << 2) | (ls << 1) | calc;
+  inst_type_buffer[2] = inst_type_buffer[1];
+  inst_type_buffer[1] = inst_type_buffer[0];
+  inst_type_buffer[0] = (csr << 2) | (ls << 1) | calc;
 }
 
 extern "C" void idu_record1(int inst, int pc) {
@@ -261,7 +264,8 @@ void cpu_exec(uint32_t num) {
     while (!finish_one_inst)
       single_cycle();
 
-    record_inst(inst_buffer[3], npc_buffer[1], pc_buffer[3]);
+    record_inst(inst_buffer[3], npc_buffer[1], pc_buffer[3],
+                inst_type_buffer[2]);
     total_insts_num++;
 
 #if defined(ITRACE) || defined(MTRACE)

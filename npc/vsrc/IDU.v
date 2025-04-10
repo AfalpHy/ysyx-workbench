@@ -276,12 +276,10 @@ module ysyx_25010008_IDU (
       
       done[2] <= done[1];
 
-      if (decode_valid)
-        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
-                   CSRRW | CSRRS | CSRRC);
-      
-      if(done[2]) inst_done();
+      if (done[2]) inst_done();
 
+      idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
+                  CSRRW | CSRRS | CSRRC);
       idu_record1(inst, pc);
     end
   end
