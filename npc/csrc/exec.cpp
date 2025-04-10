@@ -32,7 +32,6 @@ uint64_t miss_penalty = 0;
 
 // make mtrace message follows itrace message
 char mtrace_buffer[256] = {};
-FILE *mtarce_bin = nullptr;
 
 bool skip_ref_inst = false;
 extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
@@ -52,15 +51,9 @@ char *one_inst_str(const DisasmInst *di) {
   return buff;
 }
 
-word_t inst_buffer[4];
-word_t pc_buffer[4];
-word_t inst_type_buffer[3];
-word_t npc_buffer[2];
-
 extern "C" void ifu_record0() { get_inst++; }
-extern "C" void ifu_record1(int delay) { miss_penalty += delay; }
 
-void record_inst(int inst, int npc, int pc, int inst_type) {
+extern "C" void ifu_record1(int inst, int npc) {
   halt = inst == 0x00100073;
 
 #ifdef ITRACE
@@ -68,13 +61,13 @@ void record_inst(int inst, int npc, int pc, int inst_type) {
   if (!pc_trace) {
     pc_trace = fopen("pc_trace.bin", "wb");
     ASSERT(pc_trace, "open pc_trace.bin failed");
-    fwrite(&pc, 4, 1, pc_trace);
+    fwrite(pc, 4, 1, pc_trace);
   }
   static int follow = 0;
   if (halt) {
     fwrite(&follow, 4, 1, pc_trace);
   } else {
-    if (npc != pc + 4) {
+    if (npc != *pc + 4) {
       fwrite(&follow, 4, 1, pc_trace);
       follow = 0;
       fwrite(&npc, 4, 1, pc_trace);
@@ -84,7 +77,7 @@ void record_inst(int inst, int npc, int pc, int inst_type) {
   }
 
   int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
-  iringbuf[iringbuf_index].pc = pc;
+  iringbuf[iringbuf_index].pc = *pc;
   iringbuf[iringbuf_index].inst = inst;
   disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str),
               iringbuf[iringbuf_index].inst, (uint8_t *)&inst, 4);
@@ -104,8 +97,10 @@ void record_inst(int inst, int npc, int pc, int inst_type) {
 #endif
 
 #ifdef FTRACE
-  ftrace(pc, npc, inst);
+  ftrace(*pc, npc, inst);
 #endif
+
+  finish_one_inst = true;
 
   if (halt) {
     total_cycles -= 20;
@@ -116,15 +111,12 @@ void record_inst(int inst, int npc, int pc, int inst_type) {
   uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
   switch (inst_type) {
   case 1:
-    calc_inst += 1;
     calc_inst_cycles += spend_cycles;
     break;
   case 2:
-    ls_inst += 1;
     ls_inst_cycles += spend_cycles;
     break;
   case 4:
-    csr_inst += 1;
     csr_inst_cycles += spend_cycles;
     break;
   default:
@@ -133,42 +125,21 @@ void record_inst(int inst, int npc, int pc, int inst_type) {
   last_inst_end_cycles = total_cycles;
 }
 
-extern "C" void idu_record0(bool calc, bool ls, bool csr) {
-  inst_type_buffer[2] = inst_type_buffer[1];
-  inst_type_buffer[1] = inst_type_buffer[0];
-  inst_type_buffer[0] = (csr << 2) | (ls << 1) | calc;
+extern "C" void ifu_record2(int delay) { miss_penalty += delay; }
+
+extern "C" void idu_record(bool calc, bool ls, bool csr) {
+  calc_inst += calc;
+  ls_inst += ls;
+  csr_inst += csr;
+  inst_type = (csr << 2) | (ls << 1) | calc;
 }
 
-extern "C" void idu_record1(int inst, int pc) {
-  inst_buffer[3] = inst_buffer[2];
-  inst_buffer[2] = inst_buffer[1];
-  inst_buffer[1] = inst_buffer[0];
-  inst_buffer[0] = inst;
-
-  pc_buffer[3] = pc_buffer[2];
-  pc_buffer[2] = pc_buffer[1];
-  pc_buffer[1] = pc_buffer[0];
-  pc_buffer[0] = pc;
-}
-
-extern "C" void inst_done() { finish_one_inst = true; }
-
-extern "C" void exu_record(int npc) {
-  npc_buffer[1] = npc_buffer[0];
-  npc_buffer[0] = npc;
-  exu_done++;
-}
+extern "C" void exu_record() { exu_done++; }
 
 extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
   get_data++;
   ls_delay += delay;
 #ifdef MTRACE
-  if (!mtarce_bin) {
-    mtarce_bin = fopen("mtrace.bin", "wb");
-    ASSERT(mtarce_bin, "open mtrace.bin failed");
-  }
-  fwrite("\1", 1, 1, mtarce_bin);
-  fwrite(&addr, 4, 1, mtarce_bin);
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
             addr, data);
@@ -179,12 +150,6 @@ extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
                             word_t delay) {
   ls_delay += delay;
 #ifdef MTRACE
-  if (!mtarce_bin) {
-    mtarce_bin = fopen("mtrace.bin", "wb");
-    ASSERT(mtarce_bin, "open mtrace.bin failed");
-  }
-  fwrite("\0", 1, 1, mtarce_bin);
-  fwrite(&addr, 4, 1, mtarce_bin);
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer,
             "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
@@ -207,13 +172,13 @@ static int check_regs() {
   word_t ref_reg[REGS_NUM];
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
-  int pc = pc_buffer[3];
-  if (pc != ref_pc) {
-    std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << pc << std::endl;
+  if (*pc != ref_pc) {
+    std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
+              << std::endl;
     return -1;
   }
   for (int i = 0; i < REGS_NUM; i++) {
-    if ((ref_reg[i] != regs[i]) || (pc != ref_pc)) {
+    if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
                 << std::endl;
@@ -264,8 +229,6 @@ void cpu_exec(uint32_t num) {
     while (!finish_one_inst)
       single_cycle();
 
-    record_inst(inst_buffer[3], npc_buffer[1], pc_buffer[3],
-                inst_type_buffer[2]);
     total_insts_num++;
 
 #if defined(ITRACE) || defined(MTRACE)
@@ -290,7 +253,7 @@ void cpu_exec(uint32_t num) {
       return;
     } else if (check_wp()) {
       return;
-    } else if (check_breakpoint(pc_buffer[3])) {
+    } else if (check_breakpoint(*pc)) {
       return;
     }
   }

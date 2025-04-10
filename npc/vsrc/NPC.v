@@ -68,7 +68,6 @@ module ysyx_25010008_NPC (
   wire [31:0] pc;
   wire [31:0] npc;
   wire [2:0] npc_sel;
-  wire ifu_enable;
 
   // instruction
   wire [31:0] inst;
@@ -76,39 +75,39 @@ module ysyx_25010008_NPC (
   wire suffix_b;
   wire suffix_h;
   wire sext;
-  wire inst_valid;
+  wire ivalid;
+  wire iready;
 
-  wire decode_valid;
-  wire idu_ready;
-  wire [31:0] idu_pc;
-  wire npc_valid;
-  wire [31:0] exu_r_wdata;
+  wire dvalid;
+  wire dready;
 
   // alu
   wire [7:0] alu_opcode;
   wire [1:0] alu_operand2_sel;
   wire [31:0] alu_result;
 
+  wire evalid;
+  wire eready;
+
   // lsu
-  wire [31:0] wsrc;
   wire mem_ren, mem_wen;
-  wire block;
+  wire [31:0] mem_rdata;
+  wire done;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
   wire [31:0] src1, src2;
   wire r_wen;
-  wire [1:0] exu_r_wdata_sel;
+  wire [2:0] r_wdata_sel;
   wire [31:0] r_wdata;
   // csr
-  wire [11:0] csr_s, csr_d1;
+  wire [11:0] csr_s, csr_d1, csr_d2;
   wire [31:0] csr_src;
   wire csr_wen1, csr_wen2;
-  wire csr_wdata1_sel;
+  wire csr_wdata1_sel, csr_wdata2_sel;
   wire [31:0] csr_wdata1, csr_wdata2;
 
   wire clear_cache;
-  wire clear_pipeline;
 
   wire [31:0] araddr_0;
   wire arvalid_0;
@@ -144,106 +143,106 @@ module ysyx_25010008_NPC (
   wire [1:0] bresp_1;
   wire bvalid_1;
 
+  wire write_back = (mem_ren | mem_wen) ? done : evalid;
+
   ysyx_25010008_IFU ifu (
       .clock(clock),
       .reset(reset),
 
-      .npc_valid(npc_valid),
+      .write_back(write_back),
       .npc(npc),
-      .old_pc(pc),
+      .pc(pc),
 
-      .inst_valid(inst_valid),
-      .inst(inst),
-      .idu_ready(idu_ready),
-      .block(block),
+      .inst  (inst),
+      .ivalid(ivalid),
+      .iready(iready),
 
-      .enable (ifu_enable),
       .araddr (araddr_0),
       .arvalid(arvalid_0),
       .arready(arready_0),
 
       .rready(rready_0),
-      .rdata(rdata_0),
-      .rresp(rresp_0),
+      .rdata (rdata_0),
+      .rresp (rresp_0),
       .rvalid(rvalid_0),
-      .rlast(rlast_0),
-      .clear_cache(clear_cache),
-      .clear_pipeline(clear_pipeline)
+      .rlast (rlast_0),
+      .clear_cache(clear_cache)
   );
 
   ysyx_25010008_IDU idu (
       .clock(clock),
       .reset(reset),
 
-      .pc(pc),
-      .inst(inst),
-      .inst_valid(inst_valid),
-      .block(block),
+      .inst  (inst),
+      .ivalid(ivalid),
+      .iready(iready),
 
-      .idu_ready(idu_ready),
-      .decode_valid(decode_valid),
-      .idu_pc(idu_pc),
+      .dvalid(dvalid),
+      .dready(dready),
+
       .npc_sel(npc_sel),
 
       .imm(imm),
-      .alu_opcode(alu_opcode),
       .alu_operand2_sel(alu_operand2_sel),
 
       .suffix_b(suffix_b),
       .suffix_h(suffix_h),
       .sext(sext),
-      .mem_ren(mem_ren),
-      .mem_wen(mem_wen),
 
       .rs1(rs1),
       .rs2(rs2),
       .rd(rd),
       .r_wen(r_wen),
-      .exu_r_wdata_sel(exu_r_wdata_sel),
+      .r_wdata_sel(r_wdata_sel),
 
       .csr_s(csr_s),
       .csr_d1(csr_d1),
+      .csr_d2(csr_d2),
       .csr_wen1(csr_wen1),
       .csr_wen2(csr_wen2),
       .csr_wdata1_sel(csr_wdata1_sel),
+      .csr_wdata2_sel(csr_wdata2_sel),
 
-      .clear_cache(clear_cache),
-      .clear_pipeline(clear_pipeline)
+      .mem_ren(mem_ren),
+      .mem_wen(mem_wen),
+
+      .alu_opcode(alu_opcode),
+      .clear_cache(clear_cache)
   );
 
   ysyx_25010008_EXU exu (
       .clock(clock),
       .reset(reset),
 
-      .block(block),
+      .dvalid(dvalid),
+      .dready(dready),
 
-      .decode_valid(decode_valid),
-      .pc(idu_pc),
+      .evalid(evalid),
+      .eready(eready),
+
+      .pc(pc),
       .npc_sel(npc_sel),
 
       .imm(imm),
-
       .src1(src1),
       .src2(src2),
-      .exu_r_wdata_sel(exu_r_wdata_sel),
+      .r_wdata_sel(r_wdata_sel),
 
       .csr_src(csr_src),
       .csr_wdata1_sel(csr_wdata1_sel),
+      .csr_wdata2_sel(csr_wdata2_sel),
 
       .alu_opcode(alu_opcode),
       .alu_operand2_sel(alu_operand2_sel),
       .alu_result(alu_result),
 
-      .wsrc(wsrc),
+      .mem_rdata(mem_rdata),
 
-      .npc_valid(npc_valid),
       .npc(npc),
 
-      .exu_r_wdata(exu_r_wdata),
-      .csr_wdata1 (csr_wdata1),
-      .csr_wdata2 (csr_wdata2),
-
-      .clear_pipeline(clear_pipeline)
+      .r_wdata(r_wdata),
+      .csr_wdata1(csr_wdata1),
+      .csr_wdata2(csr_wdata2)
   );
 
   ysyx_25010008_LSU lsu (
@@ -254,14 +253,14 @@ module ysyx_25010008_NPC (
       .suffix_h(suffix_h),
       .sext(sext),
 
-      .ren(mem_ren),
-      .wen(mem_wen),
+      .ren(evalid & mem_ren),
+
+      .wen(evalid & mem_wen),
 
       .addr(alu_result),
-      .wsrc(wsrc),
-      .exu_r_wdata(exu_r_wdata),
-      .r_wdata(r_wdata),
-      .block(block),
+
+      .mem_rdata(mem_rdata),
+      .done(done),
 
       .araddr (araddr_1),
       .arsize (arsize_1),
@@ -278,6 +277,7 @@ module ysyx_25010008_NPC (
       .awvalid(awvalid_1),
       .awready(awready_1),
 
+      .wsrc  (src2),
       .wdata (wdata_1),
       .wstrb (wstrb_1),
       .wvalid(wvalid_1),
@@ -292,17 +292,17 @@ module ysyx_25010008_NPC (
       .clock(clock),
       .reset(reset),
 
-      .block(block),
-
       .rs1(rs1),
       .rs2(rs2),
       .rd (rd),
 
-      .wen  (r_wen),
+      .write_back(write_back),
+      .wen(r_wen),
       .wdata(r_wdata),
 
       .csr_s (csr_s),
       .csr_d1(csr_d1),
+      .csr_d2(csr_d2),
 
       .csr_wen1  (csr_wen1),
       .csr_wdata1(csr_wdata1),
@@ -319,10 +319,9 @@ module ysyx_25010008_NPC (
       .clock(clock),
       .reset(reset),
 
-      .ifu_enable(ifu_enable),
-      .araddr_0  (araddr_0),
-      .arvalid_0 (arvalid_0),
-      .arready_0 (arready_0),
+      .araddr_0 (araddr_0),
+      .arvalid_0(arvalid_0),
+      .arready_0(arready_0),
 
       .rready_0(rready_0),
       .rdata_0 (rdata_0),
@@ -330,11 +329,10 @@ module ysyx_25010008_NPC (
       .rvalid_0(rvalid_0),
       .rlast_0 (rlast_0),
 
-      .lsu_enable(block),
-      .araddr_1  (araddr_1),
-      .arsize_1  (arsize_1),
-      .arvalid_1 (arvalid_1),
-      .arready_1 (arready_1),
+      .araddr_1 (araddr_1),
+      .arsize_1 (arsize_1),
+      .arvalid_1(arvalid_1),
+      .arready_1(arready_1),
 
       .rready_1(rready_1),
       .rdata_1 (rdata_1),

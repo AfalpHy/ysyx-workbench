@@ -25,24 +25,13 @@ int tag_right_range;
 int index_left_range;
 int index_right_range;
 int fetch_success = 0;
-int total_fetch = 0;
+int total_inst = 0;
 
-cache_block *get_cache_block(vaddr_t addr) {
-  word_t tag = BITS(addr, 31, tag_right_range);
-  word_t index = BITS(addr, index_left_range, index_right_range);
-  for (auto &tmp : icache[index]) {
-    if (tmp.valid && tmp.tag == tag) {
-      return &tmp;
-    }
+void vaddr_ifetch(vaddr_t addr) {
+  total_inst++;
+  if (BITS(addr, 31, 24) == 0x0f) {
+    return;
   }
-  return nullptr;
-}
-
-void cache_fetch(vaddr_t addr) {
-  total_fetch++;
-  // if (BITS(addr, 31, 24) == 0x0f) {
-  //   return;
-  // }
 
   word_t tag = BITS(addr, 31, tag_right_range);
   word_t index = BITS(addr, index_left_range, index_right_range);
@@ -87,7 +76,6 @@ int main(int argc, char **argv) {
   options["len"] = {"set cache block data length", 4};
   options["group"] = {
       "set cache block group size, should be factor of cache size", 16};
-  options["mem"] = {"set memory sim mode", 0};
   stringstream help_info;
   help_info << "Usage:\n"
             << argv[0] << " [options] file\n"
@@ -134,33 +122,17 @@ int main(int argc, char **argv) {
   cout << "index range:[" << index_left_range << "," << index_right_range << "]"
        << endl;
 
-  bool mem_mode = options["mem"].second;
   while (!file.eof()) {
-    if (mem_mode) {
-      int read = 0;
-      vaddr_t addr;
-      file.read((char *)&read, 1);
-      file.read((char *)&addr, 4);
-
-      if (read) {
-        cache_fetch(addr);
-      } else {
-        if (auto tmp = get_cache_block(addr)) {
-          tmp->valid = 0;
-        }
-      }
-    } else {
-      vaddr_t pc;
-      int follow;
-      file.read((char *)&pc, 4);
-      file.read((char *)&follow, 4);
-      while (follow-- >= 0) {
-        cache_fetch(pc);
-        pc += 4;
-      }
+    vaddr_t pc;
+    int follow;
+    file.read((char *)&pc, 4);
+    file.read((char *)&follow, 4);
+    while (follow-- >= 0) {
+      vaddr_ifetch(pc);
+      pc += 4;
     }
   }
   cout << "fetch_success:" << fetch_success << endl;
-  cout << "total fetch:" << total_fetch << endl;
+  cout << "total instructions:" << total_inst << endl;
   return 0;
 }

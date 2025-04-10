@@ -1,38 +1,40 @@
-import "DPI-C" function void exu_record(int npc);
+import "DPI-C" function void exu_record();
 
 module ysyx_25010008_EXU (
     input clock,
     input reset,
 
-    input block,
+    input dvalid,
+    output reg dready,
 
-    input decode_valid,
+    output reg evalid,
+    input eready,
+
     input [31:0] pc,
-    input [2:0] npc_sel,
+    input [ 2:0] npc_sel,
 
     input [31:0] imm,
 
     input [31:0] src1,
     input [31:0] src2,
-    input [ 1:0] exu_r_wdata_sel,
+    input [ 2:0] r_wdata_sel,
 
     input [31:0] csr_src,
     input csr_wdata1_sel,
+    input csr_wdata2_sel,
 
-    input  [ 7:0] alu_opcode,
-    input  [ 1:0] alu_operand2_sel,
-    output [31:0] alu_result,
+    input [7:0] alu_opcode,
+    input [1:0] alu_operand2_sel,
 
-    output reg [31:0] wsrc,
+    input [31:0] mem_rdata,
 
-    output reg npc_valid,
     output [31:0] npc,
 
-    output [31:0] exu_r_wdata,
-    output reg [31:0] csr_wdata1,
-    output reg [31:0] csr_wdata2,
+    output [31:0] alu_result,
 
-    output clear_pipeline
+    output [31:0] r_wdata,
+    output [31:0] csr_wdata1,
+    output [31:0] csr_wdata2
 );
 
   reg [ 7:0] opcode;
@@ -49,13 +51,15 @@ module ysyx_25010008_EXU (
       .result  (alu_result)
   );
 
-  reg [2:0] npc_sel_buffer;
-
-  reg [1:0] exu_r_wdata_sel_buffer;
-  reg csr_wdata1_sel_buffer;
-
-  reg [31:0] csr_wdata2_buffer;
-  reg [31:0] csr_src_buffer;
+  function [31:0] sel_alu_operand2(input [1:0] alu_operand2_sel, input [31:0] src2,
+                                   input [31:0] imm, input [31:0] csr_src);
+    case (alu_operand2_sel)
+      2'b00:   sel_alu_operand2 = src2;
+      2'b01:   sel_alu_operand2 = imm;  // most I_type inst
+      2'b10:   sel_alu_operand2 = csr_src;  // csrrs or csrrc
+      default: sel_alu_operand2 = 0;
+    endcase
+  endfunction
 
   function [31:0] sel_npc(input [2:0] npc_sel, input [31:0] snpc, input [31:0] dnpc,
                           input [31:0] alu_result, input [31:0] csr_src);
@@ -69,52 +73,46 @@ module ysyx_25010008_EXU (
     endcase
   endfunction
 
-  assign npc = sel_npc(npc_sel_buffer, snpc, dnpc, alu_result, csr_src_buffer);
+  assign npc = sel_npc(npc_sel, snpc, dnpc, alu_result, csr_src);
 
-  function [31:0] sel_exu_r_wdata(input [1:0] exu_r_wdata_sel, input [31:0] alu_result,
-                                  input [31:0] snpc, input [31:0] dnpc, input [31:0] csr_src);
-    case (exu_r_wdata_sel)
-      2'b00: sel_exu_r_wdata = alu_result;
-      2'b01: sel_exu_r_wdata = snpc;  // jal jalr
-      2'b10: sel_exu_r_wdata = dnpc;  // auipc 
-      2'b11: sel_exu_r_wdata = csr_src;  // csrrw csrrs csrrc
+  function [31:0] sel_r_wdata(input [2:0] r_wdata_sel, input [31:0] alu_result, input [31:0] snpc,
+                              input [31:0] dnpc, input [31:0] mem_rdata, input [31:0] csr_src);
+    case (r_wdata_sel)
+      3'b000:  sel_r_wdata = alu_result;
+      3'b001:  sel_r_wdata = snpc;  // jal jalr
+      3'b010:  sel_r_wdata = dnpc;  // auipc 
+      3'b011:  sel_r_wdata = mem_rdata;  // load
+      3'b100:  sel_r_wdata = csr_src;  // csrrw csrrs csrrc
+      default: sel_r_wdata = 0;
     endcase
   endfunction
 
-  assign exu_r_wdata = sel_exu_r_wdata(
-      exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src_buffer
-  );
+  assign r_wdata = sel_r_wdata(r_wdata_sel, alu_result, snpc, dnpc, mem_rdata, csr_src);
 
-  assign clear_pipeline = npc_valid && npc != snpc;
+  assign csr_wdata1 = csr_wdata1_sel ? 32'd11 // csrrw csrrs csrrc 
+                                     : alu_result; // ecall
+
+  assign csr_wdata2 = csr_wdata2_sel ? pc // ecall 
+                                     : 0; // not used
 
   always @(posedge clock) begin
     if (reset) begin
-      npc_valid <= 0;
-    end else if (!block) begin
-      if (!clear_pipeline & decode_valid) begin
-        npc_valid <= 1;
-      end else begin
-        npc_valid <= 0;
+      dready <= 1;
+      evalid <= 0;
+    end else begin
+      if (dvalid & dready) begin
+        exu_record();
+        opcode <= alu_opcode;
+        operand1 <= src1;
+        operand2 <= sel_alu_operand2(alu_operand2_sel, src2, imm, csr_src);
+        snpc <= pc + 4;
+        dnpc <= pc + imm;
+        evalid <= 1;
+        dready <= 0;
+      end else if (evalid) begin
+        evalid <= 0;
+        dready <= 1;
       end
-
-      opcode <= alu_opcode;
-      operand1 <= src1;
-      operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src : src2;
-      snpc <= pc + 4;
-      dnpc <= pc + imm;
-
-      wsrc <= src2;
-
-      npc_sel_buffer <= npc_sel;
-
-      csr_src_buffer <= csr_src;
-      exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
-      csr_wdata1_sel_buffer <= csr_wdata1_sel;
-      csr_wdata1 <= csr_wdata1_sel_buffer ? 32'd11 : alu_result;
-      csr_wdata2_buffer <= pc;
-      csr_wdata2 <= csr_wdata2_buffer;
-
-      exu_record(npc);
     end
   end
 
