@@ -85,7 +85,7 @@ module ysyx_25010008_EXU (
       exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src_buffer
   );
 
-  assign clear_pipeline = npc_valid && npc != snpc;
+  assign clear_pipeline = npc_valid && npc_sel_buffer != 0;
 
   always @(posedge clock) begin
     if (reset) begin
