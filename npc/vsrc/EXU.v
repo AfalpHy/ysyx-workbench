@@ -110,9 +110,7 @@ module ysyx_25010008_EXU (
       csr_wdata2_buffer <= pc;
       csr_wdata2 <= csr_wdata2_buffer;
 
-      if (npc_valid) begin
-        exu_record(npc);
-      end
+      exu_record(npc);
     end
   end
 
