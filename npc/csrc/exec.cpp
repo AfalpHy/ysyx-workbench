@@ -35,7 +35,10 @@ char mtrace_buffer[256] = {};
 FILE *mtarce_bin = nullptr;
 
 bool skip_ref_inst = false;
-extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
+extern "C" void set_skip_ref_inst() {
+  skip_ref_inst = true;
+  printf("skip\n");
+}
 
 typedef struct {
   paddr_t pc;
