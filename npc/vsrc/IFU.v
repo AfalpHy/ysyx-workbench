@@ -100,7 +100,7 @@ module ysyx_25010008_IFU (
             ifu_record0();
           end else begin
             // avoid invalid memory access
-            if (pc == 32'h3000_0000 || pc == npc || update_pc) begin
+            if (pc == 32'h3000_0000 || (npc_valid && pc == npc) || update_pc) begin
               state <= READ_MEMORY;
               arvalid <= 1;
               update_pc <= 0;
