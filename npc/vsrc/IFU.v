@@ -23,7 +23,6 @@ module ysyx_25010008_IFU (
 
     input npc_valid,
     input [31:0] npc,
-    input [31:0] snpc,
     output reg [31:0] old_pc,
 
     output reg inst_valid,
