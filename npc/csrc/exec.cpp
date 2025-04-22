@@ -279,7 +279,7 @@ void cpu_exec(uint32_t num) {
 
     if (diff_test_on) {
       if (skip_ref_inst) {
-        ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
+        ref_difftest_regcpy(regs, &npc_buffer[1], DIFFTEST_TO_REF);
         skip_ref_inst = false;
       } else {
         ref_difftest_exec(1);
