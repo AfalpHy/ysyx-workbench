@@ -70,8 +70,6 @@ module ysyx_25010008_IFU (
   assign enable = state;
 
   reg update_pc;
-  reg npc_valid_q;
-  reg [31:0] npc_q;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -86,8 +84,6 @@ module ysyx_25010008_IFU (
       state <= READ_CACHE;
       update_pc <= 0;
     end else begin
-      npc_valid_q <= npc_valid;
-      npc_q <= npc;
       if (clear_pipeline) begin
         pc <= npc;
         update_pc <= 1;
@@ -104,7 +100,7 @@ module ysyx_25010008_IFU (
             ifu_record0();
           end else begin
             // avoid invalid memory access
-            if (pc == 32'h3000_0000 || (npc_valid_q && pc == npc_q) || update_pc) begin
+            if (pc == 32'h3000_0000 || (npc_valid && pc == old_pc + 4) || update_pc) begin
               state <= READ_MEMORY;
               arvalid <= 1;
               update_pc <= 0;
