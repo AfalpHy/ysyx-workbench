@@ -69,6 +69,8 @@ module ysyx_25010008_IFU (
 
   assign enable = state;
 
+  reg new_pc;
+
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) begin
@@ -79,10 +81,12 @@ module ysyx_25010008_IFU (
       rready <= 0;
       inst_valid <= 0;
       delay = 0;
-      state <= READ_CACHE;
+      state  <= READ_CACHE;
+      new_pc <= 0;
     end else begin
       if (clear_pipeline) begin
         pc <= npc;
+        new_pc <= 1;
         inst_valid <= 0;
       end else begin
         if (state == READ_CACHE & !block & idu_ready) begin
@@ -92,12 +96,14 @@ module ysyx_25010008_IFU (
             inst_valid <= 1;
             old_pc <= pc;
             pc <= pc + 4;
+            new_pc <= 0;
             ifu_record0();
           end else begin
             // avoid invalid memory access
-            if (pc == 32'h3000_0000 || pc == npc) begin
+            if (pc == 32'h3000_0000 || pc == npc || new_pc) begin
               state   <= READ_MEMORY;
               arvalid <= 1;
+              new_pc  <= 0;
             end
             inst_valid <= 0;
           end
