@@ -27,7 +27,6 @@ module ysyx_25010008_EXU (
 
     output reg npc_valid,
     output [31:0] npc,
-    output reg [31:0] snpc,
 
     output [31:0] exu_r_wdata,
     output reg [31:0] csr_wdata1,
@@ -40,6 +39,7 @@ module ysyx_25010008_EXU (
   reg [31:0] operand1;
   reg [31:0] operand2;
 
+  reg [31:0] snpc;
   reg [31:0] dnpc;
 
   ysyx_25010008_ALU alu (
