@@ -61,6 +61,11 @@ int miss_time = 0;
 extern "C" void ifu_record0() { get_inst++; }
 extern "C" void ifu_record1(int delay) {
   miss_time++;
+  static FILE *fetchpc = nullptr;
+  if (fetchpc == nullptr) {
+    fetchpc = fopen("fetchpc.txt", "w");
+  }
+  fprintf(fetchpc, "%x %d\n", *pc, delay);
   miss_penalty += delay;
 }
 
