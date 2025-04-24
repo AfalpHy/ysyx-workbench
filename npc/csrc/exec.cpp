@@ -57,8 +57,12 @@ word_t pc_buffer[4];
 word_t inst_type_buffer[3];
 word_t npc_buffer[2];
 
+int miss_time = 0;
 extern "C" void ifu_record0() { get_inst++; }
-extern "C" void ifu_record1(int delay) { miss_penalty += delay; }
+extern "C" void ifu_record1(int delay) {
+  miss_time++;
+  miss_penalty += delay;
+}
 
 void record_inst(int inst, int npc, int pc, int inst_type) {
   halt = inst == 0x00100073;
