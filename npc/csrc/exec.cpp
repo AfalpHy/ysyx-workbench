@@ -207,7 +207,7 @@ static int check_regs() {
   word_t ref_reg[REGS_NUM];
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
-  int pc = npc_buffer[1];
+  int pc = pc_buffer[3];
   if (pc != ref_pc) {
     std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << pc << std::endl;
     return -1;
@@ -276,7 +276,7 @@ void cpu_exec(uint32_t num) {
 
     if (diff_test_on) {
       if (skip_ref_inst) {
-        ref_difftest_regcpy(regs, &npc_buffer[1], DIFFTEST_TO_REF);
+        ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
         skip_ref_inst = false;
       } else {
         ref_difftest_exec(1);
