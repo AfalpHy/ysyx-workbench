@@ -52,7 +52,7 @@ module ysyx_25010008_IFU (
 
   reg [31:0] pc;
 
-  reg [`TAG_WIDTH + `DATA_WIDTH : 0] cache[0 : `CACHE_SIZE - 1];
+  reg [`CACHE_WIDTH - 1 : 0] cache[0 : `CACHE_SIZE - 1];
 
   integer i, delay;
 
@@ -61,20 +61,20 @@ module ysyx_25010008_IFU (
 
   reg state;
   wire [`N-1:0] index = pc[`PC_INDEX_RANGE];
-  wire [`TAG_WIDTH-1:0] pc_tag = pc[`PC_TAG_RANGE];
   wire [`CACHE_WIDTH-1:0] cache_block = cache[index];
   wire cache_valid = cache_block[`VALID_POS];
   wire [`TAG_WIDTH-1:0] cache_tag = cache_block[`CACHE_TAG_RANGE];
+  wire [`TAG_WIDTH-1:0] pc_tag = pc[`PC_TAG_RANGE];
 
   assign araddr = {pc[31 : `M], 1'b0, pc[`M-2 : 0]};
 
   assign enable = state;
 
-  reg update_pc;
+  reg pipeline_empty;
 
   always @(posedge clock) begin
     if (reset) begin
-      for (i = 0; i < 16; i = i + 1) begin
+      for (i = 0; i < `CACHE_SIZE; i = i + 1) begin
         cache[i][`VALID_POS] <= 0;
       end
       pc <= 32'h3000_0000;
@@ -83,36 +83,43 @@ module ysyx_25010008_IFU (
       inst_valid <= 0;
       delay = 0;
       state <= READ_CACHE;
-      update_pc <= 1;
+      pipeline_empty <= 1;
     end else begin
       if (clear_pipeline) begin
         pc <= npc;
-        update_pc <= 1;
         inst_valid <= 0;
+        pipeline_empty <= 1;
       end else begin
         if (state == READ_CACHE & !block & idu_ready) begin
           // sram don't need cache
-          if (pc[31:24] != 8'h0f && cache_valid && cache_tag == pc_tag) begin
-            inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
-            inst_valid <= 1;
-            old_pc <= pc;
-            pc <= pc + 4;
-            update_pc <= 0;
-            ifu_record0();
-          end else begin
-            // avoid invalid memory access
-            if ((npc_valid && pc == snpc) || update_pc) begin
-              state <= READ_MEMORY;
-              arvalid <= 1;
-              update_pc <= 0;
-            end
+          if (pc[31:24] == 8'h0f) begin
+            state <= READ_MEMORY;
+            arvalid <= 1;
             inst_valid <= 0;
+          end else begin
+            if (cache_valid && cache_tag == pc_tag) begin
+              inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
+              inst_valid <= 1;
+              old_pc <= pc;
+              pc <= pc + 4;
+              pipeline_empty <= 0;
+              ifu_record0();
+            end else begin
+              // avoid invalid memory access
+              if (pipeline_empty || (npc_valid && pc == snpc)) begin
+                state   <= READ_MEMORY;
+                arvalid <= 1;
+              end
+              inst_valid <= 0;
+            end
           end
         end
       end
 
       if (state == READ_MEMORY) begin
+
         delay = delay + 1;
+
         if (arvalid & arready) begin
           arvalid <= 0;
           rready  <= 1;
@@ -125,9 +132,12 @@ module ysyx_25010008_IFU (
             if (pc[2]) inst <= rdata;
             if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
             inst_valid <= 1;
+            pipeline_empty <= 0;
+
             old_pc <= pc;
             pc <= pc + 4;
             state <= READ_CACHE;
+
             ifu_record1(delay);
             delay = 0;
           end else begin
