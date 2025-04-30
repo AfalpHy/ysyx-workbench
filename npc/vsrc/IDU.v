@@ -161,8 +161,8 @@ module ysyx_25010008_IDU (
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
 
-  assign alu_operand1_sel[0] = inst[19:15] == rd_buffer;
-  assign alu_operand1_sel[1] = inst[19:15] == rd;
+  assign alu_operand1_sel[0] = inst_q[19:15] == rd_buffer;
+  assign alu_operand1_sel[1] = inst_q[19:15] == rd;
 
   assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
   assign alu_operand2_sel[1] = CSRRS | CSRRC;
