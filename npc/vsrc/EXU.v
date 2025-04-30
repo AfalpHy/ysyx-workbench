@@ -104,7 +104,7 @@ module ysyx_25010008_EXU (
 
       operand2 <= alu_operand2_sel[0] ? imm :
                   alu_operand2_sel[1] ? csr_src :
-                  alu_operand2_sel[2] ? alu_result :
+                  alu_operand2_sel[2] ? exu_r_wdata :
                   alu_operand2_sel[3] ? forward_data : src2;
 
       snpc <= pc + 4;
