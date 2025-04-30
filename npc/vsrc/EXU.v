@@ -100,7 +100,7 @@ module ysyx_25010008_EXU (
       end
 
       opcode <= alu_opcode;
-      operand1 <= alu_operand1_sel[0] ? alu_result : alu_operand1_sel[1] ? forward_data : src1;
+      operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
 
       operand2 <= alu_operand2_sel[0] ? imm :
                   alu_operand2_sel[1] ? csr_src :
@@ -110,7 +110,7 @@ module ysyx_25010008_EXU (
       snpc <= pc + 4;
       dnpc <= pc + imm;
 
-      wsrc <= alu_operand2_sel[2] ? alu_result : alu_operand2_sel[3] ? forward_data : src2;
+      wsrc <= alu_operand2_sel[2] ? exu_r_wdata : alu_operand2_sel[3] ? forward_data : src2;
 
       npc_sel_buffer <= npc_sel;
 
