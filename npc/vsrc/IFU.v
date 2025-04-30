@@ -101,10 +101,9 @@ module ysyx_25010008_IFU (
             ifu_record0();
           end else begin
             // avoid invalid memory access
-            if (pipeline_empty || pc[31:24] == 8'h0f || (npc_valid && pc == snpc)) begin
-              state <= READ_MEMORY;
+            if (pipeline_empty || (npc_valid && pc == snpc)) begin
+              state   <= READ_MEMORY;
               arvalid <= 1;
-              pipeline_empty <= 0;
             end
             inst_valid <= 0;
           end
@@ -123,13 +122,11 @@ module ysyx_25010008_IFU (
             rready <= 0;
             // updata inst if pc[2] is high
             if (pc[2]) inst <= rdata;
-            if (!pipeline_empty) begin
-              if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
-              inst_valid <= 1;
-              old_pc <= pc;
-              pc <= pc + 4;
-            end
-
+            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
+            inst_valid <= 1;
+            old_pc <= pc;
+            pc <= pc + 4;
+            pipeline_empty <= 0;
             state <= READ_CACHE;
 
             ifu_record1(delay);
