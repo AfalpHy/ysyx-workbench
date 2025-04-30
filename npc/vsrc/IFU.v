@@ -3,7 +3,7 @@ import "DPI-C" function void ifu_record0();
 import "DPI-C" function void ifu_record1(int delay);
 
 `define M 3 
-`define N 3
+`define N 4
 `define DATA_WIDTH (2 ** `M) * 8
 `define TAG_WIDTH 32 - (`M + `N) 
 `define CACHE_WIDTH `TAG_WIDTH + `DATA_WIDTH + 1
@@ -92,34 +92,26 @@ module ysyx_25010008_IFU (
       end else begin
         if (state == READ_CACHE & !block & idu_ready) begin
           // sram don't need cache
-          if (pc[31:24] == 8'h0f) begin
-            state <= READ_MEMORY;
-            arvalid <= 1;
-            inst_valid <= 0;
+          if (pc[31:24] != 8'h0f && cache_valid && cache_tag == pc_tag) begin
+            inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
+            inst_valid <= 1;
+            old_pc <= pc;
+            pc <= pc + 4;
+            pipeline_empty <= 0;
+            ifu_record0();
           end else begin
-            if (cache_valid && cache_tag == pc_tag) begin
-              inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
-              inst_valid <= 1;
-              old_pc <= pc;
-              pc <= pc + 4;
-              pipeline_empty <= 0;
-              ifu_record0();
-            end else begin
-              // avoid invalid memory access
-              if (pipeline_empty || (npc_valid && pc == snpc)) begin
-                state   <= READ_MEMORY;
-                arvalid <= 1;
-              end
-              inst_valid <= 0;
+            // avoid invalid memory access
+            if (pipeline_empty || pc[31:24] == 8'h0f || (npc_valid && pc == snpc)) begin
+              state   <= READ_MEMORY;
+              arvalid <= 1;
             end
+            inst_valid <= 0;
           end
         end
       end
 
       if (state == READ_MEMORY) begin
-
         delay = delay + 1;
-
         if (arvalid & arready) begin
           arvalid <= 0;
           rready  <= 1;
