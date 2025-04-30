@@ -131,7 +131,7 @@ module ysyx_25010008_IFU (
             // updata inst if pc[2] is high
             if (pc[2]) inst <= rdata;
             if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
-            inst_valid <= 1;
+            if (!pipeline_empty) inst_valid <= 1;
             pipeline_empty <= 0;
 
             old_pc <= pc;
