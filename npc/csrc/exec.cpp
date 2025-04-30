@@ -194,7 +194,7 @@ extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
             "\n",
             addr, data, mask);
   if (addr == 0x0f001f9c) {
-    printf("%x\n", data);
+    printf("%x %d\n", data, mask);
   }
 #endif
 }
