@@ -27,7 +27,8 @@ module ysyx_25010008_IDU (
 
     output [31:0] imm,
     output [7:0] alu_opcode,
-    output [1:0] alu_operand2_sel,
+    output [1:0] alu_operand1_sel,
+    output [3:0] alu_operand2_sel,
 
     output reg suffix_b,
     output reg suffix_h,
@@ -159,8 +160,14 @@ module ysyx_25010008_IDU (
   wire [31:0] S_imm = S_type ? {{20{inst_q[31]}}, inst_q[31:25], inst_q[11:7]} : 0;
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
+
+  assign alu_operand1_sel[0] = inst[19:15] == rd_buffer;
+  assign alu_operand1_sel[1] = inst[19:15] == rd;
+
   assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
   assign alu_operand2_sel[1] = CSRRS | CSRRC;
+  assign alu_operand2_sel[2] = inst_q[24:20] == rd_buffer;
+  assign alu_operand2_sel[3] = inst_q[24:20] == rd; 
 
   assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
   assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
@@ -188,7 +195,7 @@ module ysyx_25010008_IDU (
 
   wire [4:0] rs1_tmp = inst[19:15];
   wire [4:0] rs2_tmp = inst[24:20];
-  assign idu_ready = !inst_valid | ((rs1_tmp == 0 | (rs1_tmp != inst_q[11:7] && rs1_tmp != rd_buffer)) && (rs2_tmp == 0 | (rs2_tmp != inst_q[11:7] && rs2_tmp != rd_buffer)));
+  assign idu_ready = !load | (rs1_tmp != inst_q[11:7] && rs2_tmp != inst_q[11:7]);
 
   reg [2:0] done;
   //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
