@@ -57,17 +57,8 @@ word_t pc_buffer[4];
 word_t inst_type_buffer[3];
 word_t npc_buffer[2];
 
-int miss_time = 0;
 extern "C" void ifu_record0() { get_inst++; }
-extern "C" void ifu_record1(int delay) {
-  miss_time++;
-  static FILE *fetchpc = nullptr;
-  if (fetchpc == nullptr) {
-    fetchpc = fopen("fetchpc.txt", "w");
-  }
-  fprintf(fetchpc, "%x %d\n", *pc, delay);
-  miss_penalty += delay;
-}
+extern "C" void ifu_record1(int delay) { miss_penalty += delay; }
 
 void record_inst(int inst, int npc, int pc, int inst_type) {
   halt = inst == 0x00100073;
@@ -216,7 +207,7 @@ static int check_regs() {
   word_t ref_reg[REGS_NUM];
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
-  int pc = pc_buffer[3];
+  int pc = npc_buffer[1];
   if (pc != ref_pc) {
     std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << pc << std::endl;
     return -1;
@@ -285,7 +276,7 @@ void cpu_exec(uint32_t num) {
 
     if (diff_test_on) {
       if (skip_ref_inst) {
-        ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
+        ref_difftest_regcpy(regs, &npc_buffer[1], DIFFTEST_TO_REF);
         skip_ref_inst = false;
       } else {
         ref_difftest_exec(1);

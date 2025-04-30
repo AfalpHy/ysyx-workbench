@@ -48,10 +48,10 @@ void init_uart() {
 
 void display_id() {
   uint32_t id = 0;
-  asm volatile("csrr  %0, mvendorid" : "=r"(id));
-  printf("ysyx ascii:%x\n", id);
   asm volatile("csrr %0, marchid" : "=r"(id));
   *(volatile int *)(GPIO_BASE + GPIO_SEG) = id;
+  asm volatile("csrr  %0, mvendorid" : "=r"(id));
+  printf("ysyx ascii:%x\n", id);
 }
 
 void login() {

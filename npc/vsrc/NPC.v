@@ -67,6 +67,7 @@ module ysyx_25010008_NPC (
   // pc
   wire [31:0] pc;
   wire [31:0] npc;
+  wire [31:0] snpc;
   wire [2:0] npc_sel;
   wire ifu_enable;
 
@@ -150,6 +151,7 @@ module ysyx_25010008_NPC (
 
       .npc_valid(npc_valid),
       .npc(npc),
+      .snpc(snpc),
       .old_pc(pc),
 
       .inst_valid(inst_valid),
@@ -238,6 +240,7 @@ module ysyx_25010008_NPC (
 
       .npc_valid(npc_valid),
       .npc(npc),
+      .snpc(snpc),
 
       .exu_r_wdata(exu_r_wdata),
       .csr_wdata1 (csr_wdata1),

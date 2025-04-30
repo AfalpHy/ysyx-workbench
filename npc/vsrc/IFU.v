@@ -23,6 +23,7 @@ module ysyx_25010008_IFU (
 
     input npc_valid,
     input [31:0] npc,
+    input [31:0] snpc,
     output reg [31:0] old_pc,
 
     output reg inst_valid,
@@ -69,7 +70,7 @@ module ysyx_25010008_IFU (
 
   assign enable = state;
 
-  reg discard;
+  reg update_pc;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -81,26 +82,30 @@ module ysyx_25010008_IFU (
       rready <= 0;
       inst_valid <= 0;
       delay = 0;
-      state   <= READ_CACHE;
-      discard <= 0;
+      state <= READ_CACHE;
+      update_pc <= 1;
     end else begin
       if (clear_pipeline) begin
-        discard <= 1;
         pc <= npc;
+        update_pc <= 1;
         inst_valid <= 0;
       end else begin
         if (state == READ_CACHE & !block & idu_ready) begin
-          discard <= 0;
           // sram don't need cache
           if (pc[31:24] != 8'h0f && cache_valid && cache_tag == pc_tag) begin
             inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
             old_pc <= pc;
             pc <= pc + 4;
+            update_pc <= 0;
             ifu_record0();
           end else begin
-            state <= READ_MEMORY;
-            arvalid <= 1;
+            // avoid invalid memory access
+            if ((npc_valid && pc == snpc) || update_pc) begin
+              state <= READ_MEMORY;
+              arvalid <= 1;
+              update_pc <= 0;
+            end
             inst_valid <= 0;
           end
         end
@@ -116,16 +121,13 @@ module ysyx_25010008_IFU (
         if (rready & rvalid) begin
           if (rlast) begin
             rready <= 0;
-            if (!discard) begin
-              // updata inst if pc[2] is high
-              if (pc[2]) inst <= rdata;
-              if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
-              inst_valid <= 1;
-              old_pc <= pc;
-              pc <= pc + 4;
-            end
-            discard <= 0;
-            state   <= READ_CACHE;
+            // updata inst if pc[2] is high
+            if (pc[2]) inst <= rdata;
+            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
+            inst_valid <= 1;
+            old_pc <= pc;
+            pc <= pc + 4;
+            state <= READ_CACHE;
             ifu_record1(delay);
             delay = 0;
           end else begin
