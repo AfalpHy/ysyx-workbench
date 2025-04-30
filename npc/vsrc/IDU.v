@@ -271,7 +271,7 @@ module ysyx_25010008_IDU (
       end
 
       // clear or not, it doesn't matter
-      rd_buffer <= inst_q[11:7];
+      rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
       csr_d1_buffer <= ECALL ? 12'h342 : inst_q[31:20];
 
       // first inst in pipeline always continue
