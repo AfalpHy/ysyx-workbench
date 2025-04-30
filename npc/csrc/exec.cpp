@@ -172,6 +172,9 @@ extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
   if (total_insts_num < 10000)
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
             addr, data);
+  if (addr == 0x0f001f9c) {
+    printf("%x\n", data);
+  }
 #endif
 }
 
@@ -190,6 +193,9 @@ extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
             "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
             "\n",
             addr, data, mask);
+  if (addr == 0x0f001f9c) {
+    printf("%x\n", data);
+  }
 #endif
 }
 
