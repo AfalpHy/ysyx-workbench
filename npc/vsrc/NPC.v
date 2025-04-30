@@ -87,7 +87,8 @@ module ysyx_25010008_NPC (
 
   // alu
   wire [7:0] alu_opcode;
-  wire [1:0] alu_operand2_sel;
+  wire [1:0] alu_operand1_sel;
+  wire [3:0] alu_operand2_sel;
   wire [31:0] alu_result;
 
   // lsu
@@ -189,6 +190,7 @@ module ysyx_25010008_NPC (
 
       .imm(imm),
       .alu_opcode(alu_opcode),
+      .alu_operand1_sel(alu_operand1_sel),
       .alu_operand2_sel(alu_operand2_sel),
 
       .suffix_b(suffix_b),
@@ -233,9 +235,11 @@ module ysyx_25010008_NPC (
       .csr_wdata1_sel(csr_wdata1_sel),
 
       .alu_opcode(alu_opcode),
+      .alu_operand1_sel(alu_operand1_sel),
       .alu_operand2_sel(alu_operand2_sel),
       .alu_result(alu_result),
 
+      .forward_data(r_wdata),
       .wsrc(wsrc),
 
       .npc_valid(npc_valid),

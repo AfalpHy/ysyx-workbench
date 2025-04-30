@@ -20,9 +20,11 @@ module ysyx_25010008_EXU (
     input csr_wdata1_sel,
 
     input  [ 7:0] alu_opcode,
-    input  [ 1:0] alu_operand2_sel,
+    input  [ 1:0] alu_operand1_sel,
+    input  [ 3:0] alu_operand2_sel,
     output [31:0] alu_result,
 
+    input [31:0] forward_data,
     output reg [31:0] wsrc,
 
     output reg npc_valid,
@@ -98,12 +100,17 @@ module ysyx_25010008_EXU (
       end
 
       opcode <= alu_opcode;
-      operand1 <= src1;
-      operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src : src2;
+      operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
+
+      operand2 <= alu_operand2_sel[0] ? imm :
+                  alu_operand2_sel[1] ? csr_src :
+                  alu_operand2_sel[2] ? exu_r_wdata :
+                  alu_operand2_sel[3] ? forward_data : src2;
+
       snpc <= pc + 4;
       dnpc <= pc + imm;
 
-      wsrc <= src2;
+      wsrc <= alu_operand2_sel[2] ? exu_r_wdata : alu_operand2_sel[3] ? forward_data : src2;
 
       npc_sel_buffer <= npc_sel;
 
