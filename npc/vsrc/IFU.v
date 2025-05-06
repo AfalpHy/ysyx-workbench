@@ -1,9 +1,9 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
-import "DPI-C" function void ifu_record0();
+import "DPI-C" function void ifu_record0(int inc);
 import "DPI-C" function void ifu_record1(int delay);
 
-`define M 3 
-`define N 4
+`define M 4 
+`define N 2
 `define DATA_WIDTH (2 ** `M) * 8
 `define TAG_WIDTH 32 - (`M + `N) 
 `define CACHE_WIDTH `TAG_WIDTH + `DATA_WIDTH + 1
@@ -34,6 +34,7 @@ module ysyx_25010008_IFU (
     output enable,
     output reg [31:0] araddr,
     output reg arvalid,
+    output reg [7:0] arlen,
     input arready,
 
     output reg rready,
@@ -66,7 +67,7 @@ module ysyx_25010008_IFU (
   wire [`TAG_WIDTH-1:0] cache_tag = cache_block[`CACHE_TAG_RANGE];
   wire [`TAG_WIDTH-1:0] pc_tag = pc[`PC_TAG_RANGE];
 
-  assign araddr = {pc[31 : `M], 1'b0, pc[`M-2 : 0]};
+  wire is_sram = pc[31:24] == 8'h0f;
 
   assign enable = state;
 
@@ -92,17 +93,24 @@ module ysyx_25010008_IFU (
       end else begin
         if (state == READ_CACHE & !block & idu_ready) begin
           // sram don't need cache
-          if (pc[31:24] != 8'h0f && cache_valid && cache_tag == pc_tag) begin
-            inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
+          if (!is_sram && cache_valid && cache_tag == pc_tag) begin
+            inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
             old_pc <= pc;
             pc <= pc + 4;
             pipeline_empty <= 0;
-            ifu_record0();
+            ifu_record0(1);
           end else begin
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == snpc)) begin
-              state   <= READ_MEMORY;
+              state <= READ_MEMORY;
+              if (is_sram) begin
+                araddr <= pc;
+                arlen  <= 0;
+              end else begin
+                araddr <= {pc[31:4], 4'b0};
+                arlen  <= 8'b11;
+              end
               arvalid <= 1;
             end
             inst_valid <= 0;
@@ -120,20 +128,23 @@ module ysyx_25010008_IFU (
         if (rready & rvalid) begin
           if (rlast) begin
             rready <= 0;
-            // updata inst if pc[2] is high
-            if (pc[2]) inst <= rdata;
-            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
+
+            state  <= READ_CACHE;
+
+            ifu_record1(delay);
+            delay = 0;
+          end
+          if (is_sram) begin
+            inst <= rdata;
             inst_valid <= 1;
             old_pc <= pc;
             pc <= pc + 4;
             pipeline_empty <= 0;
-            state <= READ_CACHE;
-
-            ifu_record1(delay);
-            delay = 0;
           end else begin
-            // use inst to save data for write cache if needed
-            inst <= rdata;
+            cache[index][`VALID_POS-:`TAG_WIDTH+1] = {1'b1, pc_tag};
+            cache[index][`DATA_WIDTH-1:0] <= {rdata, cache[index][`DATA_WIDTH-1:32]};
+            // reduce cache hit counter
+            if (rlast) ifu_record0(-1);
           end
         end
       end

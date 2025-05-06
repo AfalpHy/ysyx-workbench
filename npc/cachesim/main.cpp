@@ -40,9 +40,9 @@ cache_block *get_cache_block(vaddr_t addr) {
 
 void cache_fetch(vaddr_t addr) {
   total_fetch++;
-  // if (BITS(addr, 31, 24) == 0x0f) {
-  //   return;
-  // }
+  if (BITS(addr, 31, 24) == 0x0f) {
+    return;
+  }
 
   word_t tag = BITS(addr, 31, tag_right_range);
   word_t index = BITS(addr, index_left_range, index_right_range);

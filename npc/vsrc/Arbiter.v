@@ -5,6 +5,7 @@ module ysyx_25010008_Arbiter (
     input ifu_enable,
     input [31:0] araddr_0,
     input arvalid_0,
+    input [7:0] arlen_0,
     output arready_0,
 
     input rready_0,
@@ -83,7 +84,7 @@ module ysyx_25010008_Arbiter (
   // only one master work at the same time, so its logic can be simplified
   assign io_master_araddr = state == CHOSE_IFU? araddr_0 : (state == CHOSE_LSU && !is_clint_addr) ? araddr_1 : 0;
   assign io_master_arvalid = (state == CHOSE_IFU && arvalid_0) | (state == CHOSE_LSU && !is_clint_addr && arvalid_1);
-  assign io_master_arlen = state == CHOSE_IFU ? 8'b01 : 8'b0;
+  assign io_master_arlen = state == CHOSE_IFU ? arlen_0 : 8'b0;
   assign io_master_arsize = state == CHOSE_IFU ? 3'b010 : arsize_1;
   assign io_master_arburst = 2'b01;
   assign io_master_rready = rready_0 | rready_1;
