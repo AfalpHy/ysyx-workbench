@@ -128,7 +128,7 @@ module ysyx_25010008_IFU (
           end
           if (pc[31:24] != 8'h0f) begin
             cache[index][`VALID_POS-:`TAG_WIDTH+1] = {1'b1, pc_tag};
-            cache[index][`DATA_WIDTH-1:0] <= {cache[index][`DATA_WIDTH-33:0], rdata};
+            cache[index][`DATA_WIDTH-1:0] <= {rdata, cache[index][`DATA_WIDTH-1:32]};
           end
         end
       end
