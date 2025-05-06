@@ -173,7 +173,7 @@ extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
     sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
             addr, data);
 #endif
-  if (addr == 0xa000c79) {
+  if (addr == 0xa0000c79) {
     printf("read %x\n", data);
   }
 }
@@ -194,7 +194,7 @@ extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
             "\n",
             addr, data, mask);
 #endif
-  if (addr == 0xa000c79) {
+  if (addr == 0xa0000c79) {
     printf("write %x %x\n", data, mask);
   }
 }
