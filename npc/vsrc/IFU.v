@@ -106,10 +106,10 @@ module ysyx_25010008_IFU (
               state <= READ_MEMORY;
               if (is_sram) begin
                 araddr <= {pc[31:4], 4'b0};
-                arlen  <= 8'b11;
+                arlen  <= 0;
               end else begin
                 araddr <= pc;
-                arlen  <= 0;
+                arlen  <= 8'b11;
               end
               arvalid <= 1;
             end
