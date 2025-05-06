@@ -57,10 +57,7 @@ word_t pc_buffer[4];
 word_t inst_type_buffer[3];
 word_t npc_buffer[2];
 
-extern "C" void ifu_record0(int inc) {
-  get_inst += inc;
-  printf("%d\n", inc);
-}
+extern "C" void ifu_record0(int inc) { get_inst += inc; }
 extern "C" void ifu_record1(int delay) { miss_penalty += delay; }
 
 void record_inst(int inst, int npc, int pc, int inst_type) {
