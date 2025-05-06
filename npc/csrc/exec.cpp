@@ -174,7 +174,7 @@ extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
             addr, data);
 #endif
   if (addr == 0xa0000c79) {
-    printf("read %x\n", data);
+    printf("read %x %x\n", data, pc_buffer[3]);
   }
 }
 
@@ -195,7 +195,7 @@ extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
             addr, data, mask);
 #endif
   if (addr == 0xa0000c79) {
-    printf("write %x %x\n", data, mask);
+    printf("write %x %x %x\n", data, mask, pc_buffer[3]);
   }
 }
 
