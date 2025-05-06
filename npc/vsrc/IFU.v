@@ -105,10 +105,10 @@ module ysyx_25010008_IFU (
             if (pipeline_empty || (npc_valid && pc == snpc)) begin
               state <= READ_MEMORY;
               if (is_sram) begin
-                araddr <= {pc[31:4], 4'b0};
+                araddr <= pc;
                 arlen  <= 0;
               end else begin
-                araddr <= pc;
+                araddr <= {pc[31:4], 4'b0};
                 arlen  <= 8'b11;
               end
               arvalid <= 1;
