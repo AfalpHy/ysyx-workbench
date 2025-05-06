@@ -2,8 +2,8 @@ import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void ifu_record0();
 import "DPI-C" function void ifu_record1(int delay);
 
-`define M 3 
-`define N 4
+`define M 4 
+`define N 2
 `define DATA_WIDTH (2 ** `M) * 8
 `define TAG_WIDTH 32 - (`M + `N) 
 `define CACHE_WIDTH `TAG_WIDTH + `DATA_WIDTH + 1
@@ -93,7 +93,7 @@ module ysyx_25010008_IFU (
         if (state == READ_CACHE & !block & idu_ready) begin
           // sram don't need cache
           if (pc[31:24] != 8'h0f && cache_valid && cache_tag == pc_tag) begin
-            inst <= pc[2] ? cache_block[63:32] : cache_block[31:0];
+            inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
             old_pc <= pc;
             pc <= pc + 4;
@@ -120,20 +120,15 @@ module ysyx_25010008_IFU (
         if (rready & rvalid) begin
           if (rlast) begin
             rready <= 0;
-            // updata inst if pc[2] is high
-            if (pc[2]) inst <= rdata;
-            if (pc[31:24] != 8'h0f) cache[index] <= {1'b1, pc_tag, rdata, inst};
-            inst_valid <= 1;
-            old_pc <= pc;
-            pc <= pc + 4;
-            pipeline_empty <= 0;
-            state <= READ_CACHE;
+
+            state  <= READ_CACHE;
 
             ifu_record1(delay);
             delay = 0;
-          end else begin
-            // use inst to save data for write cache if needed
-            inst <= rdata;
+          end
+          if (pc[31:24] != 8'h0f) begin
+            cache[index][`VALID_POS-:`TAG_WIDTH+1] = {1'b1, pc_tag};
+            cache[index][`DATA_WIDTH-1:0] <= {cache[index][`DATA_WIDTH-33:0], rdata};
           end
         end
       end
