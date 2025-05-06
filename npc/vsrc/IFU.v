@@ -144,7 +144,7 @@ module ysyx_25010008_IFU (
             cache[index][`VALID_POS-:`TAG_WIDTH+1] = {1'b1, pc_tag};
             cache[index][`DATA_WIDTH-1:0] <= {rdata, cache[index][`DATA_WIDTH-1:32]};
             // reduce cache hit counter
-            ifu_record0(-1);
+            if (rlast) ifu_record0(-1);
           end
         end
       end
