@@ -1,5 +1,5 @@
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
-import "DPI-C" function void ifu_record0();
+import "DPI-C" function void ifu_record0(int inc);
 import "DPI-C" function void ifu_record1(int delay);
 
 `define M 4 
@@ -99,7 +99,7 @@ module ysyx_25010008_IFU (
             old_pc <= pc;
             pc <= pc + 4;
             pipeline_empty <= 0;
-            ifu_record0();
+            ifu_record0(1);
           end else begin
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == snpc)) begin
@@ -143,6 +143,8 @@ module ysyx_25010008_IFU (
           end else begin
             cache[index][`VALID_POS-:`TAG_WIDTH+1] = {1'b1, pc_tag};
             cache[index][`DATA_WIDTH-1:0] <= {rdata, cache[index][`DATA_WIDTH-1:32]};
+            // reduce cache hit counter
+            ifu_record0(-1);
           end
         end
       end
