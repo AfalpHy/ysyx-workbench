@@ -115,6 +115,7 @@ module ysyx_25010008_NPC (
   wire [31:0] araddr_0;
   wire arvalid_0;
   wire arready_0;
+  wire [7:0] arlen_0;
 
   wire rready_0;
   wire [31:0] rdata_0;
@@ -163,6 +164,7 @@ module ysyx_25010008_NPC (
       .enable (ifu_enable),
       .araddr (araddr_0),
       .arvalid(arvalid_0),
+      .arlen  (arlen_0),
       .arready(arready_0),
 
       .rready(rready_0),
@@ -327,9 +329,10 @@ module ysyx_25010008_NPC (
       .reset(reset),
 
       .ifu_enable(ifu_enable),
-      .araddr_0  (araddr_0),
-      .arvalid_0 (arvalid_0),
-      .arready_0 (arready_0),
+      .araddr_0(araddr_0),
+      .arvalid_0(arvalid_0),
+      .arlen_0(arlen_0),
+      .arready_0(arready_0),
 
       .rready_0(rready_0),
       .rdata_0 (rdata_0),
