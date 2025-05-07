@@ -86,6 +86,12 @@ module ysyx_25010008_IFU (
       state <= READ_CACHE;
       pipeline_empty <= 1;
     end else begin
+      if (clear_cache) begin
+        for (i = 0; i < `CACHE_SIZE; i = i + 1) begin
+          cache[i][`VALID_POS] <= 0;
+        end
+      end
+
       if (clear_pipeline) begin
         pc <= npc;
         inst_valid <= 0;
