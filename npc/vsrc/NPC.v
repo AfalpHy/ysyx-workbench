@@ -78,6 +78,7 @@ module ysyx_25010008_NPC (
   wire suffix_h;
   wire sext;
   wire inst_valid;
+  wire FENCE_I;
 
   wire decode_valid;
   wire idu_ready;
@@ -213,7 +214,7 @@ module ysyx_25010008_NPC (
       .csr_wen2(csr_wen2),
       .csr_wdata1_sel(csr_wdata1_sel),
 
-      .clear_cache(clear_cache),
+      .FENCE_I(FENCE_I),
       .clear_pipeline(clear_pipeline)
   );
 
@@ -224,6 +225,7 @@ module ysyx_25010008_NPC (
       .block(block),
 
       .decode_valid(decode_valid),
+      .FENCE_I(FENCE_I),
       .pc(idu_pc),
       .npc_sel(npc_sel),
 
@@ -252,7 +254,8 @@ module ysyx_25010008_NPC (
       .csr_wdata1 (csr_wdata1),
       .csr_wdata2 (csr_wdata2),
 
-      .clear_pipeline(clear_pipeline)
+      .clear_pipeline(clear_pipeline),
+      .clear_cache(clear_cache)
   );
 
   ysyx_25010008_LSU lsu (

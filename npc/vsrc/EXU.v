@@ -7,6 +7,7 @@ module ysyx_25010008_EXU (
     input block,
 
     input decode_valid,
+    input FENCE_I,
     input [31:0] pc,
     input [2:0] npc_sel,
 
@@ -35,7 +36,8 @@ module ysyx_25010008_EXU (
     output reg [31:0] csr_wdata1,
     output reg [31:0] csr_wdata2,
 
-    output clear_pipeline
+    output clear_pipeline,
+    output reg clear_cache
 );
 
   reg [ 7:0] opcode;
@@ -87,7 +89,7 @@ module ysyx_25010008_EXU (
       exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src_buffer
   );
 
-  assign clear_pipeline = npc_valid && npc_sel_buffer != 0;
+  assign clear_pipeline = (npc_valid && npc_sel_buffer != 0) || clear_cache;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -98,6 +100,8 @@ module ysyx_25010008_EXU (
       end else begin
         npc_valid <= 0;
       end
+
+      clear_cache <= FENCE_I;
 
       opcode <= alu_opcode;
       operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;

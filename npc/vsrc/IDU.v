@@ -48,7 +48,7 @@ module ysyx_25010008_IDU (
     output reg csr_wen2,
     output csr_wdata1_sel,
 
-    output clear_cache,
+    output FENCE_I,
     input clear_pipeline
 );
 
@@ -140,7 +140,7 @@ module ysyx_25010008_IDU (
   wire EBREAK = inst_q[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
   wire MRET   = inst_q[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
-  wire FENCE_I = funct3_001 & opcode == 7'b00_011_11;
+  assign FENCE_I = funct3_001 & opcode == 7'b00_011_11;
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
@@ -186,8 +186,6 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
-
-  assign clear_cache = FENCE_I;
 
   reg [4:0] rd_buffer;
   reg [11:0] csr_d1_buffer;
