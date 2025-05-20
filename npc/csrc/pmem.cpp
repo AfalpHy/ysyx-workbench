@@ -111,8 +111,10 @@ void pmem_write(word_t addr, word_t data, int mask) {
     break;
   case 0b1111:
     mask = 0xffffffff;
+    break;
   default:
     break;
   }
+  printf("%x %x\n", addr, mask);
   *tmp = (*tmp & ~mask) | (data & mask);
 }
