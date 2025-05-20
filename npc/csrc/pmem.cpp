@@ -75,6 +75,7 @@ word_t pmem_read(paddr_t addr) {
 }
 
 void pmem_write(word_t addr, word_t data, int mask) {
+  addr &= 0xfffffffc;
   word_t *tmp = nullptr;
   if (in_sram(addr)) {
     tmp = (word_t *)sram2host(addr);
@@ -87,6 +88,7 @@ void pmem_write(word_t addr, word_t data, int mask) {
   } else {
     assert(0);
   }
+
   switch (mask) {
   case 0b1:
     mask = 0xff;
