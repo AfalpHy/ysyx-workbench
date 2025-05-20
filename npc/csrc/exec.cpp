@@ -178,6 +178,9 @@ extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
 extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
                             word_t delay) {
   ls_delay += delay;
+  if (!skip_ref_inst) {
+    pmem_write(addr, data, mask);
+  }
 #ifdef MTRACE
   if (!mtarce_bin) {
     mtarce_bin = fopen("mtrace.bin", "wb");
