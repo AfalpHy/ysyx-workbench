@@ -1,8 +1,8 @@
 #include "verilated_dpi.h"
 #include <common.h>
 
-#define CONFIG_SRAM_SIZE 0x2000
 #define CONFIG_SRAM_BASE 0xf000000
+#define CONFIG_SRAM_SIZE 0x2000
 
 #define CONFIG_FLASH_BASE 0x30000000
 #define CONFIG_FLASH_SIZE 0x1000000
@@ -10,8 +10,8 @@
 #define CONFIG_PSRAM_BASE 0x80000000
 #define CONFIG_PSRAM_SIZE 0x400000
 
-#define CONFIG_SDRAM_SIZE 0x4000000
 #define CONFIG_SDRAM_BASE 0xa0000000
+#define CONFIG_SDRAM_SIZE 0x4000000
 
 static uint8_t sram[CONFIG_SRAM_SIZE] = {};
 word_t flash[0x10000000] = {};
