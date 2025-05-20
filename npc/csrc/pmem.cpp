@@ -115,8 +115,7 @@ void pmem_write(word_t addr, word_t data, int mask) {
     mask = 0xffffffff;
     break;
   default:
-    break;
+    assert(0);
   }
-  printf("%x %x\n", addr, mask);
   *tmp = (*tmp & ~mask) | (data & mask);
 }
