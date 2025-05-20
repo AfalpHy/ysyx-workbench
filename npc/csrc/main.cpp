@@ -40,17 +40,17 @@ void fflush_trace() {
 #endif
 }
 
-// void sigint_handler(int sig) {
-//   print_debug_info();
-//   print_performance_info();
-//   exit(0);
-// }
+void sigint_handler(int sig) {
+  print_debug_info();
+  print_performance_info();
+  exit(0);
+}
 
-// void sigsegv_handler(int sig) {
-//   print_debug_info();
-//   print_performance_info();
-//   exit(-1);
-// }
+void sigsegv_handler(int sig) {
+  print_debug_info();
+  print_performance_info();
+  exit(-1);
+}
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
@@ -65,8 +65,8 @@ int load_img(const string &filepath) {
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
-  // signal(SIGINT, sigint_handler);
-  // signal(SIGSEGV, sigsegv_handler);
+  signal(SIGINT, sigint_handler);
+  signal(SIGSEGV, sigsegv_handler);
 
   nvboard_bind_all_pins(&top);
   nvboard_init();
