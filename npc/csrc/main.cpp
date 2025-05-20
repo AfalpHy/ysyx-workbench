@@ -40,17 +40,17 @@ void fflush_trace() {
 #endif
 }
 
-void sigint_handler(int sig) {
-  print_debug_info();
-  print_performance_info();
-  exit(0);
-}
+// void sigint_handler(int sig) {
+//   print_debug_info();
+//   print_performance_info();
+//   exit(0);
+// }
 
-void sigsegv_handler(int sig) {
-  print_debug_info();
-  print_performance_info();
-  exit(-1);
-}
+// void sigsegv_handler(int sig) {
+//   print_debug_info();
+//   print_performance_info();
+//   exit(-1);
+// }
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
