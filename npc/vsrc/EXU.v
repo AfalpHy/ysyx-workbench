@@ -120,8 +120,6 @@ module ysyx_25010008_EXU (
       npc_sel_buffer <= npc_sel;
 
       csr_src_buffer <= csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata1 : csr_src;
-      if (alu_operand2_sel[1] && csr_src_sel != 0)
-        $display("%x %x %x", pc, csr_src_sel, alu_result);
 
       exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
       csr_wdata1_sel_buffer <= csr_wdata1_sel;
