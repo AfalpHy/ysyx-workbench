@@ -108,7 +108,7 @@ module ysyx_25010008_EXU (
       operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
 
       operand2 <= alu_operand2_sel[0] ? imm :
-                  alu_operand2_sel[1] ? (csr_src_sel[0] ? exu_r_wdata : csr_src_sel[1]? forward_data : csr_src) :
+                  alu_operand2_sel[1] ? (csr_src_sel[0] ? alu_result : csr_src_sel[1]? csr_wdata1 : csr_src) :
                   alu_operand2_sel[2] ? exu_r_wdata :
                   alu_operand2_sel[3] ? forward_data : src2;
 
@@ -119,9 +119,9 @@ module ysyx_25010008_EXU (
 
       npc_sel_buffer <= npc_sel;
 
-      csr_src_buffer <= csr_src_sel[0] ? exu_r_wdata : csr_src_sel[1] ? forward_data : csr_src;
+      csr_src_buffer <= csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata1 : csr_src;
       if (alu_operand2_sel[1] && csr_src_sel != 0)
-        $display("%x %x %x", pc, csr_src_sel, exu_r_wdata);
+        $display("%x %x %x", pc, csr_src_sel, alu_result);
 
       exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
       csr_wdata1_sel_buffer <= csr_wdata1_sel;
