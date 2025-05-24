@@ -43,6 +43,7 @@ module ysyx_25010008_IDU (
     output [1:0] exu_r_wdata_sel,
 
     output [11:0] csr_s,
+    output [1:0] csr_s_sel,
     output reg [11:0] csr_d1,
     output reg csr_wen1,
     output reg csr_wen2,
@@ -176,6 +177,8 @@ module ysyx_25010008_IDU (
   assign exu_r_wdata_sel[1] = AUIPC | CSRRW | CSRRS | CSRRC;
 
   assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : inst_q[31:20]);
+  assign csr_s_sel[0] = csr_s == csr_d1_buffer;
+  assign csr_s_sel[1] = csr_s == csr_d1;
   assign csr_wdata1_sel = ECALL;
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;

@@ -18,6 +18,7 @@ module ysyx_25010008_EXU (
     input [ 1:0] exu_r_wdata_sel,
 
     input [31:0] csr_src,
+    input [1:0] csr_src_sel,
     input csr_wdata1_sel,
 
     input  [ 7:0] alu_opcode,
@@ -107,7 +108,7 @@ module ysyx_25010008_EXU (
       operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
 
       operand2 <= alu_operand2_sel[0] ? imm :
-                  alu_operand2_sel[1] ? csr_src :
+                  alu_operand2_sel[1] ? (csr_src_sel[0] ? alu_result : csr_src_sel[1]? csr_wdata1 : csr_src) :
                   alu_operand2_sel[2] ? exu_r_wdata :
                   alu_operand2_sel[3] ? forward_data : src2;
 
@@ -118,7 +119,8 @@ module ysyx_25010008_EXU (
 
       npc_sel_buffer <= npc_sel;
 
-      csr_src_buffer <= csr_src;
+      csr_src_buffer <= csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata1 : csr_src;
+
       exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
       csr_wdata1_sel_buffer <= csr_wdata1_sel;
       csr_wdata1 <= csr_wdata1_sel_buffer ? 32'd11 : alu_result;
