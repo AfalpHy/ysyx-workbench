@@ -14,17 +14,21 @@ module ysyx_25010008_RegFile (
     input [31:0] wdata,
 
     input [11:0] csr_s,
-    input [11:0] csr_d1,
+    input [11:0] csr_d,
 
-    input csr_wen1,
-    input [31:0] csr_wdata1,
-
-    input csr_wen2,  // only for ecall 
-    input [31:0] csr_wdata2,
+    input csr_wen,
+    input [31:0] csr_wdata,
 
     output [31:0] src1,
     output [31:0] src2,
-    output reg [31:0] csr_src
+    output reg [31:0] csr_src,
+
+    input inst_addr_misaligned,
+    input ecall,
+    output reg exception,
+
+    input [31:0] lsu_pc,
+    output reg [31:0] exception_pc
 );
 
   reg [31:0] regs[15:0];
@@ -52,18 +56,17 @@ module ysyx_25010008_RegFile (
         if (wen && rd[3:0] != 0) begin
           regs[rd[3:0]] <= wdata;
         end
-        if (csr_wen1) begin
-          case (csr_d1)
-            12'h300: mstatus <= csr_wdata1;
-            12'h305: mtvec <= csr_wdata1;
-            12'h341: mepc <= csr_wdata1;
-            12'h342: mcause <= csr_wdata1;
+        if (csr_wen) begin
+          case (csr_d)
+            12'h300: mstatus <= csr_wdata;
+            12'h305: mtvec <= csr_wdata;
+            12'h341: mepc <= csr_wdata;
             default: ;
           endcase
         end
-        if (csr_wen2) begin
-          mepc <= csr_wdata2;
-        end
+        if (exception) exception <= 0;
+        else exception <= inst_addr_misaligned;
+        exception_pc <= lsu_pc;
       end
     end
   end

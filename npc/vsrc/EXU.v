@@ -8,7 +8,8 @@ module ysyx_25010008_EXU (
 
     input decode_valid,
     input FENCE_I,
-    input [31:0] pc,
+    input [31:0] idu_pc,
+    output reg [31:0] exu_pc,
     input [2:0] npc_sel,
 
     input [31:0] imm,
@@ -18,8 +19,7 @@ module ysyx_25010008_EXU (
     input [ 1:0] exu_r_wdata_sel,
 
     input [31:0] csr_src,
-    input [1:0] csr_src_sel,
-    input csr_wdata1_sel,
+    input [ 1:0] csr_src_sel,
 
     input  [ 7:0] alu_opcode,
     input  [ 1:0] alu_operand1_sel,
@@ -30,13 +30,13 @@ module ysyx_25010008_EXU (
     output reg [31:0] wsrc,
 
     output reg npc_valid,
-    output [31:0] npc,
+    output reg [31:0] npc,
     output reg [31:0] snpc,
 
-    output [31:0] exu_r_wdata,
-    output reg [31:0] csr_wdata1,
-    output reg [31:0] csr_wdata2,
+    output reg [31:0] exu_r_wdata,
+    output reg [31:0] csr_wdata,
 
+    input exception,
     output clear_pipeline,
     output reg clear_cache
 );
@@ -45,8 +45,6 @@ module ysyx_25010008_EXU (
   reg [31:0] operand1;
   reg [31:0] operand2;
 
-  reg [31:0] dnpc;
-
   ysyx_25010008_ALU alu (
       .opcode  (opcode),
       .operand1(operand1),
@@ -54,78 +52,66 @@ module ysyx_25010008_EXU (
       .result  (alu_result)
   );
 
-  reg [2:0] npc_sel_buffer;
+  reg [31:0] dnpc;
+  reg [ 2:0] npc_sel_q;
+  reg [ 1:0] exu_r_wdata_sel_q;
+  reg [31:0] csr_src_q;
 
-  reg [1:0] exu_r_wdata_sel_buffer;
-  reg csr_wdata1_sel_buffer;
-
-  reg [31:0] csr_wdata2_buffer;
-  reg [31:0] csr_src_buffer;
-
-  function [31:0] sel_npc(input [2:0] npc_sel, input [31:0] snpc, input [31:0] dnpc,
-                          input [31:0] alu_result, input [31:0] csr_src);
-    case (npc_sel)
-      3'b000:  sel_npc = snpc;
-      3'b001:  sel_npc = dnpc;  // jal
-      3'b010:  sel_npc = alu_result & (~32'b1);  // jalr
-      3'b011:  sel_npc = alu_result[0] ? dnpc : snpc;  // branch
-      3'b100:  sel_npc = csr_src;  // ecall mret
-      default: sel_npc = 0;
+  always @(npc_sel_q or snpc or dnpc or alu_result or csr_src_q) begin
+    case (npc_sel_q)
+      3'b000:  npc = snpc;
+      3'b001:  npc = dnpc;  // jal
+      3'b010:  npc = alu_result & (~32'b1);  // jalr
+      3'b011:  npc = alu_result[0] ? dnpc : snpc;  // branch
+      3'b100:  npc = csr_src;  // ecall mret
+      default: npc = 0;
     endcase
-  endfunction
+  end
 
-  assign npc = sel_npc(npc_sel_buffer, snpc, dnpc, alu_result, csr_src_buffer);
-
-  function [31:0] sel_exu_r_wdata(input [1:0] exu_r_wdata_sel, input [31:0] alu_result,
-                                  input [31:0] snpc, input [31:0] dnpc, input [31:0] csr_src);
-    case (exu_r_wdata_sel)
-      2'b00: sel_exu_r_wdata = alu_result;
-      2'b01: sel_exu_r_wdata = snpc;  // jal jalr
-      2'b10: sel_exu_r_wdata = dnpc;  // auipc 
-      2'b11: sel_exu_r_wdata = csr_src;  // csrrw csrrs csrrc
+  always @(exu_r_wdata_sel_q or alu_result or snpc or dnpc or csr_src_q) begin
+    case (exu_r_wdata_sel_q)
+      2'b00: exu_r_wdata = alu_result;
+      2'b01: exu_r_wdata = snpc;  // jal jalr
+      2'b10: exu_r_wdata = dnpc;  // auipc 
+      2'b11: exu_r_wdata = csr_src;  // csrrw csrrs csrrc
     endcase
-  endfunction
+  end
 
-  assign exu_r_wdata = sel_exu_r_wdata(
-      exu_r_wdata_sel_buffer, alu_result, snpc, dnpc, csr_src_buffer
-  );
+  wire [31:0] src2_tmp = alu_operand2_sel[2] ? exu_r_wdata : alu_operand2_sel[3] ? forward_data : src2;
+  wire [31:0] csr_src_tmp = csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata : csr_src;
 
-  assign clear_pipeline = (npc_valid && npc_sel_buffer != 0) || clear_cache;
+  assign clear_pipeline = (npc_valid && npc_sel_q != 0) || clear_cache;
 
   always @(posedge clock) begin
     if (reset) begin
       npc_valid <= 0;
     end else if (!block) begin
-      if (!clear_pipeline & decode_valid) begin
-        npc_valid <= 1;
+      if (!clear_pipeline & decode_valid & !exception) begin
+        npc_valid   <= 1;
+        clear_cache <= FENCE_I;
       end else begin
-        npc_valid <= 0;
+        npc_valid   <= 0;
+        clear_cache <= 0;
       end
-
-      clear_cache <= FENCE_I;
 
       opcode <= alu_opcode;
       operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
+      operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src_tmp : src2_tmp;
 
-      operand2 <= alu_operand2_sel[0] ? imm :
-                  alu_operand2_sel[1] ? (csr_src_sel[0] ? alu_result : csr_src_sel[1]? csr_wdata1 : csr_src) :
-                  alu_operand2_sel[2] ? exu_r_wdata :
-                  alu_operand2_sel[3] ? forward_data : src2;
+      snpc <= idu_pc + 4;
+      dnpc <= idu_pc + imm;
 
-      snpc <= pc + 4;
-      dnpc <= pc + imm;
+      exu_pc <= idu_pc;
 
-      wsrc <= alu_operand2_sel[2] ? exu_r_wdata : alu_operand2_sel[3] ? forward_data : src2;
+      wsrc <= src2_tmp;
 
-      npc_sel_buffer <= npc_sel;
+      npc_sel_q <= npc_sel;
 
-      csr_src_buffer <= csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata1 : csr_src;
+      csr_src_q <= csr_src_tmp;
 
-      exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
-      csr_wdata1_sel_buffer <= csr_wdata1_sel;
-      csr_wdata1 <= csr_wdata1_sel_buffer ? 32'd11 : alu_result;
-      csr_wdata2_buffer <= pc;
-      csr_wdata2 <= csr_wdata2_buffer;
+      exu_r_wdata_sel_q <= exu_r_wdata_sel;
+
+      csr_wdata <= alu_result;
 
       exu_record(npc);
     end

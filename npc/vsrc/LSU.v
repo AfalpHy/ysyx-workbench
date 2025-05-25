@@ -21,6 +21,9 @@ module ysyx_25010008_LSU (
     input ren,
     input wen,
 
+    input [31:0] exu_pc,
+    output reg [31:0] lsu_pc,
+
     input [31:0] addr,
     input [31:0] wsrc,
     input [31:0] exu_r_wdata,
@@ -49,7 +52,9 @@ module ysyx_25010008_LSU (
 
     output reg bready,
     input [1:0] bresp,
-    input bvalid
+    input bvalid,
+
+    input exception
 );
 
   reg [31:0] addr_q;
@@ -78,7 +83,7 @@ module ysyx_25010008_LSU (
   integer delay;
 
   always @(posedge clock) begin
-    if (reset) begin
+    if (reset || exception) begin
       arvalid <= 0;
       rready  <= 0;
 
@@ -125,6 +130,9 @@ module ysyx_25010008_LSU (
           delay = 0;
         end
       end else begin
+        lsu_pc = exu_pc;
+        r_wdata <= exu_r_wdata;
+
         if (ren | wen) begin
           block <= 1;
           addr_q <= addr;
@@ -132,8 +140,6 @@ module ysyx_25010008_LSU (
           suffix_h_q <= suffix_h;
           sext_q <= sext;
         end
-
-        r_wdata <= exu_r_wdata;
 
         if (ren) begin
           arvalid <= 1;
