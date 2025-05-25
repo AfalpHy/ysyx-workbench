@@ -159,7 +159,10 @@ extern "C" void exu_record(int npc, int csr_src) {
   exu_done++;
 }
 
-extern "C" void wbu_record(bool is_ecall) { ecall = is_ecall; }
+extern "C" void wbu_record(int pc, bool is_ecall) {
+  current_pc = pc;
+  ecall = is_ecall;
+}
 
 extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
   get_data++;
@@ -214,6 +217,7 @@ static int check_regs() {
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   int pc = ecall ? csr_src_buffer[1] : npc_buffer[1];
   if (pc != ref_pc) {
+    std::cout << current_pc << std::endl;
     std::cout << ecall << std::endl;
     std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << pc << std::endl;
     return -1;
