@@ -10,7 +10,7 @@ module ysyx_25010008_EXU (
     input FENCE_I,
     input [31:0] idu_pc,
     output reg [31:0] exu_pc,
-    input [2:0] npc_sel,
+    input [1:0] npc_sel,
 
     input [31:0] imm,
 
@@ -53,18 +53,16 @@ module ysyx_25010008_EXU (
   );
 
   reg [31:0] dnpc;
-  reg [ 2:0] npc_sel_q;
+  reg [ 1:0] npc_sel_q;
   reg [ 1:0] exu_r_wdata_sel_q;
   reg [31:0] csr_src_q;
 
   always @(npc_sel_q or snpc or dnpc or alu_result or csr_src_q) begin
     case (npc_sel_q)
-      3'b000:  npc = snpc;
-      3'b001:  npc = dnpc;  // jal
-      3'b010:  npc = alu_result & (~32'b1);  // jalr
-      3'b011:  npc = alu_result[0] ? dnpc : snpc;  // branch
-      3'b100:  npc = csr_src;  // ecall mret
-      default: npc = 0;
+      2'b00:  npc = snpc;
+      2'b01:  npc = dnpc;  // jal
+      2'b10:  npc = alu_result & (~32'b1);  // jalr
+      2'b11:  npc = alu_result[0] ? dnpc : snpc;  // branch
     endcase
   end
 

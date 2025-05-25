@@ -68,7 +68,7 @@ module ysyx_25010008_NPC (
   wire [31:0] ifu_pc;
   wire [31:0] npc;
   wire [31:0] snpc;
-  wire [2:0] npc_sel;
+  wire [1:0] npc_sel;
   wire ifu_enable;
   wire inst_addr_misaligned;
 

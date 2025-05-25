@@ -23,7 +23,7 @@ module ysyx_25010008_IDU (
     output idu_ready,
     output reg decode_valid,
     output reg [31:0] idu_pc,
-    output [2:0] npc_sel,
+    output [1:0] npc_sel,
 
     output [31:0] imm,
     output [7:0] alu_opcode,
@@ -145,7 +145,6 @@ module ysyx_25010008_IDU (
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
-  assign npc_sel[2] = ECALL | MRET;
 
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
