@@ -56,7 +56,10 @@ module ysyx_25010008_RegFile (
         if (wen && rd[3:0] != 0) begin
           regs[rd[3:0]] <= wdata;
         end
-        if (csr_wen) begin
+        if (ecall) begin
+          mcause <= 32'd11;
+          mepc   <= lsu_pc;
+        end else if (csr_wen) begin
           case (csr_d)
             12'h300: mstatus <= csr_wdata;
             12'h305: mtvec <= csr_wdata;
@@ -65,7 +68,7 @@ module ysyx_25010008_RegFile (
           endcase
         end
         if (exception) exception <= 0;
-        else exception <= inst_addr_misaligned;
+        else exception <= inst_addr_misaligned | ecall;
         exception_pc <= lsu_pc;
       end
     end
