@@ -1,7 +1,7 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 import "DPI-C" function void wbu_record(
   int pc,
-  input logic is_ecall
+  int is_ecall
 );
 
 module ysyx_25010008_RegFile (
@@ -75,7 +75,7 @@ module ysyx_25010008_RegFile (
         else exception <= inst_addr_misaligned | ecall;
         exception_pc <= lsu_pc;
 
-        wbu_record(lsu_pc, ecall);
+        wbu_record(lsu_pc, {31'b0, ecall});
       end
     end
   end

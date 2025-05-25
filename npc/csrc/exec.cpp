@@ -159,7 +159,7 @@ extern "C" void exu_record(int npc, int csr_src) {
   exu_done++;
 }
 
-extern "C" void wbu_record(int pc, bool is_ecall) {
+extern "C" void wbu_record(int pc, int is_ecall) {
   current_pc = pc;
   ecall = is_ecall;
 }
