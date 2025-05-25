@@ -1,4 +1,7 @@
-import "DPI-C" function void exu_record(int npc);
+import "DPI-C" function void exu_record(
+  int npc,
+  int csr_src
+);
 
 module ysyx_25010008_EXU (
     input clock,
@@ -59,10 +62,10 @@ module ysyx_25010008_EXU (
 
   always @(npc_sel_q or snpc or dnpc or alu_result or csr_src_q) begin
     case (npc_sel_q)
-      2'b00:  npc = snpc;
-      2'b01:  npc = dnpc;  // jal
-      2'b10:  npc = alu_result & (~32'b1);  // jalr
-      2'b11:  npc = alu_result[0] ? dnpc : snpc;  // branch
+      2'b00: npc = snpc;
+      2'b01: npc = dnpc;  // jal
+      2'b10: npc = alu_result & (~32'b1);  // jalr
+      2'b11: npc = alu_result[0] ? dnpc : snpc;  // branch
     endcase
   end
 
@@ -111,7 +114,7 @@ module ysyx_25010008_EXU (
 
       csr_wdata <= alu_result;
 
-      exu_record(npc);
+      exu_record(npc, csr_src);
     end
   end
 

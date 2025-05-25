@@ -1,4 +1,5 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
+import "DPI-C" function void wbu_record(input logic is_ecall);
 
 module ysyx_25010008_RegFile (
     input clock,
@@ -70,6 +71,8 @@ module ysyx_25010008_RegFile (
         if (exception) exception <= 0;
         else exception <= inst_addr_misaligned | ecall;
         exception_pc <= lsu_pc;
+
+        wbu_record(ecall);
       end
     end
   end
