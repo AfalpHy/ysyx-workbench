@@ -130,7 +130,7 @@ module ysyx_25010008_LSU (
           delay = 0;
         end
       end else begin
-        lsu_pc = exu_pc;
+        lsu_pc <= exu_pc;
         r_wdata <= exu_r_wdata;
 
         if (ren | wen) begin
