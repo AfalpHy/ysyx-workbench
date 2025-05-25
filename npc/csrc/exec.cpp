@@ -161,6 +161,9 @@ extern "C" void exu_record(int npc, int csr_src) {
 
 extern "C" void wbu_record(int pc, int is_ecall) {
   current_pc = pc;
+  if(is_ecall){
+    printf("here\n");
+  }
   ecall = is_ecall;
 }
 
