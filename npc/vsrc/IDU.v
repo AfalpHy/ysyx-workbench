@@ -191,9 +191,9 @@ module ysyx_25010008_IDU (
   reg [4:0] rd_buffer;
   reg [11:0] csr_d_buffer;
   reg r_wen_buffer,csr_wen_buffer;
-  reg [2:0] ecall_buffer;
+  reg [1:0] ecall_buffer;
 
-  assign ecall = ecall_buffer[2];
+  assign ecall = ecall_buffer[1];
 
   wire [4:0] rs1_tmp = inst[19:15];
   wire [4:0] rs2_tmp = inst[24:20];
@@ -259,7 +259,7 @@ module ysyx_25010008_IDU (
         r_wen_buffer <= U_type | J_type | I_type | R_type;
         csr_wen_buffer <= CSRRW | CSRRS | CSRRC | ECALL;
 
-        ecall_buffer <= {ecall_buffer[1:0], ECALL};
+        ecall_buffer <= {ecall_buffer[1], ECALL};
         done[1] <= done[0];
       end
 
