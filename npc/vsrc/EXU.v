@@ -48,21 +48,22 @@ module ysyx_25010008_EXU (
 
   reg [31:0] snpc;
   reg [31:0] dnpc;
-  reg [ 1:0] npc_sel_q;
-  reg [ 1:0] exu_r_wdata_sel_q;
-  reg [31:0] csr_src_q;
+  reg [ 1:0] npc_sel_buffer;
+  reg [ 1:0] exu_r_wdata_sel_buffer;
+  reg [31:0] csr_src_buffer;
+  reg [31:0] exu_npc_buffer;
 
-  always @(npc_sel_q or snpc or dnpc or alu_result or csr_src_q) begin
-    case (npc_sel_q)
-      2'b00: exu_npc = snpc;
-      2'b01: exu_npc = dnpc;  // jal
-      2'b10: exu_npc = alu_result & (~32'b1);  // jalr
-      2'b11: exu_npc = alu_result[0] ? dnpc : snpc;  // branch
+  always @(npc_sel_buffer or snpc or dnpc or alu_result or csr_src_buffer) begin
+    case (npc_sel_buffer)
+      2'b00: exu_npc_buffer = snpc;
+      2'b01: exu_npc_buffer = dnpc;  // jal
+      2'b10: exu_npc_buffer = alu_result & (~32'b1);  // jalr
+      2'b11: exu_npc_buffer = alu_result[0] ? dnpc : snpc;  // branch
     endcase
   end
 
-  always @(exu_r_wdata_sel_q or alu_result or snpc or dnpc or csr_src_q) begin
-    case (exu_r_wdata_sel_q)
+  always @(exu_r_wdata_sel_buffer or alu_result or snpc or dnpc or csr_src_buffer) begin
+    case (exu_r_wdata_sel_buffer)
       2'b00: exu_r_wdata = alu_result;
       2'b01: exu_r_wdata = snpc;  // jal jalr
       2'b10: exu_r_wdata = dnpc;  // auipc 
@@ -84,7 +85,7 @@ module ysyx_25010008_EXU (
         wrong_prediction <= 0;
       end else begin
         execute_valid <= decode_valid;
-        wrong_prediction <= execute_valid && npc_sel_q != 0;
+        wrong_prediction <= execute_valid && npc_sel_buffer != 0;
       end
 
       opcode <= alu_opcode;
@@ -95,14 +96,15 @@ module ysyx_25010008_EXU (
       dnpc <= idu_pc + imm;
 
       exu_pc <= idu_pc;
+      exu_npc <= exu_npc_buffer;
 
       wsrc <= src2_tmp;
 
-      npc_sel_q <= npc_sel;
+      npc_sel_buffer <= npc_sel;
 
-      csr_src_q <= csr_src_tmp;
+      csr_src_buffer <= csr_src_tmp;
 
-      exu_r_wdata_sel_q <= exu_r_wdata_sel;
+      exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
 
       csr_wdata <= alu_result;
     end
