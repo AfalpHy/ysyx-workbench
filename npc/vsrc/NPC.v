@@ -100,7 +100,6 @@ module ysyx_25010008_NPC (
   wire mem_ren, mem_wen;
   wire block;
   wire [31:0] lsu_pc;
-  wire lsu_enable;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
@@ -356,7 +355,7 @@ module ysyx_25010008_NPC (
       .rvalid_0(rvalid_0),
       .rlast_0 (rlast_0),
 
-      .lsu_enable(lsu_enable),
+      .lsu_enable(block),
       .araddr_1  (araddr_1),
       .arsize_1  (arsize_1),
       .arvalid_1 (arvalid_1),

@@ -102,7 +102,6 @@ module ysyx_25010008_LSU (
           if (ren_q) begin
             ren_q   <= 0;
             arvalid <= 1;
-            $display("here %x",araddr);
           end
 
           if (wen_q) begin
@@ -111,7 +110,6 @@ module ysyx_25010008_LSU (
             awvalid <= 1;
             wvalid  <= 1;
           end
-          // $display("here");
           delay = delay + 1;
         end
 
