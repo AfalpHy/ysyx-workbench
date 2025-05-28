@@ -102,7 +102,7 @@ module ysyx_25010008_LSU (
           if (ren_q) begin
             ren_q   <= 0;
             arvalid <= 1;
-            $display("here");
+            $display("here %x",araddr);
           end
 
           if (wen_q) begin
