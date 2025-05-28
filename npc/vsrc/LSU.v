@@ -57,6 +57,7 @@ module ysyx_25010008_LSU (
     input clear_pipeline
 );
 
+  reg ren_q, wen_q;
   reg [31:0] addr_q;
   reg suffix_b_q;
   reg suffix_h_q;
@@ -98,11 +99,13 @@ module ysyx_25010008_LSU (
         if (clear_pipeline) begin
           block <= 0;
         end else begin
-          if (ren) begin
+          if (ren_q) begin
+            ren_q   <= 0;
             arvalid <= 1;
           end
 
-          if (wen) begin
+          if (wen_q) begin
+            wen_q   <= 0;
             // must assert in the same time for sdram axi
             awvalid <= 1;
             wvalid  <= 1;
@@ -152,6 +155,8 @@ module ysyx_25010008_LSU (
         lsu_pc <= exu_pc;
         r_wdata <= exu_r_wdata;
 
+        ren_q <= ren;
+        wen_q <= wen;
         block <= ren | wen;
       end
     end
