@@ -83,9 +83,11 @@ module ysyx_25010008_EXU (
       if (clear_pipeline) begin
         execute_valid <= 0;
         wrong_prediction <= 0;
+        exu_npc <= 0;
       end else begin
         execute_valid <= decode_valid;
         wrong_prediction <= execute_valid && npc_sel_buffer != 0;
+        exu_npc <= exu_npc_tmp;
       end
 
       opcode <= alu_opcode;
@@ -96,7 +98,6 @@ module ysyx_25010008_EXU (
       dnpc <= idu_pc + imm;
 
       exu_pc <= idu_pc;
-      exu_npc <= exu_npc_tmp;
 
       wsrc <= src2_tmp;
 
