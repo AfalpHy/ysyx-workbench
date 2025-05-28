@@ -1,7 +1,7 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 import "DPI-C" function void wbu_record(
   int pc,
-  int is_ecall
+  int npc
 );
 
 module ysyx_25010008_RegFile (
@@ -70,6 +70,7 @@ module ysyx_25010008_RegFile (
           mepc <= lsu_pc;
           npc <= mtvec;
           clear_pipeline <= 1;
+          wbu_record(lsu_pc, mtvec);
         end else begin
           clear_pipeline <= fence_i ? 1 : wrong_prediction;
           clear_cache <= fence_i;
@@ -82,9 +83,9 @@ module ysyx_25010008_RegFile (
               default: ;
             endcase
           end
+          wbu_record(lsu_pc, exu_npc);
         end
       end
-      wbu_record(lsu_pc, {31'b0, ecall});
     end
   end
 
