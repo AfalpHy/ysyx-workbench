@@ -54,7 +54,7 @@ module ysyx_25010008_LSU (
     input [1:0] bresp,
     input bvalid,
 
-    input exception
+    input clear_pipeline
 );
 
   reg [31:0] addr_q;
@@ -83,7 +83,7 @@ module ysyx_25010008_LSU (
   integer delay;
 
   always @(posedge clock) begin
-    if (reset || exception) begin
+    if (reset) begin
       arvalid <= 0;
       rready  <= 0;
 
@@ -95,7 +95,20 @@ module ysyx_25010008_LSU (
       delay = 0;
     end else begin
       if (block) begin
-        delay = delay + 1;
+        if (clear_pipeline) begin
+          block <= 0;
+        end else begin
+          if (ren) begin
+            arvalid <= 1;
+          end
+
+          if (wen) begin
+            // must assert in the same time for sdram axi
+            awvalid <= 1;
+            wvalid  <= 1;
+          end
+          delay = delay + 1;
+        end
 
         if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
@@ -130,27 +143,16 @@ module ysyx_25010008_LSU (
           delay = 0;
         end
       end else begin
+        addr_q <= addr;
+        suffix_b_q <= suffix_b;
+        suffix_h_q <= suffix_h;
+        sext_q <= sext;
+        wsrc_q <= wsrc;
+
         lsu_pc <= exu_pc;
         r_wdata <= exu_r_wdata;
 
-        if (ren | wen) begin
-          block <= 1;
-          addr_q <= addr;
-          suffix_b_q <= suffix_b;
-          suffix_h_q <= suffix_h;
-          sext_q <= sext;
-        end
-
-        if (ren) begin
-          arvalid <= 1;
-        end
-
-        if (wen) begin
-          // must assert in the same time for sdram axi
-          awvalid <= 1;
-          wvalid  <= 1;
-          wsrc_q  <= wsrc;
-        end
+        block <= ren | wen;
       end
     end
   end

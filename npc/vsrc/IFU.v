@@ -21,9 +21,7 @@ module ysyx_25010008_IFU (
     input clock,
     input reset,
 
-    input npc_valid,
     input [31:0] npc,
-    input [31:0] snpc,
     output reg [31:0] ifu_pc,
 
     output reg inst_valid,
@@ -44,8 +42,6 @@ module ysyx_25010008_IFU (
     input rlast,
 
     output inst_addr_misaligned,
-    input exception,
-    input [31:0] exception_pc,
     input clear_cache,
     input clear_pipeline
 );
@@ -101,9 +97,9 @@ module ysyx_25010008_IFU (
         end
       end
 
-      if (clear_pipeline || exception) begin
+      if (clear_pipeline) begin
         // exception is prior
-        pc <= exception ? exception_pc : npc;
+        pc <= npc;
         inst_addr_misaligned_buffer <= 0;
         inst_valid <= 0;
         pipeline_empty <= 1;
@@ -121,7 +117,7 @@ module ysyx_25010008_IFU (
             ifu_record0(1);
           end else begin
             // avoid invalid memory access
-            if (pipeline_empty || (npc_valid && pc == snpc)) begin
+            if (pipeline_empty || pc == npc) begin
               if (is_sram) begin
                 araddr <= pc;
                 arlen  <= 0;

@@ -1,8 +1,3 @@
-import "DPI-C" function void exu_record(
-  int npc,
-  int csr_src
-);
-
 module ysyx_25010008_EXU (
     input clock,
     input reset,
@@ -10,7 +5,6 @@ module ysyx_25010008_EXU (
     input block,
 
     input decode_valid,
-    input FENCE_I,
     input [31:0] idu_pc,
     output reg [31:0] exu_pc,
     input [1:0] npc_sel,
@@ -32,16 +26,13 @@ module ysyx_25010008_EXU (
     input [31:0] forward_data,
     output reg [31:0] wsrc,
 
-    output reg npc_valid,
-    output reg [31:0] npc,
-    output reg [31:0] snpc,
+    output reg [31:0] exu_npc,
 
     output reg [31:0] exu_r_wdata,
     output reg [31:0] csr_wdata,
 
-    input exception,
-    output clear_pipeline,
-    output reg clear_cache
+    input clear_pipeline,
+    output reg wrong_prediction
 );
 
   reg [ 7:0] opcode;
@@ -55,6 +46,7 @@ module ysyx_25010008_EXU (
       .result  (alu_result)
   );
 
+  reg [31:0] snpc;
   reg [31:0] dnpc;
   reg [ 1:0] npc_sel_q;
   reg [ 1:0] exu_r_wdata_sel_q;
@@ -62,10 +54,10 @@ module ysyx_25010008_EXU (
 
   always @(npc_sel_q or snpc or dnpc or alu_result or csr_src_q) begin
     case (npc_sel_q)
-      2'b00: npc = snpc;
-      2'b01: npc = dnpc;  // jal
-      2'b10: npc = alu_result & (~32'b1);  // jalr
-      2'b11: npc = alu_result[0] ? dnpc : snpc;  // branch
+      2'b00: exu_npc = snpc;
+      2'b01: exu_npc = dnpc;  // jal
+      2'b10: exu_npc = alu_result & (~32'b1);  // jalr
+      2'b11: exu_npc = alu_result[0] ? dnpc : snpc;  // branch
     endcase
   end
 
@@ -81,18 +73,18 @@ module ysyx_25010008_EXU (
   wire [31:0] src2_tmp = alu_operand2_sel[2] ? exu_r_wdata : alu_operand2_sel[3] ? forward_data : src2;
   wire [31:0] csr_src_tmp = csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata : csr_src;
 
-  assign clear_pipeline = (npc_valid && npc_sel_q != 0) || clear_cache;
+  reg execute_valid;
 
   always @(posedge clock) begin
     if (reset) begin
-      npc_valid <= 0;
+      execute_valid <= 0;
     end else if (!block) begin
-      if (!clear_pipeline & decode_valid & !exception) begin
-        npc_valid   <= 1;
-        clear_cache <= FENCE_I;
+      if (clear_pipeline) begin
+        execute_valid <= 0;
+        wrong_prediction <= 0;
       end else begin
-        npc_valid   <= 0;
-        clear_cache <= 0;
+        execute_valid <= decode_valid;
+        wrong_prediction <= execute_valid && npc_sel_q != 0;
       end
 
       opcode <= alu_opcode;
@@ -113,8 +105,6 @@ module ysyx_25010008_EXU (
       exu_r_wdata_sel_q <= exu_r_wdata_sel;
 
       csr_wdata <= alu_result;
-
-      exu_record(npc, csr_src);
     end
   end
 

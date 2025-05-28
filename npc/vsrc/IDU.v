@@ -48,8 +48,7 @@ module ysyx_25010008_IDU (
     output reg csr_wen,
 
     output ecall,
-    output FENCE_I,
-    input exception,
+    output fence_i,
     input clear_pipeline
 );
 
@@ -141,7 +140,7 @@ module ysyx_25010008_IDU (
   wire EBREAK = inst_q[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
   wire MRET   = inst_q[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
-  assign FENCE_I = funct3_001 & opcode == 7'b00_011_11;
+  wire FENCE_I = funct3_001 & opcode == 7'b00_011_11;
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
@@ -192,8 +191,10 @@ module ysyx_25010008_IDU (
   reg [11:0] csr_d_buffer;
   reg r_wen_buffer,csr_wen_buffer;
   reg [1:0] ecall_buffer;
+  reg [1:0] fence_i_buffer;
 
   assign ecall = ecall_buffer[1];
+  assign fence_i = fence_i_buffer[1];
 
   wire [4:0] rs1_tmp = inst[19:15];
   wire [4:0] rs2_tmp = inst[24:20];
@@ -232,18 +233,13 @@ module ysyx_25010008_IDU (
 
       ecall_buffer    <= 0;
     end else if (!block) begin
-      if (!clear_pipeline & inst_valid & idu_ready & !exception) begin
-        inst_q <= inst;
-        decode_valid <= 1;
-        idu_pc <= ifu_pc;
-        done[0] <= 1;
-      end else begin
+      if (clear_pipeline) begin
         inst_q <= 0;
         decode_valid <= 0;
-        done[0] <= 0;
-      end
 
-      if (clear_pipeline || exception) begin
+        r_wen <= 0;
+        csr_wen <= 0;
+
         mem_ren <= 0;
         mem_wen <= 0;
 
@@ -251,29 +247,35 @@ module ysyx_25010008_IDU (
         csr_wen_buffer <= 0;
 
         ecall_buffer <= 0;
-        done[1] <= 0;
+        fence_i_buffer <= 0;
+        done <= 0;
       end else begin
+        if (inst_valid & idu_ready) begin
+          inst_q <= inst;
+          decode_valid <= 1;
+          done[0] <= 1;
+        end else begin
+          inst_q <= 0;
+          decode_valid <= 0;
+          done[0] <= 0;
+        end
+
+        r_wen <= r_wen_buffer;
+        csr_wen <= csr_wen_buffer;
+
         mem_ren <= load;
         mem_wen <= store;
 
         r_wen_buffer <= U_type | J_type | I_type | R_type;
         csr_wen_buffer <= CSRRW | CSRRS | CSRRC | ECALL;
 
-        ecall_buffer <= {ecall_buffer[1], ECALL};
-        done[1] <= done[0];
-      end
+        ecall_buffer <= {ecall_buffer[0], ECALL};
+        fence_i_buffer <= {fence_i_buffer[0], FENCE_I};
 
-      if(exception) begin
-        r_wen <= 0;
-        csr_wen <= 0;
-        
-        done[2] <= 0;        
-      end else begin
-        r_wen <= r_wen_buffer;
-        csr_wen <= csr_wen_buffer;
-        
+        done[1] <= done[0];
         done[2] <= done[1];
       end
+      idu_pc <= ifu_pc;
 
       suffix_b <= LB | LBU | SB;
       suffix_h <= LH | LHU | SH;

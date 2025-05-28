@@ -8,8 +8,6 @@ module ysyx_25010008_RegFile (
     input clock,
     input reset,
 
-    input block,
-
     input [4:0] rs1,
     input [4:0] rs2,
     input [4:0] rd,
@@ -29,10 +27,14 @@ module ysyx_25010008_RegFile (
 
     input inst_addr_misaligned,
     input ecall,
-    output reg exception,
+    input fence_i,
+    input wrong_prediction,
+    output reg clear_pipeline,
+    output reg clear_cache,
 
     input [31:0] lsu_pc,
-    output reg [31:0] exception_pc
+    input [31:0] exu_npc,
+    output reg [31:0] npc
 );
 
   reg [31:0] regs[15:0];
@@ -49,6 +51,8 @@ module ysyx_25010008_RegFile (
 
   integer i;
 
+  wire exception = inst_addr_misaligned | ecall;
+
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
@@ -56,27 +60,31 @@ module ysyx_25010008_RegFile (
       mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
     end else begin
-      if (!block) begin
+      if (clear_pipeline) clear_pipeline <= 0;
+      else begin
         if (wen && rd[3:0] != 0) begin
           regs[rd[3:0]] <= wdata;
         end
-        if (ecall) begin
+        if (exception) begin
           mcause <= 32'd11;
-          mepc   <= lsu_pc;
-        end else if (csr_wen) begin
-          case (csr_d)
-            12'h300: mstatus <= csr_wdata;
-            12'h305: mtvec <= csr_wdata;
-            12'h341: mepc <= csr_wdata;
-            default: ;
-          endcase
+          mepc <= lsu_pc;
+          npc <= mtvec;
+          clear_pipeline <= 1;
+        end else begin
+          clear_pipeline <= fence_i ? 1 : wrong_prediction;
+          clear_cache <= fence_i;
+          npc <= exu_npc;
+          if (csr_wen) begin
+            case (csr_d)
+              12'h300: mstatus <= csr_wdata;
+              12'h305: mtvec <= csr_wdata;
+              12'h341: mepc <= csr_wdata;
+              default: ;
+            endcase
+          end
         end
-        if (exception) exception <= 0;
-        else exception <= inst_addr_misaligned | ecall;
-        exception_pc <= lsu_pc;
-
-        wbu_record(lsu_pc, {31'b0, ecall});
       end
+      wbu_record(lsu_pc, {31'b0, ecall});
     end
   end
 

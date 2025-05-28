@@ -161,7 +161,7 @@ extern "C" void exu_record(int npc, int csr_src) {
 
 extern "C" void wbu_record(int pc, int is_ecall) {
   current_pc = pc;
-  if(is_ecall){
+  if (is_ecall) {
     printf("here\n");
   }
   ecall = is_ecall;
@@ -220,8 +220,6 @@ static int check_regs() {
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   int pc = ecall ? csr_src_buffer[1] : npc_buffer[1];
   if (pc != ref_pc) {
-    std::cout << std::hex << current_pc << std::endl;
-    std::cout << ecall << std::endl;
     std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << pc << std::endl;
     return -1;
   }
