@@ -271,6 +271,7 @@ module ysyx_25010008_IDU (
 
         done[1] <= done[0];
         done[2] <= done[1];
+        if (done[2]) inst_done();
       end
       idu_pc <= ifu_pc;
 
@@ -283,8 +284,6 @@ module ysyx_25010008_IDU (
 
       rd <= rd_buffer;
       csr_d <= csr_d_buffer;
-
-      if (done[2]) inst_done();
 
       idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
                   CSRRW | CSRRS | CSRRC);
