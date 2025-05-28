@@ -55,10 +55,9 @@ char *one_inst_str(const DisasmInst *di) {
 
 word_t inst_buffer[4];
 word_t inst_type_buffer[3];
-word_t npc_buffer[2];
-word_t csr_src_buffer[2];
 
 word_t current_pc;
+word_t current_npc;
 
 extern "C" void ifu_record0(int inc) { get_inst += inc; }
 extern "C" void ifu_record1(int delay) { miss_penalty += delay; }
@@ -150,21 +149,9 @@ extern "C" void idu_record1(int inst) {
 
 extern "C" void inst_done() { finish_one_inst = true; }
 
-extern "C" void exu_record(int npc, int csr_src) {
-  npc_buffer[1] = npc_buffer[0];
-  npc_buffer[0] = npc;
-
-  csr_src_buffer[1] = csr_src_buffer[0];
-  csr_src_buffer[0] = csr_src;
-  exu_done++;
-}
-
-extern "C" void wbu_record(int pc, int is_ecall) {
+extern "C" void wbu_record(int pc, int npc) {
   current_pc = pc;
-  if (is_ecall) {
-    printf("here\n");
-  }
-  ecall = is_ecall;
+  current_npc = npc;
 }
 
 extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
@@ -218,13 +205,12 @@ static int check_regs() {
   word_t ref_reg[REGS_NUM];
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
-  int pc = ecall ? csr_src_buffer[1] : npc_buffer[1];
-  if (pc != ref_pc) {
+  if (current_npc != ref_pc) {
     std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << pc << std::endl;
     return -1;
   }
   for (int i = 0; i < REGS_NUM; i++) {
-    if ((ref_reg[i] != regs[i]) || (pc != ref_pc)) {
+    if ((ref_reg[i] != regs[i])) {
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
                 << std::endl;
@@ -275,8 +261,7 @@ void cpu_exec(uint32_t num) {
     while (!finish_one_inst)
       single_cycle();
 
-    record_inst(inst_buffer[3], ecall ? csr_src_buffer[1] : npc_buffer[1],
-                current_pc, inst_type_buffer[2]);
+    record_inst(inst_buffer[3], current_npc, current_pc, inst_type_buffer[2]);
     total_insts_num++;
 
 #if defined(ITRACE) || defined(MTRACE)
@@ -287,8 +272,7 @@ void cpu_exec(uint32_t num) {
 
     if (diff_test_on) {
       if (skip_ref_inst) {
-        ref_difftest_regcpy(regs, ecall ? &csr_src_buffer[1] : &npc_buffer[1],
-                            DIFFTEST_TO_REF);
+        ref_difftest_regcpy(regs, &current_npc, DIFFTEST_TO_REF);
         skip_ref_inst = false;
       } else {
         ref_difftest_exec(1);

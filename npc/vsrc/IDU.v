@@ -4,10 +4,7 @@ import "DPI-C" function void idu_record0(
   input csr
 );
 
-import "DPI-C" function void idu_record1(
-  int inst,
-  int npc
-);
+import "DPI-C" function void idu_record1(int inst);
 
 import "DPI-C" function void inst_done();
 
@@ -291,7 +288,7 @@ module ysyx_25010008_IDU (
 
       idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
                   CSRRW | CSRRS | CSRRC);
-      idu_record1(inst, ifu_pc);
+      idu_record1(inst);
     end
   end
 
