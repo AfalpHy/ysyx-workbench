@@ -51,14 +51,14 @@ module ysyx_25010008_EXU (
   reg [ 1:0] npc_sel_buffer;
   reg [ 1:0] exu_r_wdata_sel_buffer;
   reg [31:0] csr_src_buffer;
-  reg [31:0] exu_npc_buffer;
+  reg [31:0] exu_npc_tmp;
 
   always @(npc_sel_buffer or snpc or dnpc or alu_result or csr_src_buffer) begin
     case (npc_sel_buffer)
-      2'b00: exu_npc_buffer = snpc;
-      2'b01: exu_npc_buffer = dnpc;  // jal
-      2'b10: exu_npc_buffer = alu_result & (~32'b1);  // jalr
-      2'b11: exu_npc_buffer = alu_result[0] ? dnpc : snpc;  // branch
+      2'b00: exu_npc_tmp = snpc;
+      2'b01: exu_npc_tmp = dnpc;  // jal
+      2'b10: exu_npc_tmp = alu_result & (~32'b1);  // jalr
+      2'b11: exu_npc_tmp = alu_result[0] ? dnpc : snpc;  // branch
     endcase
   end
 
@@ -96,7 +96,7 @@ module ysyx_25010008_EXU (
       dnpc <= idu_pc + imm;
 
       exu_pc <= idu_pc;
-      exu_npc <= exu_npc_buffer;
+      exu_npc <= exu_npc_tmp;
 
       wsrc <= src2_tmp;
 
