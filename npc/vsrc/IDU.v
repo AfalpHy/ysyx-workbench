@@ -279,7 +279,7 @@ module ysyx_25010008_IDU (
         sext <= LB | LH;
 
         rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
-        csr_d_buffer <= inst_q[31:20];
+        csr_d_buffer <= csr_inst ? inst_q[31:20] : 0;
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
