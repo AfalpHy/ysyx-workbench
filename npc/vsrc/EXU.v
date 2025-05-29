@@ -68,7 +68,7 @@ module ysyx_25010008_EXU (
       2'b00: exu_r_wdata = alu_result;
       2'b01: exu_r_wdata = snpc;  // jal jalr
       2'b10: exu_r_wdata = dnpc;  // auipc 
-      2'b11: exu_r_wdata = csr_src;  // csrrw csrrs csrrc
+      2'b11: exu_r_wdata = csr_src_buffer;  // csrrw csrrs csrrc
     endcase
   end
 
