@@ -21,11 +21,17 @@ module ysyx_25010008_LSU (
     input ren,
     input wen,
 
+    input [31:0] exu_pc,
+    output reg [31:0] lsu_pc,
+
     input [31:0] addr,
     input [31:0] wsrc,
     input [31:0] exu_r_wdata,
     output reg [31:0] r_wdata,
     output reg block,
+
+    input execute_valid,
+    output reg ls_valid,
 
     output reg arvalid,
     output [31:0] araddr,
@@ -49,9 +55,12 @@ module ysyx_25010008_LSU (
 
     output reg bready,
     input [1:0] bresp,
-    input bvalid
+    input bvalid,
+
+    input clear_pipeline
 );
 
+  reg ren_q, wen_q;
   reg [31:0] addr_q;
   reg suffix_b_q;
   reg suffix_h_q;
@@ -90,7 +99,22 @@ module ysyx_25010008_LSU (
       delay = 0;
     end else begin
       if (block) begin
-        delay = delay + 1;
+        if (clear_pipeline) begin
+          block <= 0;
+        end else begin
+          if (ren_q) begin
+            ren_q   <= 0;
+            arvalid <= 1;
+          end
+
+          if (wen_q) begin
+            wen_q   <= 0;
+            // must assert in the same time for sdram axi
+            awvalid <= 1;
+            wvalid  <= 1;
+          end
+          delay = delay + 1;
+        end
 
         if (arvalid & arready) begin
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
@@ -100,9 +124,10 @@ module ysyx_25010008_LSU (
         end
 
         if (rready & rvalid) begin
-          rready  <= 0;
+          rready <= 0;
           r_wdata <= sext_q ? sign_data : unsign_data;
-          block   <= 0;
+          block <= 0;
+          ls_valid <= 1;
           lsu_record0(araddr, sext_q ? sign_data : unsign_data, delay);
           delay = 0;
         end
@@ -120,31 +145,26 @@ module ysyx_25010008_LSU (
 
         if (bready & bvalid) begin
           bready <= 0;
-          block  <= 0;
+          block <= 0;
+          ls_valid <= 1;
           lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
         end
       end else begin
-        if (ren | wen) begin
-          block <= 1;
-          addr_q <= addr;
-          suffix_b_q <= suffix_b;
-          suffix_h_q <= suffix_h;
-          sext_q <= sext;
-        end
+        addr_q <= addr;
+        suffix_b_q <= suffix_b;
+        suffix_h_q <= suffix_h;
+        sext_q <= sext;
+        wsrc_q <= wsrc;
 
+        lsu_pc <= exu_pc;
         r_wdata <= exu_r_wdata;
 
-        if (ren) begin
-          arvalid <= 1;
-        end
+        ren_q <= ren;
+        wen_q <= wen;
 
-        if (wen) begin
-          // must assert in the same time for sdram axi
-          awvalid <= 1;
-          wvalid  <= 1;
-          wsrc_q  <= wsrc;
-        end
+        ls_valid <= (clear_pipeline | ren | wen) ? 0 : execute_valid;
+        block <= (ren | wen) & !clear_pipeline;
       end
     end
   end

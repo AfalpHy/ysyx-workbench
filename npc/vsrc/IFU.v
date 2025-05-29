@@ -21,10 +21,9 @@ module ysyx_25010008_IFU (
     input clock,
     input reset,
 
-    input npc_valid,
     input [31:0] npc,
-    input [31:0] snpc,
-    output reg [31:0] old_pc,
+    input npc_valid,
+    output reg [31:0] ifu_pc,
 
     output reg inst_valid,
     output reg [31:0] inst,
@@ -42,8 +41,10 @@ module ysyx_25010008_IFU (
     input [1:0] rresp,
     input rvalid,
     input rlast,
-    input clear_cache,
-    input clear_pipeline
+
+    output inst_addr_misaligned,
+    input  clear_cache,
+    input  clear_pipeline
 );
 
   // set pointer of pc for cpp
@@ -73,6 +74,10 @@ module ysyx_25010008_IFU (
 
   reg pipeline_empty;
 
+  reg [3:0] inst_addr_misaligned_buffer;
+
+  assign inst_addr_misaligned = inst_addr_misaligned_buffer[3];
+
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < `CACHE_SIZE; i = i + 1) begin
@@ -85,6 +90,7 @@ module ysyx_25010008_IFU (
       delay = 0;
       state <= READ_CACHE;
       pipeline_empty <= 1;
+      inst_addr_misaligned_buffer <= 0;
     end else begin
       if (clear_cache) begin
         for (i = 0; i < `CACHE_SIZE; i = i + 1) begin
@@ -93,23 +99,26 @@ module ysyx_25010008_IFU (
       end
 
       if (clear_pipeline) begin
+        // exception is prior
         pc <= npc;
+        inst_addr_misaligned_buffer <= 0;
         inst_valid <= 0;
         pipeline_empty <= 1;
       end else begin
+        if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
+
         if (state == READ_CACHE & !block & idu_ready) begin
           // sram don't need cache
           if (!is_sram && cache_valid && cache_tag == pc_tag) begin
             inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
-            old_pc <= pc;
+            ifu_pc <= pc;
             pc <= pc + 4;
             pipeline_empty <= 0;
             ifu_record0(1);
           end else begin
             // avoid invalid memory access
-            if (pipeline_empty || (npc_valid && pc == snpc)) begin
-              state <= READ_MEMORY;
+            if (pipeline_empty || (npc_valid && pc == npc)) begin
               if (is_sram) begin
                 araddr <= pc;
                 arlen  <= 0;
@@ -117,7 +126,10 @@ module ysyx_25010008_IFU (
                 araddr <= {pc[31:4], 4'b0};
                 arlen  <= 8'b11;
               end
-              arvalid <= 1;
+              if (pc[1:0] == 0) begin
+                state   <= READ_MEMORY;
+                arvalid <= 1;
+              end else inst_addr_misaligned_buffer[0] <= 1;
             end
             inst_valid <= 0;
           end
@@ -143,7 +155,7 @@ module ysyx_25010008_IFU (
           if (is_sram) begin
             inst <= rdata;
             inst_valid <= 1;
-            old_pc <= pc;
+            ifu_pc <= pc;
             pc <= pc + 4;
             pipeline_empty <= 0;
           end else begin
