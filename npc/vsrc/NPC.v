@@ -111,7 +111,7 @@ module ysyx_25010008_NPC (
   wire [31:0] r_wdata;
   // csr
   wire [11:0] csr_s, csr_d;
-  wire [1:0] csr_s_sel;
+  wire [1:0] csr_src_sel;
   wire [31:0] csr_src;
   wire csr_wen;
   wire [31:0] csr_wdata;
@@ -218,7 +218,7 @@ module ysyx_25010008_NPC (
       .exu_r_wdata_sel(exu_r_wdata_sel),
 
       .csr_s(csr_s),
-      .csr_s_sel(csr_s_sel),
+      .csr_src_sel(csr_src_sel),
       .csr_d(csr_d),
       .csr_wen(csr_wen),
 
@@ -247,7 +247,7 @@ module ysyx_25010008_NPC (
       .exu_r_wdata_sel(exu_r_wdata_sel),
 
       .csr_src(csr_src),
-      .csr_src_sel(csr_s_sel),
+      .csr_src_sel(csr_src_sel),
 
       .alu_opcode(alu_opcode),
       .alu_operand1_sel(alu_operand1_sel),

@@ -38,7 +38,7 @@ module ysyx_25010008_IDU (
     output [1:0] exu_r_wdata_sel,
 
     output [11:0] csr_s,
-    output [1:0] csr_s_sel,
+    output [1:0] csr_src_sel,
     output reg [11:0] csr_d,
     output reg csr_wen,
 
@@ -173,8 +173,8 @@ module ysyx_25010008_IDU (
   assign exu_r_wdata_sel[1] = AUIPC | csr_inst;
 
   assign csr_s = csr_inst ? inst_q[31:20] : 0;
-  assign csr_s_sel[0] = csr_s == csr_d_buffer;
-  assign csr_s_sel[1] = csr_s == csr_d;
+  assign csr_src_sel[0] = csr_s == csr_d_buffer;
+  assign csr_src_sel[1] = csr_s == csr_d;
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
   assign alu_opcode[1] = XORI | XOR | BEQ;
@@ -280,7 +280,7 @@ module ysyx_25010008_IDU (
 
         rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
         csr_d_buffer <= csr_inst ? inst_q[31:20] : 0;
-        if(csr_inst) $display(" %x %x %x",ifu_pc, csr_s_sel, inst_q[31:20]);
+        if(csr_inst) $display(" %x %x %x",ifu_pc, csr_src_sel, inst_q[31:20]);
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
