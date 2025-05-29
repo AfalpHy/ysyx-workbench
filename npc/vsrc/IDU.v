@@ -226,7 +226,7 @@ module ysyx_25010008_IDU (
       csr_wen         <= 0;
 
       ecall_buffer    <= 0;
-    end else if (!block) begin
+    end else begin
       if (clear_pipeline) begin
         inst_q <= 0;
         decode_valid <= 0;
@@ -242,7 +242,7 @@ module ysyx_25010008_IDU (
 
         ecall_buffer <= 0;
         fence_i_buffer <= 0;
-      end else begin
+      end else if (!block) begin
         if (inst_valid & idu_ready) begin
           inst_q <= inst;
           decode_valid <= 1;
