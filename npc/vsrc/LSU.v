@@ -57,7 +57,9 @@ module ysyx_25010008_LSU (
     input [1:0] bresp,
     input bvalid,
 
-    input clear_pipeline
+    input clear_pipeline,
+    output reg load_addr_misaligned,
+    output reg store_addr_misaligned
 );
 
   reg ren_q, wen_q;
@@ -67,6 +69,7 @@ module ysyx_25010008_LSU (
   reg sext_q;
   reg [31:0] wsrc_q;
 
+  wire addr_misaligned = suffix_h_q ? (addr_q[1:0] == 3) : suffix_b_q ? 0 : addr_q[1:0] != 0;
   assign araddr = addr_q;
   assign arsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
 
@@ -89,29 +92,37 @@ module ysyx_25010008_LSU (
   always @(posedge clock) begin
     if (reset) begin
       arvalid <= 0;
-      rready  <= 0;
+      rready <= 0;
 
       awvalid <= 0;
-      wvalid  <= 0;
-      bready  <= 0;
+      wvalid <= 0;
+      bready <= 0;
 
-      block   <= 0;
+      block <= 0;
+
+      load_addr_misaligned <= 0;
+      store_addr_misaligned <= 0;
+
       delay = 0;
     end else begin
       if (block) begin
         if (clear_pipeline) begin
           block <= 0;
+          load_addr_misaligned <= 0;
+          store_addr_misaligned <= 0;
         end else begin
           if (ren_q) begin
-            ren_q   <= 0;
-            arvalid <= 1;
+            ren_q <= 0;
+            load_addr_misaligned <= addr_misaligned;
+            arvalid <= addr_misaligned ? 0 : 1;
           end
 
           if (wen_q) begin
-            wen_q   <= 0;
+            wen_q <= 0;
+            store_addr_misaligned <= addr_misaligned;
             // must assert in the same time for sdram axi
-            awvalid <= 1;
-            wvalid  <= 1;
+            awvalid <= addr_misaligned ? 0 : 1;
+            wvalid <= addr_misaligned ? 0 : 1;
           end
           delay = delay + 1;
         end

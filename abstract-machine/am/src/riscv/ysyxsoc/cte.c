@@ -8,11 +8,6 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-    case 0: {
-      printf("Instruction address misaligned\n");
-      asm volatile("ebreak");
-      break;
-    }
     // Environment call from M-mode use NO.11
     case 11: {
       if (c->GPR1 == -1) {

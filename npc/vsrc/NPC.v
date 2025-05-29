@@ -102,6 +102,8 @@ module ysyx_25010008_NPC (
   wire block;
   wire [31:0] lsu_pc;
   wire ls_valid;
+  wire load_addr_misaligned;
+  wire store_addr_misaligned;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
@@ -313,7 +315,9 @@ module ysyx_25010008_NPC (
       .bresp (bresp_1),
       .bvalid(bvalid_1),
 
-      .clear_pipeline(clear_pipeline)
+      .clear_pipeline(clear_pipeline),
+      .load_addr_misaligned(load_addr_misaligned),
+      .store_addr_misaligned(store_addr_misaligned)
   );
 
   ysyx_25010008_RegFile reg_file (
@@ -342,6 +346,8 @@ module ysyx_25010008_NPC (
       .ecall(ecall),
       .mret(mret),
       .fence_i(fence_i),
+      .load_addr_misaligned(load_addr_misaligned),
+      .store_addr_misaligned(store_addr_misaligned),
       .wrong_prediction(wrong_prediction),
       .clear_pipeline(clear_pipeline),
       .clear_cache(clear_cache),
