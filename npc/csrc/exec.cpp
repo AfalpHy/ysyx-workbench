@@ -17,7 +17,6 @@ uint64_t total_insts_num = 0;
 
 bool print_itrace = false;
 bool halt = false;
-bool ecall = false;
 bool finish_one_inst = false;
 
 // counter
