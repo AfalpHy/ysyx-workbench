@@ -22,6 +22,7 @@ module ysyx_25010008_IFU (
     input reset,
 
     input [31:0] npc,
+    input npc_valid,
     output reg [31:0] ifu_pc,
 
     output reg inst_valid,
@@ -42,8 +43,8 @@ module ysyx_25010008_IFU (
     input rlast,
 
     output inst_addr_misaligned,
-    input clear_cache,
-    input clear_pipeline
+    input  clear_cache,
+    input  clear_pipeline
 );
 
   // set pointer of pc for cpp
@@ -117,7 +118,7 @@ module ysyx_25010008_IFU (
             ifu_record0(1);
           end else begin
             // avoid invalid memory access
-            if (pipeline_empty || pc == npc) begin
+            if (pipeline_empty || (npc_valid && pc == npc)) begin
               if (is_sram) begin
                 araddr <= pc;
                 arlen  <= 0;

@@ -6,8 +6,6 @@ import "DPI-C" function void idu_record0(
 
 import "DPI-C" function void idu_record1(int inst);
 
-import "DPI-C" function void inst_done();
-
 module ysyx_25010008_IDU (
     input clock,
     input reset,
@@ -197,7 +195,6 @@ module ysyx_25010008_IDU (
   wire [4:0] rs2_tmp = inst[24:20];
   assign idu_ready = !load | ((rs1_tmp == 0 || rs1_tmp != inst_q[11:7]) && (rs2_tmp == 0 || rs2_tmp != inst_q[11:7]));
 
-  reg [2:0] done;
   //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
   //                   +----+----+----+----+----+
   // I1: add a0,t0,s0  | IF | ID | EX | LS | WB |
@@ -245,16 +242,13 @@ module ysyx_25010008_IDU (
 
         ecall_buffer <= 0;
         fence_i_buffer <= 0;
-        done <= 0;
       end else begin
         if (inst_valid & idu_ready) begin
           inst_q <= inst;
           decode_valid <= 1;
-          done[0] <= 1;
         end else begin
           inst_q <= 0;
           decode_valid <= 0;
-          done[0] <= 0;
         end
 
         r_wen <= r_wen_buffer;
@@ -268,10 +262,6 @@ module ysyx_25010008_IDU (
 
         ecall_buffer <= {ecall_buffer[0], ECALL};
         fence_i_buffer <= {fence_i_buffer[0], FENCE_I};
-
-        done[1] <= done[0];
-        done[2] <= done[1];
-        if (done[2]) inst_done();
       end
       idu_pc <= ifu_pc;
 

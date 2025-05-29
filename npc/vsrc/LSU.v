@@ -30,6 +30,9 @@ module ysyx_25010008_LSU (
     output reg [31:0] r_wdata,
     output reg block,
 
+    input execute_valid,
+    output reg ls_valid,
+
     output reg arvalid,
     output [31:0] araddr,
     output [2:0] arsize,
@@ -121,9 +124,10 @@ module ysyx_25010008_LSU (
         end
 
         if (rready & rvalid) begin
-          rready  <= 0;
+          rready <= 0;
           r_wdata <= sext_q ? sign_data : unsign_data;
-          block   <= 0;
+          block <= 0;
+          ls_valid <= 1;
           lsu_record0(araddr, sext_q ? sign_data : unsign_data, delay);
           delay = 0;
         end
@@ -141,7 +145,8 @@ module ysyx_25010008_LSU (
 
         if (bready & bvalid) begin
           bready <= 0;
-          block  <= 0;
+          block <= 0;
+          ls_valid <= 1;
           lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
         end
@@ -157,7 +162,10 @@ module ysyx_25010008_LSU (
 
         ren_q <= ren;
         wen_q <= wen;
-        block <= ren | wen;
+        if (ren | wen) begin
+          ls_valid <= 0;
+          block <= 1;
+        end else ls_valid <= clear_pipeline ? 0 : execute_valid;
       end
     end
   end

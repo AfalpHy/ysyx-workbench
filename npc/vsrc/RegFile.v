@@ -3,7 +3,7 @@ import "DPI-C" function void wbu_record(
   int pc,
   int npc
 );
-
+import "DPI-C" function void inst_done();
 module ysyx_25010008_RegFile (
     input clock,
     input reset,
@@ -25,6 +25,7 @@ module ysyx_25010008_RegFile (
     output [31:0] src2,
     output reg [31:0] csr_src,
 
+    input ls_valid,
     input inst_addr_misaligned,
     input ecall,
     input fence_i,
@@ -34,7 +35,8 @@ module ysyx_25010008_RegFile (
 
     input [31:0] lsu_pc,
     input [31:0] exu_npc,
-    output reg [31:0] npc
+    output reg [31:0] npc,
+    output reg npc_valid
 );
 
   reg [31:0] regs[15:0];
@@ -60,8 +62,11 @@ module ysyx_25010008_RegFile (
       mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
     end else begin
-      if (clear_pipeline) clear_pipeline <= 0;
-      else begin
+      if (clear_pipeline) begin
+        clear_pipeline <= 0;
+        npc_valid <= 0;
+      end else begin
+        npc_valid <= ls_valid;
         if (wen && rd[3:0] != 0) begin
           regs[rd[3:0]] <= wdata;
         end
@@ -85,6 +90,8 @@ module ysyx_25010008_RegFile (
           end
           wbu_record(lsu_pc, exu_npc);
         end
+
+        if (ls_valid) inst_done();
       end
     end
   end

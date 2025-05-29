@@ -66,7 +66,6 @@ module ysyx_25010008_NPC (
 );
   // pc
   wire [31:0] ifu_pc;
-  wire [31:0] npc;
   wire [1:0] npc_sel;
   wire ifu_enable;
   wire inst_addr_misaligned;
@@ -87,6 +86,7 @@ module ysyx_25010008_NPC (
   wire [31:0] exu_r_wdata;
   wire [31:0] exu_pc;
   wire [31:0] exu_npc;
+  wire execute_valid;
   wire wrong_prediction;
 
   // alu
@@ -100,6 +100,7 @@ module ysyx_25010008_NPC (
   wire mem_ren, mem_wen;
   wire block;
   wire [31:0] lsu_pc;
+  wire ls_valid;
 
   // gpr
   wire [4:0] rs1, rs2, rd;
@@ -116,6 +117,8 @@ module ysyx_25010008_NPC (
 
   wire clear_cache;
   wire clear_pipeline;
+  wire [31:0] npc;
+  wire npc_valid;
 
   wire [31:0] araddr_0;
   wire arvalid_0;
@@ -157,6 +160,7 @@ module ysyx_25010008_NPC (
       .reset(reset),
 
       .npc(npc),
+      .npc_valid(npc_valid),
       .ifu_pc(ifu_pc),
 
       .inst_valid(inst_valid),
@@ -229,6 +233,7 @@ module ysyx_25010008_NPC (
       .block(block),
 
       .decode_valid(decode_valid),
+      .execute_valid(execute_valid),
       .idu_pc(idu_pc),
       .exu_pc(exu_pc),
       .npc_sel(npc_sel),
@@ -279,6 +284,9 @@ module ysyx_25010008_NPC (
       .r_wdata(r_wdata),
       .block(block),
 
+      .execute_valid(execute_valid),
+      .ls_valid(ls_valid),
+
       .araddr (araddr_1),
       .arsize (arsize_1),
       .arvalid(arvalid_1),
@@ -327,6 +335,7 @@ module ysyx_25010008_NPC (
       .src2(src2),
       .csr_src(csr_src),
 
+      .ls_valid(ls_valid),
       .inst_addr_misaligned(inst_addr_misaligned),
       .ecall(ecall),
       .fence_i(fence_i),
@@ -336,7 +345,8 @@ module ysyx_25010008_NPC (
 
       .lsu_pc(lsu_pc),
       .exu_npc(exu_npc),
-      .npc(npc)
+      .npc(npc),
+      .npc_valid(npc_valid)
   );
 
   ysyx_25010008_Arbiter arbiter (

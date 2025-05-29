@@ -5,6 +5,7 @@ module ysyx_25010008_EXU (
     input block,
 
     input decode_valid,
+    output reg execute_valid,
     input [31:0] idu_pc,
     output reg [31:0] exu_pc,
     input [1:0] npc_sel,
@@ -74,8 +75,6 @@ module ysyx_25010008_EXU (
   wire [31:0] src2_tmp = alu_operand2_sel[2] ? exu_r_wdata : alu_operand2_sel[3] ? forward_data : src2;
   wire [31:0] csr_src_tmp = csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata : csr_src;
 
-  reg execute_valid;
-
   always @(posedge clock) begin
     if (reset) begin
       execute_valid <= 0;
@@ -83,11 +82,9 @@ module ysyx_25010008_EXU (
       if (clear_pipeline) begin
         execute_valid <= 0;
         wrong_prediction <= 0;
-        exu_npc <= 0;
       end else begin
         execute_valid <= decode_valid;
         wrong_prediction <= execute_valid && npc_sel_buffer != 0;
-        exu_npc <= exu_npc_tmp;
       end
 
       opcode <= alu_opcode;
@@ -98,6 +95,7 @@ module ysyx_25010008_EXU (
       dnpc <= idu_pc + imm;
 
       exu_pc <= idu_pc;
+      exu_npc <= exu_npc_tmp;
 
       wsrc <= src2_tmp;
 
