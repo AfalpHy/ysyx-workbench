@@ -138,13 +138,15 @@ module ysyx_25010008_IDU (
 
   wire FENCE_I = funct3_001 & opcode == 7'b00_011_11;
 
+  wire csr_inst = CSRRW | CSRRS | CSRRC;
+
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
 
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
   wire B_type = branch;
-  wire I_type = JALR | load | op_imm | CSRRW | CSRRS | CSRRC;
+  wire I_type = JALR | load | op_imm | csr_inst;
   wire S_type = store;
   wire R_type = op;
 
@@ -167,10 +169,10 @@ module ysyx_25010008_IDU (
   assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
   assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
 
-  assign exu_r_wdata_sel[0] = JAL | JALR | CSRRW | CSRRS | CSRRC;
-  assign exu_r_wdata_sel[1] = AUIPC | CSRRW | CSRRS | CSRRC;
+  assign exu_r_wdata_sel[0] = JAL | JALR | csr_inst;
+  assign exu_r_wdata_sel[1] = AUIPC | csr_inst;
 
-  assign csr_s = inst_q[31:20];
+  assign csr_s = csr_inst ? inst_q[31:20] : 0;
   assign csr_s_sel[0] = csr_s == csr_d_buffer;
   assign csr_s_sel[1] = csr_s == csr_d;
 
@@ -264,7 +266,7 @@ module ysyx_25010008_IDU (
         mem_wen <= store;
 
         r_wen_buffer <= U_type | J_type | I_type | R_type;
-        csr_wen_buffer <= CSRRW | CSRRS | CSRRC;
+        csr_wen_buffer <= csr_inst;
 
         ecall_buffer <= {ecall_buffer[0], ECALL};
         mret_buffer <= {mret_buffer[0], MRET};
@@ -277,13 +279,12 @@ module ysyx_25010008_IDU (
         sext <= LB | LH;
 
         rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
-        csr_d_buffer <= inst_q[31:20];
+        csr_d_buffer = csr_inst ? inst_q[31:20] : 0;
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
 
-        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
-                    CSRRW | CSRRS | CSRRC);
+        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, csr_inst);
         idu_record1(inst);
       end
     end
