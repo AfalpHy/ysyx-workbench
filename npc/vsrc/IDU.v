@@ -280,6 +280,7 @@ module ysyx_25010008_IDU (
 
         rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
         csr_d_buffer <= csr_inst ? inst_q[31:20] : 0;
+        if(csr_inst) $display(" %x %x %x",ifu_pc, csr_s_sel, inst_q[31:20]);
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
