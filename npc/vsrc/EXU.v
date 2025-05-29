@@ -90,7 +90,6 @@ module ysyx_25010008_EXU (
         operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
         operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src_tmp : src2_tmp;
 
-        if(idu_pc == 32'ha0000018) $display("%x %x",csr_src_sel,csr_src_tmp);
         snpc <= idu_pc + 4;
         dnpc <= idu_pc + imm;
 

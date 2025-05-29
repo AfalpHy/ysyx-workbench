@@ -82,8 +82,6 @@ module ysyx_25010008_RegFile (
           clear_cache <= fence_i;
           npc <= mret ? mepc : exu_npc;
           if (csr_wen) begin
-            $display("csrwen %x",csr_d);
-            if(csr_d==12'h300) $display("%x %x",lsu_pc, csr_wdata);
             case (csr_d)
               12'h300: mstatus <= csr_wdata;
               12'h305: mtvec <= csr_wdata;
