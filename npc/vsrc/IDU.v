@@ -279,7 +279,6 @@ module ysyx_25010008_IDU (
                     CSRRW | CSRRS | CSRRC);
         idu_record1(inst);
       end
-
     end
   end
 
