@@ -129,7 +129,10 @@ module ysyx_25010008_IFU (
               if (pc[1:0] == 0) begin
                 state   <= READ_MEMORY;
                 arvalid <= 1;
-              end else inst_addr_misaligned_buffer[0] <= 1;
+              end else begin
+                ifu_pc <= pc;
+                inst_addr_misaligned_buffer[0] <= 1;
+              end
             end
             inst_valid <= 0;
           end

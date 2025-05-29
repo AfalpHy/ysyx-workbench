@@ -30,6 +30,8 @@ module ysyx_25010008_RegFile (
     input ecall,
     input mret,
     input fence_i,
+    input load_addr_misaligned,
+    input store_addr_misaligned,
     input wrong_prediction,
     output reg clear_pipeline,
     output reg clear_cache,
@@ -54,7 +56,7 @@ module ysyx_25010008_RegFile (
 
   integer i;
 
-  wire exception = inst_addr_misaligned | ecall;
+  wire exception = inst_addr_misaligned | ecall | load_addr_misaligned | store_addr_misaligned;
 
   always @(posedge clock) begin
     if (reset) begin
@@ -72,7 +74,7 @@ module ysyx_25010008_RegFile (
           regs[rd[3:0]] <= wdata;
         end
         if (exception) begin
-          mcause <= 32'd11;
+          mcause <= inst_addr_misaligned ? 0 : ecall ? 11 : load_addr_misaligned ? 4 : 6;
           mepc <= lsu_pc;
           npc <= mtvec;
           clear_pipeline <= 1;
