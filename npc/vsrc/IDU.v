@@ -262,18 +262,19 @@ module ysyx_25010008_IDU (
 
         ecall_buffer <= {ecall_buffer[0], ECALL};
         fence_i_buffer <= {fence_i_buffer[0], FENCE_I};
+
+        idu_pc <= ifu_pc;
+
+        suffix_b <= LB | LBU | SB;
+        suffix_h <= LH | LHU | SH;
+        sext <= LB | LH;
+
+        rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
+        csr_d_buffer <= ECALL ? 12'h342 : inst_q[31:20];
+
+        rd <= rd_buffer;
+        csr_d <= csr_d_buffer;
       end
-      idu_pc <= ifu_pc;
-
-      suffix_b <= LB | LBU | SB;
-      suffix_h <= LH | LHU | SH;
-      sext <= LB | LH;
-
-      rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
-      csr_d_buffer <= ECALL ? 12'h342 : inst_q[31:20];
-
-      rd <= rd_buffer;
-      csr_d <= csr_d_buffer;
 
       idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
                   CSRRW | CSRRS | CSRRC);
