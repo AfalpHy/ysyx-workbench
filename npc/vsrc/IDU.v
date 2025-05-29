@@ -172,7 +172,7 @@ module ysyx_25010008_IDU (
   assign exu_r_wdata_sel[0] = JAL | JALR | csr_inst;
   assign exu_r_wdata_sel[1] = AUIPC | csr_inst;
 
-  assign csr_s = csr_inst ? inst_q[31:20] : 0;
+  assign csr_s = inst_q[31:20];
   assign csr_src_sel[0] = csr_s == csr_d_buffer;
   assign csr_src_sel[1] = csr_s == csr_d;
 
