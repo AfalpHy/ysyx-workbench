@@ -85,27 +85,27 @@ module ysyx_25010008_EXU (
       end else if (!block) begin
         execute_valid <= decode_valid;
         wrong_prediction <= execute_valid && npc_sel_buffer != 0;
+
+        opcode <= alu_opcode;
+        operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
+        operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src_tmp : src2_tmp;
+
+        snpc <= idu_pc + 4;
+        dnpc <= idu_pc + imm;
+
+        exu_pc <= idu_pc;
+        exu_npc <= exu_npc_tmp;
+
+        wsrc <= src2_tmp;
+
+        npc_sel_buffer <= npc_sel;
+
+        csr_src_buffer <= csr_src_tmp;
+
+        exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
+
+        csr_wdata <= alu_result;
       end
-
-      opcode <= alu_opcode;
-      operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
-      operand2 <= alu_operand2_sel[0] ? imm : alu_operand2_sel[1] ? csr_src_tmp : src2_tmp;
-
-      snpc <= idu_pc + 4;
-      dnpc <= idu_pc + imm;
-
-      exu_pc <= idu_pc;
-      exu_npc <= exu_npc_tmp;
-
-      wsrc <= src2_tmp;
-
-      npc_sel_buffer <= npc_sel;
-
-      csr_src_buffer <= csr_src_tmp;
-
-      exu_r_wdata_sel_buffer <= exu_r_wdata_sel;
-
-      csr_wdata <= alu_result;
     end
   end
 
