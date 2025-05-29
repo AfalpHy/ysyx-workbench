@@ -274,11 +274,12 @@ module ysyx_25010008_IDU (
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
+
+        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
+                    CSRRW | CSRRS | CSRRC);
+        idu_record1(inst);
       end
 
-      idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store,
-                  CSRRW | CSRRS | CSRRC);
-      idu_record1(inst);
     end
   end
 
