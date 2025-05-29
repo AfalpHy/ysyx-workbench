@@ -43,6 +43,7 @@ module ysyx_25010008_IDU (
     output reg csr_wen,
 
     output ecall,
+    output mret,
     output fence_i,
     input clear_pipeline
 );
@@ -169,7 +170,7 @@ module ysyx_25010008_IDU (
   assign exu_r_wdata_sel[0] = JAL | JALR | CSRRW | CSRRS | CSRRC;
   assign exu_r_wdata_sel[1] = AUIPC | CSRRW | CSRRS | CSRRC;
 
-  assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : inst_q[31:20]);
+  assign csr_s = inst_q[31:20];
   assign csr_s_sel[0] = csr_s == csr_d_buffer;
   assign csr_s_sel[1] = csr_s == csr_d;
 
@@ -186,9 +187,11 @@ module ysyx_25010008_IDU (
   reg [11:0] csr_d_buffer;
   reg r_wen_buffer,csr_wen_buffer;
   reg [1:0] ecall_buffer;
+  reg [1:0] mret_buffer;
   reg [1:0] fence_i_buffer;
 
   assign ecall = ecall_buffer[1];
+  assign mret = mret_buffer[1];
   assign fence_i = fence_i_buffer[1];
 
   wire [4:0] rs1_tmp = inst[19:15];
@@ -241,6 +244,7 @@ module ysyx_25010008_IDU (
         csr_wen_buffer <= 0;
 
         ecall_buffer <= 0;
+        mret_buffer <= 0;
         fence_i_buffer <= 0;
       end else if (!block) begin
         if (inst_valid & idu_ready) begin
@@ -258,9 +262,10 @@ module ysyx_25010008_IDU (
         mem_wen <= store;
 
         r_wen_buffer <= U_type | J_type | I_type | R_type;
-        csr_wen_buffer <= CSRRW | CSRRS | CSRRC | ECALL;
+        csr_wen_buffer <= CSRRW | CSRRS | CSRRC;
 
         ecall_buffer <= {ecall_buffer[0], ECALL};
+        mret_buffer <= {mret_buffer[0], MRET};
         fence_i_buffer <= {fence_i_buffer[0], FENCE_I};
 
         idu_pc <= ifu_pc;
@@ -270,7 +275,7 @@ module ysyx_25010008_IDU (
         sext <= LB | LH;
 
         rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
-        csr_d_buffer <= ECALL ? 12'h342 : inst_q[31:20];
+        csr_d_buffer <= inst_q[31:20];
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;

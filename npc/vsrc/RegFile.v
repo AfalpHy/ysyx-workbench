@@ -28,6 +28,7 @@ module ysyx_25010008_RegFile (
     input ls_valid,
     input inst_addr_misaligned,
     input ecall,
+    input mret,
     input fence_i,
     input wrong_prediction,
     output reg clear_pipeline,
@@ -77,9 +78,9 @@ module ysyx_25010008_RegFile (
           clear_pipeline <= 1;
           wbu_record(lsu_pc, mtvec);
         end else begin
-          clear_pipeline <= fence_i ? 1 : wrong_prediction;
+          clear_pipeline <= (fence_i | mret) ? 1 : wrong_prediction;
           clear_cache <= fence_i;
-          npc <= exu_npc;
+          npc <= mret ? mepc : exu_npc;
           if (csr_wen) begin
             case (csr_d)
               12'h300: mstatus <= csr_wdata;
@@ -88,7 +89,7 @@ module ysyx_25010008_RegFile (
               default: ;
             endcase
           end
-          wbu_record(lsu_pc, exu_npc);
+          wbu_record(lsu_pc, mret ? mepc : exu_npc);
         end
 
         if (ls_valid) inst_done();

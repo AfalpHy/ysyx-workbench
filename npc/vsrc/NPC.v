@@ -77,8 +77,9 @@ module ysyx_25010008_NPC (
   wire suffix_h;
   wire sext;
   wire inst_valid;
-  wire fence_i;
   wire ecall;
+  wire mret;
+  wire fence_i;
 
   wire decode_valid;
   wire idu_ready;
@@ -222,6 +223,7 @@ module ysyx_25010008_NPC (
       .csr_wen(csr_wen),
 
       .ecall(ecall),
+      .mret(mret),
       .fence_i(fence_i),
       .clear_pipeline(clear_pipeline)
   );
@@ -338,6 +340,7 @@ module ysyx_25010008_NPC (
       .ls_valid(ls_valid),
       .inst_addr_misaligned(inst_addr_misaligned),
       .ecall(ecall),
+      .mret(mret),
       .fence_i(fence_i),
       .wrong_prediction(wrong_prediction),
       .clear_pipeline(clear_pipeline),
