@@ -72,7 +72,7 @@ module ysyx_25010008_RegFile (
           regs[rd[3:0]] <= wdata;
         end
         if (exception) begin
-          mcause <= 32'd11;
+          mcause <= ecall ? 32'd11 : 32'd0;
           mepc <= lsu_pc;
           npc <= mtvec;
           clear_pipeline <= 1;
