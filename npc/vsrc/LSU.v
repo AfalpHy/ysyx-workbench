@@ -162,10 +162,9 @@ module ysyx_25010008_LSU (
 
         ren_q <= ren;
         wen_q <= wen;
-        if (ren | wen) begin
-          ls_valid <= 0;
-          block <= 1;
-        end else ls_valid <= clear_pipeline ? 0 : execute_valid;
+
+        ls_valid <= (clear_pipeline | ren | wen) ? 0 : execute_valid;
+        block <= (ren | wen) & !clear_pipeline;
       end
     end
   end
