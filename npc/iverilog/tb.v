@@ -36,6 +36,10 @@ module top ();
 
   always #1 clock = ~clock;
 
+  always @(posedge cpu.idu.EBREAK) begin
+    $finish;
+  end
+
   ysyx_25010008_NPC cpu (
       .clock(clock),
       .reset(reset),

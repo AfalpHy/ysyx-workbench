@@ -64,6 +64,7 @@ module ysyx_25010008_RegFile (
       mstatus   <= 32'h1800;
       mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
+      clear_pipeline <= 0;
     end else begin
       if (clear_pipeline) begin
         clear_pipeline <= 0;

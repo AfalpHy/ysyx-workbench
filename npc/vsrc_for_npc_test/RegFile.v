@@ -51,9 +51,10 @@ module ysyx_25010008_RegFile (
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
-      mstatus   <= 32'h1800;
+      mstatus <= 32'h1800;
       mvendorid <= 32'h7973_7978;
-      marchid   <= 32'h17D_9F58;
+      marchid <= 32'h17D_9F58;
+      clear_pipeline <= 0;
     end else begin
       if (clear_pipeline) begin
         clear_pipeline <= 0;
