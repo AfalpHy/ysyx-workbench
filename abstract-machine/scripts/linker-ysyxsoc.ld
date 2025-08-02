@@ -39,7 +39,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     . = ALIGN(8);
-  } > sdram AT > flash
+  } > sdram AT > flash : data
 
   .bss : {
     . = ALIGN(8);
