@@ -40,7 +40,7 @@ module top ();
     $finish;
   end
 
-  ysyx_25010008_NPC cpu (
+  ysyx_25010008 cpu (
       .clock(clock),
       .reset(reset),
       .io_interrupt(1'h0),  // home/cloud/ysyx-workbench/ysyxSoC/src/CPU.scala:35:23, :36:19, :38:21
