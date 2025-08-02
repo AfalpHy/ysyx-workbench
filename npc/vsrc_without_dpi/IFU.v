@@ -74,7 +74,11 @@ module ysyx_25010008_IFU (
       for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
         cache[i][`ysyx_25010008_VALID_POS] <= 0;
       end
+`ifdef __ICARUS__
+      pc <= 32'h8000_0000;
+`else
       pc <= 32'h3000_0000;
+`endif
       arvalid <= 0;
       rready <= 0;
       inst_valid <= 0;
@@ -132,6 +136,7 @@ module ysyx_25010008_IFU (
       if (state == READ_MEMORY) begin
         delay = delay + 1;
         if (arvalid & arready) begin
+          $display("%h ...", ifu_pc);
           arvalid <= 0;
           rready  <= 1;
         end
@@ -141,6 +146,7 @@ module ysyx_25010008_IFU (
             rready <= 0;
 
             state  <= READ_CACHE;
+          $display("%h end", rdata);
 
             delay = 0;
           end

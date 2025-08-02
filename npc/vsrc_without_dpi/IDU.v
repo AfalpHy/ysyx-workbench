@@ -1,11 +1,3 @@
-import "DPI-C" function void idu_record0(
-  input calc,
-  input ls,
-  input csr
-);
-
-import "DPI-C" function void idu_record1(int inst);
-
 module ysyx_25010008_IDU (
     input clock,
     input reset,
@@ -259,6 +251,9 @@ module ysyx_25010008_IDU (
           decode_valid <= 0;
         end
 
+`ifdef __ICARUS__
+          if(EBREAK) $finish;
+`endif
         r_wen <= r_wen_buffer;
         csr_wen <= csr_wen_buffer;
 
@@ -283,9 +278,6 @@ module ysyx_25010008_IDU (
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
-
-        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, csr_inst);
-        idu_record1(inst);
       end
     end
   end

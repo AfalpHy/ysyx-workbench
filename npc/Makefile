@@ -93,6 +93,10 @@ sim: all
 	@$(BIN) $(ARGS)	
 
 sim-iverilog: verilog
+	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v
+
+sim-iverilog-netlist:
+	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v 
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
@@ -103,6 +107,6 @@ gdb: all
 perf:
 	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc BATCH=ON mainargs=train run
 
-.PHONY: all clean verilog sim sim-iverilog gdb perf
+.PHONY: all clean verilog sim sim-iverilog sim-iverilog-netlist gdb perf
 
 include ../Makefile
