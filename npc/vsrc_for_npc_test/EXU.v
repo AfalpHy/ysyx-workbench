@@ -78,6 +78,7 @@ module ysyx_25010008_EXU (
   always @(posedge clock) begin
     if (reset) begin
       execute_valid <= 0;
+      wrong_prediction <= 0;
     end else begin
       if (clear_pipeline) begin
         execute_valid <= 0;

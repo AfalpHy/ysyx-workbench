@@ -142,7 +142,6 @@ module ysyx_25010008_IFU (
       if (state == READ_MEMORY) begin
         delay = delay + 1;
         if (arvalid & arready) begin
-          $display("%h", araddr);
           arvalid <= 0;
           rready  <= 1;
         end

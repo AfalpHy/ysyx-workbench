@@ -36,6 +36,10 @@ module top ();
 
   always #1 clock = ~clock;
 
+  always @(posedge cpu.idu.EBREAK) begin
+    $finish;
+  end
+
   ysyx_25010008_NPC cpu (
       .clock(clock),
       .reset(reset),
@@ -113,7 +117,7 @@ module top ();
       .rdata (rdata),
       .rresp (rresp),
       .rvalid(rvalid),
-      .rlast(rlast),
+      .rlast (rlast),
 
       .awaddr (awaddr),
       .awvalid(awvalid),
@@ -179,7 +183,7 @@ module ysyx_25010008_SRAM (
   reg [ 7:0] _arlen;
 
   initial begin
-    $readmemh("/home/cloud/ysyx-workbench/am-kernels/tests/cpu-tests/output.mem", memory);
+    $readmemh(`MEM_PATH, memory);
   end
 
   always @(posedge clk) begin
@@ -190,7 +194,7 @@ module ysyx_25010008_SRAM (
       arready <= 1;
       rresp   <= 0;
       rvalid  <= 0;
-      rlast  <= 0;
+      rlast   <= 0;
 
       awready <= 1;
       wready  <= 1;
@@ -216,7 +220,6 @@ module ysyx_25010008_SRAM (
           rstate <= HANDLE_RDATA;
           rlast  <= 1;
         end
-        $display("%h tb",memory[_araddr>>2]);
       end else begin
         if (rready) begin
           rvalid  <= 0;
@@ -229,18 +232,17 @@ module ysyx_25010008_SRAM (
         if (awvalid) begin
           _awaddr <= awaddr - 32'h8000_0000;
           awready <= 0;
-          wready  <= 1;
-          wstate  <= HANDLE_WDATA;
         end
-      end else if (wstate == HANDLE_WDATA) begin
         if (wvalid) begin
           _wdata <= wdata;
           _wstrb <= {{8{wstrb[3]}}, {8{wstrb[2]}}, {8{wstrb[1]}}, {8{wstrb[0]}}};
           wready <= 0;
-          wstate <= WRITING;
         end
+
+        if (!awready && !wready) wstate <= WRITING;
+
       end else if (wstate == WRITING) begin
-        if (_awaddr == 32'ha000_03f8) $display("%c", _wdata[7:0]);
+        if (_awaddr == 32'h2000_03f8) $write("%c", _wdata[7:0]);
         else memory[_awaddr>>2] <= (memory[_awaddr>>2] & ~_wstrb) | (_wdata & _wstrb);
         bvalid <= 1;
         wstate <= HANDLE_BRESP;
@@ -248,6 +250,7 @@ module ysyx_25010008_SRAM (
         if (bready) begin
           bvalid  <= 0;
           awready <= 1;
+          wready  <= 1;
           wstate  <= HANDLE_WADDR;
         end
       end

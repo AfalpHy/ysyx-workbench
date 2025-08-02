@@ -86,17 +86,22 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 verilog:
-	cat vsrc_without_dpi/* > build/ysyx_25010008.v
+	cat vsrc_for_npc_test/* > build/ysyx_25010008.v
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
 
-sim-iverilog: verilog
-	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v
+convert-bin:
+	hexdump -v -e '1/4 "%08X\n"' $(IMG) > $(basename $(IMG)).mem
 
-sim-iverilog-netlist:
-	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v 
+sim-iverilog: verilog convert-bin
+	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	$(BIN)
+
+sim-iverilog-netlist: convert-bin
+	iverilog -g2012 iverilog/tb.v $(NETLIST) $(CELLS) -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	$(BIN)
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
@@ -107,6 +112,6 @@ gdb: all
 perf:
 	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc BATCH=ON mainargs=train run
 
-.PHONY: all clean verilog sim sim-iverilog sim-iverilog-netlist gdb perf
+.PHONY: all clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf
 
 include ../Makefile
