@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { entry PT_LOAD; ssbl PT_LOAD; text PT_LOAD; data PT_LOAD; bss PT_LOAD; }
+PHDRS { entry PT_LOAD; ssbl PT_LOAD; text PT_LOAD; rdata PT_LOAD; data PT_LOAD; bss PT_LOAD; }
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
@@ -32,7 +32,7 @@ SECTIONS {
     *(.rodata*)
     *(.srodata*)
     . = ALIGN(8);
-  } > sdram AT > flash : data
+  } > sdram AT > flash : rdata
 
   .data : {
     . = ALIGN(8);
