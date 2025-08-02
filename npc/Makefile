@@ -71,9 +71,7 @@ ifdef DIFF_TEST
 override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
-ifdef BATCH
-override ARGS += -b 
-endif
+ARGS += -b
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -87,9 +85,23 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
+verilog:
+	cat vsrc_for_npc_test/* > build/ysyx_25010008.v
+
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
+
+convert-bin:
+	hexdump -v -e '1/4 "%08X\n"' $(IMG) > $(basename $(IMG)).mem
+
+sim-iverilog: verilog convert-bin
+	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	$(BIN)
+
+sim-iverilog-netlist: convert-bin
+	iverilog -g2012 iverilog/tb.v $(NETLIST) $(CELLS) -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	$(BIN)
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
@@ -100,6 +112,6 @@ gdb: all
 perf:
 	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc BATCH=ON mainargs=train run
 
-.PHONY: all clean sim gdb perf
+.PHONY: all clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf
 
 include ../Makefile

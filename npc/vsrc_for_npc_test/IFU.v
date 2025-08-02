@@ -1,7 +1,3 @@
-import "DPI-C" function void set_pc(input [31:0] ptr[]);
-import "DPI-C" function void ifu_record0(int inc);
-import "DPI-C" function void ifu_record1(int delay);
-
 `define ysyx_25010008_M 4 
 `define ysyx_25010008_N 2
 `define ysyx_25010008_DATA_WIDTH (2 ** `ysyx_25010008_M) * 8
@@ -47,11 +43,6 @@ module ysyx_25010008_IFU (
     input  clear_pipeline
 );
 
-  // set pointer of pc for cpp
-  initial begin
-    set_pc(pc);
-  end
-
   reg [31:0] pc;
 
   reg [`ysyx_25010008_CACHE_WIDTH - 1 : 0] cache[0 : `ysyx_25010008_CACHE_SIZE - 1];
@@ -83,7 +74,7 @@ module ysyx_25010008_IFU (
       for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
         cache[i][`ysyx_25010008_VALID_POS] <= 0;
       end
-      pc <= 32'h3000_0000;
+      pc <= 32'h8000_0000;
       arvalid <= 0;
       rready <= 0;
       inst_valid <= 0;
@@ -115,7 +106,6 @@ module ysyx_25010008_IFU (
             ifu_pc <= pc;
             pc <= pc + 4;
             pipeline_empty <= 0;
-            ifu_record0(1);
           end else begin
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == npc)) begin
@@ -142,6 +132,7 @@ module ysyx_25010008_IFU (
       if (state == READ_MEMORY) begin
         delay = delay + 1;
         if (arvalid & arready) begin
+
           arvalid <= 0;
           rready  <= 1;
         end
@@ -152,7 +143,6 @@ module ysyx_25010008_IFU (
 
             state  <= READ_CACHE;
 
-            ifu_record1(delay);
             delay = 0;
           end
           if (is_sram) begin
@@ -166,8 +156,6 @@ module ysyx_25010008_IFU (
             cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
               rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
             };
-
-            if (rlast) ifu_record0(-1);
           end
         end
       end
