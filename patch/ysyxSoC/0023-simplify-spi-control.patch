@@ -1,0 +1,168 @@
+From 5ad4f6d2c08f65233da06caad4e90feeeb1cc5e1 Mon Sep 17 00:00:00 2001
+From: AfalpHy <736353503@qq.com>
+Date: Thu, 20 Feb 2025 13:12:12 +0800
+Subject: [PATCH 23/29] simplify spi control
+
+---
+ perip/spi/rtl/spi_top_apb.v | 130 +++++++++++++++---------------------
+ 1 file changed, 52 insertions(+), 78 deletions(-)
+
+diff --git a/perip/spi/rtl/spi_top_apb.v b/perip/spi/rtl/spi_top_apb.v
+index 3daef6b2..a0aab841 100644
+--- a/perip/spi/rtl/spi_top_apb.v
++++ b/perip/spi/rtl/spi_top_apb.v
+@@ -48,99 +48,73 @@ module spi_top_apb #(
+ 
+ `else
+ 
+-  parameter NORMAL = 0;
+-  parameter XIP = 1;
+-
+-  parameter XIP_CMD = 0;
++  parameter XIP_IDLE = 0;
+   parameter XIP_DIVIED = 1;
+   parameter XIP_SS = 2;
+   parameter XIP_CTRL = 3;
+-  parameter XIP_CHECK = 4;
+-  parameter XIP_READ = 5;
++  parameter XIP_READ_CTRL = 4;
++  parameter XIP_WAITING = 5;
++  parameter XIP_READ = 6;
+ 
+-  reg state;
+   reg [2:0] xip_state;
+ 
+-  reg [4:0] wb_adr_i;
+-  reg [31:0] wb_dat_i;
+-  reg [3:0] wb_sel_i;
+-  reg wb_we_i;
++  wire xip_mode = in_paddr[31:28] == 4'h3;
++
++  reg xip_done;
++
++  assign in_pready = xip_mode ? xip_done : wb_ack_o;
++
++  reg [4:0] xip_adr;
++  reg [31:0] xip_dat;
++  reg [3:0] xip_sel;
++  reg xip_we;
++
++  wire [4:0] wb_adr_i = xip_mode ? xip_adr : in_paddr[4:0];
++  wire [31:0] wb_dat_i = xip_mode ? xip_dat : in_pwdata;
++  wire [3:0] wb_sel_i = xip_mode ? xip_sel : in_pstrb;
++  wire wb_we_i = xip_mode ? xip_we : in_pwrite;
++
+   wire wb_ack_o;
+ 
+   always @(posedge clock or reset) begin
+     if (reset) begin
+-      state <= NORMAL;
+-      xip_state <= XIP_CMD;
+-      wb_adr_i <= 0;
+-      wb_we_i <= 0;
++      xip_state <= XIP_IDLE;
++      xip_done  <= 0;
+     end else begin
+-      if (state == NORMAL) begin
+-        if (in_pready) in_pready <= 0;
+-        else begin
+-          if (in_paddr[31:28] == 4'h3 && in_penable) begin
+-            wb_adr_i <= 4;
+-            wb_dat_i <= {8'h03, in_paddr[23:0]};
+-            wb_sel_i <= 4'b1111;
+-            wb_we_i <= 1;
+-            in_pready <= 0;
+-            state <= XIP;
+-            xip_state <= XIP_CMD;
+-          end else begin
+-            if (wb_ack_o) begin
+-              wb_we_i   <= 0;
+-              in_pready <= 1;
+-            end else begin
+-              wb_adr_i  <= in_paddr[4:0];
+-              wb_dat_i  <= in_pwdata;
+-              wb_sel_i  <= in_pstrb;
+-              wb_we_i   <= in_pwrite;
+-              in_pready <= 0;
+-            end
+-          end
+-        end
+-      end else begin
+-        if (xip_state == XIP_CMD) begin
+-          if (wb_ack_o) begin
+-            wb_adr_i  <= 20;
+-            wb_dat_i  <= 0;
+-            wb_sel_i  <= 1;
+-            wb_we_i   <= 1;
+-            xip_state <= XIP_DIVIED;
+-          end
++      if (xip_done) xip_done <= 0;
++      else begin
++        if (xip_mode & in_psel & ~in_penable) begin
++          xip_adr <= 4;
++          xip_dat <= {8'h03, in_paddr[23:0]};
++          xip_sel <= 4'b1111;
++          xip_we <= 1;
++          xip_state <= XIP_DIVIED;
+         end else if (xip_state == XIP_DIVIED) begin
+-          if (wb_ack_o) begin
+-            wb_adr_i  <= 24;
+-            wb_dat_i  <= 1;
+-            wb_sel_i  <= 1;
+-            wb_we_i   <= 1;
+-            xip_state <= XIP_SS;
+-          end
++          xip_adr   <= 20;
++          xip_dat   <= 0;
++          xip_sel   <= 1;
++          xip_state <= XIP_SS;
+         end else if (xip_state == XIP_SS) begin
+-          if (wb_ack_o) begin
+-            wb_adr_i  <= 16;
+-            wb_dat_i  <= 32'h2140;
+-            wb_sel_i  <= 4'b1111;
+-            wb_we_i   <= 1;
+-            xip_state <= XIP_CTRL;
+-          end
++          xip_adr   <= 24;
++          xip_dat   <= 1;
++          xip_sel   <= 1;
++          xip_state <= XIP_CTRL;
+         end else if (xip_state == XIP_CTRL) begin
+-          if (wb_ack_o) begin
+-            wb_adr_i  <= 16;
+-            wb_we_i   <= 0;
+-            xip_state <= XIP_CHECK;
+-          end
+-        end else if (xip_state == XIP_CHECK) begin
+-          if (wb_ack_o) begin
+-            if ((in_prdata & 32'h100) == 0) begin
+-              wb_adr_i  <= 0;
+-              xip_state <= XIP_READ;
+-            end
+-          end
+-        end else begin
+-          if (wb_ack_o) begin
+-            in_pready <= 1;
+-            state <= NORMAL;
++          xip_adr   <= 16;
++          xip_dat   <= 32'h2140;  // ctrl go_bsy = 1, char_len = 64
++          xip_sel   <= 4'b1111;
++          xip_state <= XIP_READ_CTRL;
++        end else if (xip_state == XIP_READ_CTRL) begin
++          if (xip_we) xip_we <= 0;
++          else xip_state <= XIP_WAITING;
++        end else if (xip_state == XIP_WAITING) begin
++          if ((in_prdata & 32'h100) == 0) begin
++            xip_adr   <= 0;
++            xip_state <= XIP_READ;
+           end
++        end else if (xip_state == XIP_READ) begin
++          xip_done  <= 1;
++          xip_state <= XIP_IDLE;
+         end
+       end
+     end
+-- 
+2.34.1
+

@@ -1,0 +1,252 @@
+From 1a0c136a1e318e09177ee09079c8e61d7adf8718 Mon Sep 17 00:00:00 2001
+From: AfalpHy <736353503@qq.com>
+Date: Sat, 29 Mar 2025 16:08:26 +0800
+Subject: [PATCH 28/29] implement delay of axi4
+
+---
+ perip/amba/apb_delayer.v  |   2 +-
+ perip/amba/axi4_delayer.v | 198 +++++++++++++++++++++++++-------------
+ 2 files changed, 134 insertions(+), 66 deletions(-)
+
+diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
+index f2d7fdd7..8095c7cc 100644
+--- a/perip/amba/apb_delayer.v
++++ b/perip/amba/apb_delayer.v
+@@ -37,7 +37,7 @@ module apb_delayer (
+     end else begin
+       if (pready) pready <= 0;
+       else if (in_penable & out_pready) begin
+-        counter = counter + 940;  // 7.4 * 128(cpu clock 380MHZ)
++        counter = counter + 940;  // 7.4 * 128(cpu clock 840MHZ)
+         counter = counter >> 7;
+         done   <= 1;
+         prdata <= out_prdata;
+diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
+index f692803b..8fcc4a39 100644
+--- a/perip/amba/axi4_delayer.v
++++ b/perip/amba/axi4_delayer.v
+@@ -1,68 +1,136 @@
+-module axi4_delayer(
+-  input         clock,
+-  input         reset,
++module axi4_delayer (
++    input clock,
++    input reset,
+ 
+-  output        in_arready,
+-  input         in_arvalid,
+-  input  [3:0]  in_arid,
+-  input  [31:0] in_araddr,
+-  input  [7:0]  in_arlen,
+-  input  [2:0]  in_arsize,
+-  input  [1:0]  in_arburst,
+-  input         in_rready,
+-  output        in_rvalid,
+-  output [3:0]  in_rid,
+-  output [31:0] in_rdata,
+-  output [1:0]  in_rresp,
+-  output        in_rlast,
+-  output        in_awready,
+-  input         in_awvalid,
+-  input  [3:0]  in_awid,
+-  input  [31:0] in_awaddr,
+-  input  [7:0]  in_awlen,
+-  input  [2:0]  in_awsize,
+-  input  [1:0]  in_awburst,
+-  output        in_wready,
+-  input         in_wvalid,
+-  input  [31:0] in_wdata,
+-  input  [3:0]  in_wstrb,
+-  input         in_wlast,
+-                in_bready,
+-  output        in_bvalid,
+-  output [3:0]  in_bid,
+-  output [1:0]  in_bresp,
++    output            in_arready,
++    input             in_arvalid,
++    input      [ 3:0] in_arid,
++    input      [31:0] in_araddr,
++    input      [ 7:0] in_arlen,
++    input      [ 2:0] in_arsize,
++    input      [ 1:0] in_arburst,
++    input             in_rready,
++    output            in_rvalid,
++    output     [ 3:0] in_rid,
++    output reg [31:0] in_rdata,
++    output     [ 1:0] in_rresp,
++    output            in_rlast,
++    output            in_awready,
++    input             in_awvalid,
++    input      [ 3:0] in_awid,
++    input      [31:0] in_awaddr,
++    input      [ 7:0] in_awlen,
++    input      [ 2:0] in_awsize,
++    input      [ 1:0] in_awburst,
++    output            in_wready,
++    input             in_wvalid,
++    input      [31:0] in_wdata,
++    input      [ 3:0] in_wstrb,
++    input             in_wlast,
++    in_bready,
++    output            in_bvalid,
++    output     [ 3:0] in_bid,
++    output     [ 1:0] in_bresp,
+ 
+-  input         out_arready,
+-  output        out_arvalid,
+-  output [3:0]  out_arid,
+-  output [31:0] out_araddr,
+-  output [7:0]  out_arlen,
+-  output [2:0]  out_arsize,
+-  output [1:0]  out_arburst,
+-  output        out_rready,
+-  input         out_rvalid,
+-  input  [3:0]  out_rid,
+-  input  [31:0] out_rdata,
+-  input  [1:0]  out_rresp,
+-  input         out_rlast,
+-  input         out_awready,
+-  output        out_awvalid,
+-  output [3:0]  out_awid,
+-  output [31:0] out_awaddr,
+-  output [7:0]  out_awlen,
+-  output [2:0]  out_awsize,
+-  output [1:0]  out_awburst,
+-  input         out_wready,
+-  output        out_wvalid,
+-  output [31:0] out_wdata,
+-  output [3:0]  out_wstrb,
+-  output        out_wlast,
+-                out_bready,
+-  input         out_bvalid,
+-  input  [3:0]  out_bid,
+-  input  [1:0]  out_bresp
++    input         out_arready,
++    output        out_arvalid,
++    output [ 3:0] out_arid,
++    output [31:0] out_araddr,
++    output [ 7:0] out_arlen,
++    output [ 2:0] out_arsize,
++    output [ 1:0] out_arburst,
++    output        out_rready,
++    input         out_rvalid,
++    input  [ 3:0] out_rid,
++    input  [31:0] out_rdata,
++    input  [ 1:0] out_rresp,
++    input         out_rlast,
++    input         out_awready,
++    output        out_awvalid,
++    output [ 3:0] out_awid,
++    output [31:0] out_awaddr,
++    output [ 7:0] out_awlen,
++    output [ 2:0] out_awsize,
++    output [ 1:0] out_awburst,
++    input         out_wready,
++    output        out_wvalid,
++    output [31:0] out_wdata,
++    output [ 3:0] out_wstrb,
++    output        out_wlast,
++    out_bready,
++    input         out_bvalid,
++    input  [ 3:0] out_bid,
++    input  [ 1:0] out_bresp
+ );
++  reg read_last;
++  reg [31:0] rdata[1:0];
++  reg rvalid, bvalid;
++  reg read_begin, write_begin, write_end;
++  reg [7:0] arlen;
++  integer read_counter, write_counter;
++  integer read_len, read_index;
++  integer read_counter_vec[1:0];
++  always @(posedge clock) begin
++    if (reset) begin
++      read_last   <= 0;
++      read_begin  <= 0;
++      write_begin <= 0;
++      write_end   <= 0;
++      read_counter = 0;
++      write_counter = 0;
++      read_len = 0;
++      read_index = 0;
++    end else begin
++      if (rvalid) rvalid <= 0;
++      if (read_last) read_last <= 0;
+ 
++      if (in_arvalid) begin
++        arlen <= in_arlen;
++        read_begin <= 1;
++        read_len = 0;
++        read_index = 0;
++        read_counter = read_counter + 940;  // 7.4 * 128(cpu clock 840MHZ)
++      end else if (read_begin) read_counter = read_counter + 940;
++      if (out_rvalid) begin
++        read_counter_vec[read_len] = read_counter >> 7;
++        rdata[read_len] = out_rdata;
++        read_counter = 0;
++        read_len = read_len + 1;
++        if (read_len[7:0] == arlen + 1) read_begin <= 0;
++      end
++      if (read_index < read_len) begin
++        read_counter_vec[read_index] = read_counter_vec[read_index] - 1;
++        if (read_counter_vec[read_index] == 0) begin
++          in_rdata <= rdata[read_index];
++          rvalid   <= 1;
++          read_index = read_index + 1;
++          if (read_index == read_len) begin
++            read_last <= 1;
++          end
++        end
++      end
++
++      if (bvalid) bvalid <= 0;
++      if (in_awvalid) begin
++        write_begin <= 1;
++        write_counter = write_counter + 940;  // 7.4 * 128(cpu clock 840MHZ)
++      end else if (write_begin) write_counter = write_counter + 940;
++
++      if (out_bvalid) begin
++        write_counter = write_counter >> 7;
++        write_begin <= 0;
++        write_end   <= 1;
++      end
++
++      if (write_end) begin
++        write_counter = write_counter - 1;
++        if (write_counter == 0) begin
++          bvalid <= 1;
++          write_end <= 0;
++        end
++      end
++    end
++  end
+   assign in_arready = out_arready;
+   assign out_arvalid = in_arvalid;
+   assign out_arid = in_arid;
+@@ -71,11 +139,11 @@ module axi4_delayer(
+   assign out_arsize = in_arsize;
+   assign out_arburst = in_arburst;
+   assign out_rready = in_rready;
+-  assign in_rvalid = out_rvalid;
++  assign in_rvalid = rvalid;
+   assign in_rid = out_rid;
+-  assign in_rdata = out_rdata;
++  // assign in_rdata = out_rdata;
+   assign in_rresp = out_rresp;
+-  assign in_rlast = out_rlast;
++  assign in_rlast = read_last;
+   assign in_awready = out_awready;
+   assign out_awvalid = in_awvalid;
+   assign out_awid = in_awid;
+@@ -89,7 +157,7 @@ module axi4_delayer(
+   assign out_wstrb = in_wstrb;
+   assign out_wlast = in_wlast;
+   assign out_bready = in_bready;
+-  assign in_bvalid = out_bvalid;
++  assign in_bvalid = bvalid;
+   assign in_bid = out_bid;
+   assign in_bresp = out_bresp;
+ 
+-- 
+2.34.1
+

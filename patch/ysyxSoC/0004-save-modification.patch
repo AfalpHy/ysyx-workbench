@@ -1,0 +1,109 @@
+From 203380b357b978059d982bdd665cafd012947e13 Mon Sep 17 00:00:00 2001
+From: AfalpHy <736353503@qq.com>
+Date: Wed, 12 Feb 2025 17:05:11 +0800
+Subject: [PATCH 04/29] save modification
+
+---
+ perip/psram/efabless/EF_PSRAM_CTRL.v    |  9 ++++++---
+ perip/psram/efabless/EF_PSRAM_CTRL_wb.v | 11 ++++++-----
+ perip/psram/psram.v                     |  4 ++--
+ 3 files changed, 14 insertions(+), 10 deletions(-)
+
+diff --git a/perip/psram/efabless/EF_PSRAM_CTRL.v b/perip/psram/efabless/EF_PSRAM_CTRL.v
+index c6a05083..c46e6245 100644
+--- a/perip/psram/efabless/EF_PSRAM_CTRL.v
++++ b/perip/psram/efabless/EF_PSRAM_CTRL.v
+@@ -269,7 +269,7 @@ module PSRAM_CHANGE (
+     input   wire            clk,
+     input   wire            rst_n,
+     input   wire            enable,
+-    output  reg             done,
++    output  reg             qpi,
+ 
+     output  reg             sck,
+     output  reg             ce_n,
+@@ -288,11 +288,14 @@ module PSRAM_CHANGE (
+     //reg [7:0]   data [3:0];
+ 
+     wire[7:0]   CMD_88H = 8'h88;
++    wire done;
+ 
+     always @*
+         case (state)
+-            IDLE: if(enable) nstate = WRITE; else nstate = IDLE;
+-            WRITE: if(done) nstate = IDLE; else nstate = WRITE;
++            IDLE: if(enable & ~qpi) nstate = WRITE; else nstate = IDLE;
++            WRITE: if(done) begin qpi = 1;
++             nstate = IDLE;
++            end else nstate = WRITE;
+         endcase
+ 
+     always @ (posedge clk or negedge rst_n)
+diff --git a/perip/psram/efabless/EF_PSRAM_CTRL_wb.v b/perip/psram/efabless/EF_PSRAM_CTRL_wb.v
+index 237e172a..1cd9ef95 100644
+--- a/perip/psram/efabless/EF_PSRAM_CTRL_wb.v
++++ b/perip/psram/efabless/EF_PSRAM_CTRL_wb.v
+@@ -57,7 +57,7 @@ module EF_PSRAM_CTRL_wb (
+     wire        ch_sck;
+     wire        ch_ce_n;
+     wire [3:0]  ch_dout;
+-    wire [3:0]  ch_doe;
++    wire        ch_doe;
+  
+     // PSRAM Reader and Writer wires
+     wire        mr_rd;
+@@ -80,10 +80,11 @@ module EF_PSRAM_CTRL_wb (
+     always @ (posedge clk_i or posedge rst_i)
+         if(rst_i) begin
+             state <= ST_IDLE;
+-            change2qpi <= 1;
+         end
+-        else
++        else begin
++            change2qpi <= 1;
+             state <= nstate;
++        end
+ 
+     always @* begin
+         case(state)
+@@ -176,7 +177,7 @@ module EF_PSRAM_CTRL_wb (
+         .clk(clk_i),
+         .rst_n(~rst_i),
+         .enable(change2qpi),
+-        .done(qpi),
++        .qpi(qpi),
+ 
+         .sck(ch_sck),
+         .ce_n(ch_ce_n),
+@@ -187,7 +188,7 @@ module EF_PSRAM_CTRL_wb (
+     assign sck  = qpi ? (wb_we ? mw_sck  : mr_sck) : ch_sck;
+     assign ce_n = qpi ? (wb_we ? mw_ce_n : mr_ce_n) : ch_ce_n;
+     assign dout = qpi ? (wb_we ? mw_dout : mr_dout) : ch_dout;
+-    assign douten  = qpi ? (wb_we ? {4{mw_doe}}  : {4{mr_doe}}) : ch_doe;
++    assign douten  = qpi ? (wb_we ? {4{mw_doe}}  : {4{mr_doe}}) : {4{ch_doe}};
+ 
+     assign mw_din = din;
+     assign mr_din = din;
+diff --git a/perip/psram/psram.v b/perip/psram/psram.v
+index 8b57256e..9f25f3a7 100644
+--- a/perip/psram/psram.v
++++ b/perip/psram/psram.v
+@@ -54,13 +54,13 @@ module psram (
+     end
+   end
+ 
+-  always @(posedge sck) begin
++  always @(posedge sck or posedge ce_n) begin
+     if ((qpi_mode && cnt == 8'd2) || (~qpi_mode && cnt == 8'd8)) begin
+       if (cmd == 8'hEB) wen <= 0;
+       else if (cmd == 8'h38) wen <= 1;
+       else if (cmd == 8'h88) begin
+         qpi_mode <= 1;
+-        cmd_cnt  <= 8;
++        cmd_cnt  <= 2;
+       end else begin
+         $fwrite(32'h80000002, "Assertion failed: Unsupport command `%xh`", cmd);
+         $fatal;
+-- 
+2.34.1
+

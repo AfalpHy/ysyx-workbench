@@ -1,0 +1,25 @@
+From 9cfa7c2947ec878992764aa2f24134dc7d096a0e Mon Sep 17 00:00:00 2001
+From: AfalpHy <736353503@qq.com>
+Date: Sun, 16 Feb 2025 18:44:27 +0800
+Subject: [PATCH 11/29] fix sdram size bug
+
+---
+ perip/sdram/sdram.v | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/perip/sdram/sdram.v b/perip/sdram/sdram.v
+index 7818e68b..d35e8164 100644
+--- a/perip/sdram/sdram.v
++++ b/perip/sdram/sdram.v
+@@ -34,7 +34,7 @@ module sdram (
+ 
+   reg [3:0] state;
+ 
+-  reg [15:0] memory[0:1<<24-1];
++  reg [15:0] memory[0:'h1000000-1];
+ 
+   reg [31:0] data_buffer;
+   reg [1:0] dqm_buffer;
+-- 
+2.34.1
+

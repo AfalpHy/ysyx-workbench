@@ -1,0 +1,122 @@
+From eec68cf3dc6c662bebba887dcdc194d0d83e0f40 Mon Sep 17 00:00:00 2001
+From: AfalpHy <736353503@qq.com>
+Date: Sun, 16 Feb 2025 08:48:32 +0800
+Subject: [PATCH 08/29] complete sdram
+
+---
+ perip/sdram/sdram.v | 101 ++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 89 insertions(+), 12 deletions(-)
+
+diff --git a/perip/sdram/sdram.v b/perip/sdram/sdram.v
+index 3613b231..c32fb040 100644
+--- a/perip/sdram/sdram.v
++++ b/perip/sdram/sdram.v
+@@ -1,16 +1,93 @@
+-module sdram(
+-  input        clk,
+-  input        cke,
+-  input        cs,
+-  input        ras,
+-  input        cas,
+-  input        we,
+-  input [12:0] a,
+-  input [ 1:0] ba,
+-  input [ 1:0] dqm,
+-  inout [15:0] dq
++module sdram (
++    input        clk,
++    input        cke,
++    input        cs,
++    input        ras,
++    input        cas,
++    input        we,
++    input [12:0] a,
++    input [ 1:0] ba,
++    input [ 1:0] dqm,
++    inout [15:0] dq
+ );
++  localparam CMD_NOP = 4'b0111;
++  localparam CMD_ACTIVE = 4'b0011;
++  localparam CMD_READ = 4'b0101;
++  localparam CMD_WRITE = 4'b0100;
++  localparam CMD_TERMINATE = 4'b0110;
++  localparam CMD_PRECHARGE = 4'b0010;
++  localparam CMD_REFRESH = 4'b0001;
++  localparam CMD_LOAD_MODE = 4'b0000;
+ 
+-  assign dq = 16'bz;
++  localparam IDLE = 0;
++  localparam ACTIVATE = 1;
++  localparam READ = 2;
++  localparam READ_WAIT = 3;
++  localparam WRITE0 = 4;
++  localparam WRITE1 = 5;
++  localparam TERMINATE = 6;
++  localparam PRECHARGE = 7;
++  localparam REFRESH = 8;
++  localparam LOAD_MODE = 9;
+ 
++  wire [3:0] cmd = {cs, ras, cas, we};
++
++  reg [3:0] state;
++
++  reg [15:0] memory[0:1<<24-1];
++
++  reg [31:0] data_buffer;
++  reg [1:0] dqm_buffer;
++
++  reg read;
++  assign dq = read ? data_buffer[15:0] : 16'hz;
++
++  reg [23:0] addr;
++
++  always @(posedge clk) begin
++    if (cke) begin
++      case (cmd)
++        CMD_NOP: begin
++          if (state == READ) state <= READ_WAIT;
++          else if (state == WRITE0) state <= WRITE1;
++          else state <= IDLE;
++        end
++        CMD_ACTIVE: begin
++          read <= 0;
++          addr[23:11] <= a;
++          state <= ACTIVATE;
++        end
++        CMD_READ: begin
++          read <= 1;
++          addr[8:1] <= a[8:1];
++          addr[10:9] <= ba;
++          state <= READ;
++        end
++        CMD_WRITE: begin
++          addr[8:1] <= a[8:1];
++          addr[10:9] <= ba;
++          data_buffer[15:0] <= dq;
++          dqm_buffer <= dqm;
++          state <= WRITE0;
++        end
++        default: state <= state;
++      endcase
++    end
++  end
++
++  always @(posedge clk) begin
++    if (cke) begin
++      if (state == READ) begin
++        data_buffer <= {memory[addr+1], memory[addr]};
++      end else if (state == READ_WAIT) begin
++        data_buffer[15:0] <= data_buffer[31:16];
++      end else if (state == WRITE0) begin
++        data_buffer[15:0] <= dq;
++        dqm_buffer <= dqm;
++        memory[addr] <= (memory[addr] & {{8{dqm_buffer[1]}}, {8{dqm_buffer[0]}}}) | (data_buffer[15:0] & {{8{~dqm_buffer[1]}}, {8{~dqm_buffer[0]}}});
++      end else if (state == WRITE1) begin
++        memory[addr + 1] <= (memory[addr+1] & {{8{dqm_buffer[1]}}, {8{dqm_buffer[0]}}}) | (data_buffer[15:0] & {{8{~dqm_buffer[1]}}, {8{~dqm_buffer[0]}}});
++      end
++    end
++  end
+ endmodule
+-- 
+2.34.1
+

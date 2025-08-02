@@ -1,0 +1,325 @@
+From 7e7866bb614d551756b0af1084d5103b9334cb36 Mon Sep 17 00:00:00 2001
+From: AfalpHy <736353503@qq.com>
+Date: Sun, 16 Feb 2025 23:32:33 +0800
+Subject: [PATCH 12/29] sdram bit extend
+
+---
+ perip/sdram/core_sdram_axi4/sdram_axi_core.v | 84 +++-----------------
+ perip/sdram/sdram.v                          | 32 +++-----
+ perip/sdram/sdram_top_apb.v                  |  8 +-
+ 3 files changed, 29 insertions(+), 95 deletions(-)
+
+diff --git a/perip/sdram/core_sdram_axi4/sdram_axi_core.v b/perip/sdram/core_sdram_axi4/sdram_axi_core.v
+index cedbf77b..48cb1f5e 100644
+--- a/perip/sdram/core_sdram_axi4/sdram_axi_core.v
++++ b/perip/sdram/core_sdram_axi4/sdram_axi_core.v
+@@ -42,7 +42,7 @@ module sdram_axi_core
+     ,input  [  7:0]  inport_len_i
+     ,input  [ 31:0]  inport_addr_i
+     ,input  [ 31:0]  inport_write_data_i
+-    ,input  [ 15:0]  sdram_data_input_i
++    ,input  [ 31:0]  sdram_data_input_i
+ 
+     // Outputs
+     ,output          inport_accept_o
+@@ -55,10 +55,10 @@ module sdram_axi_core
+     ,output          sdram_ras_o
+     ,output          sdram_cas_o
+     ,output          sdram_we_o
+-    ,output [  1:0]  sdram_dqm_o
++    ,output [  3:0]  sdram_dqm_o
+     ,output [ 12:0]  sdram_addr_o
+     ,output [  1:0]  sdram_ba_o
+-    ,output [ 15:0]  sdram_data_output_o
++    ,output [ 31:0]  sdram_data_output_o
+     ,output          sdram_data_out_en_o
+ );
+ 
+@@ -76,7 +76,7 @@ parameter SDRAM_READ_LATENCY     = 2;
+ // Defines / Local params
+ //-----------------------------------------------------------------
+ localparam SDRAM_BANK_W          = 2;
+-localparam SDRAM_DQM_W           = 2;
++localparam SDRAM_DQM_W           = 4;
+ localparam SDRAM_BANKS           = 2 ** SDRAM_BANK_W;
+ localparam SDRAM_ROW_W           = SDRAM_ADDR_W - SDRAM_COL_W - SDRAM_BANK_W;
+ localparam SDRAM_REFRESH_CNT     = 2 ** SDRAM_ROW_W;
+@@ -103,16 +103,14 @@ localparam STATE_DELAY       = 4'd1;
+ localparam STATE_IDLE        = 4'd2;
+ localparam STATE_ACTIVATE    = 4'd3;
+ localparam STATE_READ        = 4'd4;
+-localparam STATE_READ_WAIT   = 4'd5;
+ localparam STATE_WRITE0      = 4'd6;
+-localparam STATE_WRITE1      = 4'd7;
+ localparam STATE_PRECHARGE   = 4'd8;
+ localparam STATE_REFRESH     = 4'd9;
+ 
+ localparam AUTO_PRECHARGE    = 10;
+ localparam ALL_BANKS         = 10;
+ 
+-localparam SDRAM_DATA_W      = 16;
++localparam SDRAM_DATA_W      = 32;
+ 
+ localparam CYCLE_TIME_NS     = 1000 / SDRAM_MHZ;
+ 
+@@ -159,10 +157,6 @@ reg [SDRAM_DQM_W-1:0]  dqm_q;
+ reg                    cke_q;
+ reg [SDRAM_BANK_W-1:0] bank_q;
+ 
+-// Buffer half word during read and write commands
+-reg [SDRAM_DATA_W-1:0] data_buffer_q;
+-reg [SDRAM_DQM_W-1:0]  dqm_buffer_q;
+-
+ wire [SDRAM_DATA_W-1:0] sdram_data_in_w;
+ 
+ reg                    refresh_q;
+@@ -261,45 +255,15 @@ begin
+     // STATE_READ
+     //-----------------------------------------
+     STATE_READ :
+-    begin
+-        next_state_r = STATE_READ_WAIT;
+-    end
+-    //-----------------------------------------
+-    // STATE_READ_WAIT
+-    //-----------------------------------------
+-    STATE_READ_WAIT :
+     begin
+         next_state_r = STATE_IDLE;
+-
+-        // Another pending read request (with no refresh pending)
+-        if (!refresh_q && ram_req_w && ram_rd_w)
+-        begin
+-            // Open row hit
+-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
+-                next_state_r = STATE_READ;
+-        end
+     end
+     //-----------------------------------------
+     // STATE_WRITE0
+     //-----------------------------------------
+     STATE_WRITE0 :
+-    begin
+-        next_state_r = STATE_WRITE1;
+-    end
+-    //-----------------------------------------
+-    // STATE_WRITE1
+-    //-----------------------------------------
+-    STATE_WRITE1 :
+     begin
+         next_state_r = STATE_IDLE;
+-
+-        // Another pending write request (with no refresh pending)
+-        if (!refresh_q && ram_req_w && (ram_wr_w != 4'b0))
+-        begin
+-            // Open row hit
+-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
+-                next_state_r = STATE_WRITE0;
+-        end
+     end
+     //-----------------------------------------
+     // STATE_PRECHARGE
+@@ -356,7 +320,7 @@ begin
+     //-----------------------------------------
+     // STATE_READ_WAIT
+     //-----------------------------------------
+-    STATE_READ_WAIT :
++    STATE_READ :
+     begin
+         delay_r = SDRAM_READ_LATENCY;
+ 
+@@ -483,13 +447,12 @@ always @ (posedge clk_i or posedge rst_i)
+ if (rst_i)
+ begin
+     command_q       <= CMD_NOP;
+-    data_q          <= 16'b0;
++    data_q          <= 32'b0;
+     addr_q          <= {SDRAM_ROW_W{1'b0}};
+     bank_q          <= {SDRAM_BANK_W{1'b0}};
+     cke_q           <= 1'b0;
+     dqm_q           <= {SDRAM_DQM_W{1'b0}};
+     data_rd_en_q    <= 1'b1;
+-    dqm_buffer_q    <= {SDRAM_DQM_W{1'b0}};
+ 
+     for (idx=0;idx<SDRAM_BANKS;idx=idx+1)
+         active_row_q[idx] <= {SDRAM_ROW_W{1'b0}};
+@@ -616,33 +579,16 @@ begin
+         command_q       <= CMD_WRITE;
+         addr_q          <= addr_col_w;
+         bank_q          <= addr_bank_w;
+-        data_q          <= ram_write_data_w[15:0];
++        data_q          <= ram_write_data_w;
+ 
+         // Disable auto precharge (auto close of row)
+         addr_q[AUTO_PRECHARGE]  <= 1'b0;
+ 
+         // Write mask
+-        dqm_q           <= ~ram_wr_w[1:0];
+-        dqm_buffer_q    <= ~ram_wr_w[3:2];
++        dqm_q           <= ~ram_wr_w;
+ 
+         data_rd_en_q    <= 1'b0;
+     end
+-    //-----------------------------------------
+-    // STATE_WRITE1
+-    //-----------------------------------------
+-    STATE_WRITE1 :
+-    begin
+-        // Burst continuation
+-        command_q   <= CMD_NOP;
+-
+-        data_q      <= data_buffer_q;
+-
+-        // Disable auto precharge (auto close of row)
+-        addr_q[AUTO_PRECHARGE]  <= 1'b0;
+-
+-        // Write mask
+-        dqm_q       <= dqm_buffer_q;
+-    end
+     endcase
+ end
+ 
+@@ -660,19 +606,17 @@ else
+ //-----------------------------------------------------------------
+ // Data Buffer
+ //-----------------------------------------------------------------
+-
++reg [31:0] data_buffer_q;
+ // Buffer upper 16-bits of write data so write command can be accepted
+ // in WRITE0. Also buffer lower 16-bits of read data.
+ always @ (posedge clk_i or posedge rst_i)
+ if (rst_i)
+-    data_buffer_q <= 16'b0;
+-else if (state_q == STATE_WRITE0)
+-    data_buffer_q <= ram_write_data_w[31:16];
++    data_buffer_q <= 32'b0;
+ else if (rd_q[SDRAM_READ_LATENCY+1])
+     data_buffer_q <= sample_data_q;
+ 
+ // Read data output
+-assign ram_read_data_w = {sample_data_q, data_buffer_q};
++assign ram_read_data_w = data_buffer_q;
+ 
+ //-----------------------------------------------------------------
+ // ACK
+@@ -684,7 +628,7 @@ if (rst_i)
+     ack_q   <= 1'b0;
+ else
+ begin
+-    if (state_q == STATE_WRITE1)
++    if (state_q == STATE_WRITE0)
+         ack_q <= 1'b1;
+     else if (rd_q[SDRAM_READ_LATENCY+1])
+         ack_q <= 1'b1;
+@@ -728,9 +672,7 @@ begin
+     STATE_IDLE        : dbg_state = "IDLE";
+     STATE_ACTIVATE    : dbg_state = "ACTIVATE";
+     STATE_READ        : dbg_state = "READ";
+-    STATE_READ_WAIT   : dbg_state = "READ_WAIT";
+     STATE_WRITE0      : dbg_state = "WRITE0";
+-    STATE_WRITE1      : dbg_state = "WRITE1";
+     STATE_PRECHARGE   : dbg_state = "PRECHARGE";
+     STATE_REFRESH     : dbg_state = "REFRESH";
+     default           : dbg_state = "UNKNOWN";
+diff --git a/perip/sdram/sdram.v b/perip/sdram/sdram.v
+index d35e8164..aeca4dae 100644
+--- a/perip/sdram/sdram.v
++++ b/perip/sdram/sdram.v
+@@ -22,9 +22,7 @@ module sdram (
+   localparam IDLE = 0;
+   localparam ACTIVATE = 1;
+   localparam READ = 2;
+-  localparam READ_WAIT = 3;
+   localparam WRITE0 = 4;
+-  localparam WRITE1 = 5;
+   localparam TERMINATE = 6;
+   localparam PRECHARGE = 7;
+   localparam REFRESH = 8;
+@@ -36,13 +34,13 @@ module sdram (
+ 
+   reg [15:0] memory[0:'h1000000-1];
+ 
+-  reg [31:0] data_buffer;
+-  reg [1:0] dqm_buffer;
++  reg [15:0] data_buffer;
++  reg [15:0] dqm_buffer;
+ 
+   reg read;
+   reg burst;
+   reg [1:0] burst_len;
+-  assign dq = read ? data_buffer[15:0] : 16'hz;
++  assign dq = read ? data_buffer : 16'hz;
+ 
+   reg [23:0] addr;
+   reg [12:0] addr_row[0:3];
+@@ -51,9 +49,7 @@ module sdram (
+     if (cke) begin
+       case (cmd)
+         CMD_NOP: begin
+-          if (state == READ) state <= READ_WAIT;
+-          else if (state == WRITE0) state <= WRITE1;
+-          else state <= IDLE;
++          state <= IDLE;
+         end
+         CMD_ACTIVE: begin
+           addr_row[ba] <= a;
+@@ -70,7 +66,7 @@ module sdram (
+           addr[10:9] <= ba;
+           addr[23:11] <= addr_row[ba];
+           data_buffer[15:0] <= dq;
+-          dqm_buffer <= dqm;
++          dqm_buffer <= {{8{dqm[1]}}, {8{dqm[0]}}};
+           state <= WRITE0;
+         end
+         CMD_LOAD_MODE: begin
+@@ -85,18 +81,14 @@ module sdram (
+ 
+   always @(posedge clk) begin
+     if (cke) begin
+-      if (state == READ || state == READ_WAIT) read <= 1;
+-      else read <= 0;
+       if (state == READ) begin
+-        data_buffer <= {memory[addr+1], memory[addr]};
+-      end else if (state == READ_WAIT) begin
+-        data_buffer[15:0] <= data_buffer[31:16];
+-      end else if (state == WRITE0) begin
+-        data_buffer[15:0] <= dq;
+-        dqm_buffer <= dqm;
+-        memory[addr] <= (memory[addr] & {{8{dqm_buffer[1]}}, {8{dqm_buffer[0]}}}) | (data_buffer[15:0] & {{8{~dqm_buffer[1]}}, {8{~dqm_buffer[0]}}});
+-      end else if (state == WRITE1) begin
+-        memory[addr + 1] <= (memory[addr+1] & {{8{dqm_buffer[1]}}, {8{dqm_buffer[0]}}}) | (data_buffer[15:0] & {{8{~dqm_buffer[1]}}, {8{~dqm_buffer[0]}}});
++        read <= 1;
++        data_buffer <= memory[addr];
++      end else begin
++        read <= 0;
++        if (state == WRITE0) begin
++          memory[addr] <= (memory[addr] & dqm_buffer) | (data_buffer[15:0] & ~dqm_buffer);
++        end
+       end
+     end
+   end
+diff --git a/perip/sdram/sdram_top_apb.v b/perip/sdram/sdram_top_apb.v
+index 3bc5b93b..f127d714 100644
+--- a/perip/sdram/sdram_top_apb.v
++++ b/perip/sdram/sdram_top_apb.v
+@@ -20,13 +20,13 @@ module sdram_top_apb (
+   output        sdram_we,
+   output [12:0] sdram_a,
+   output [ 1:0] sdram_ba,
+-  output [ 1:0] sdram_dqm,
+-  inout  [15:0] sdram_dq
++  output [ 3:0] sdram_dqm,
++  inout  [31:0] sdram_dq
+ );
+ 
+   wire sdram_dout_en;
+-  wire [15:0] sdram_dout;
+-  assign sdram_dq = sdram_dout_en ? sdram_dout : 16'bz;
++  wire [31:0] sdram_dout;
++  assign sdram_dq = sdram_dout_en ? sdram_dout : 32'bz;
+ 
+   typedef enum [1:0] { ST_IDLE, ST_WAIT_ACCEPT, ST_WAIT_ACK } state_t;
+   reg [1:0] state;
+-- 
+2.34.1
+
