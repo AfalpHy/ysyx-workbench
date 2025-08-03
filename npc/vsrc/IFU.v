@@ -100,6 +100,7 @@ module ysyx_25010008_IFU (
       if (clear_pipeline) begin
         // exception is prior
         pc <= npc;
+        inst_addr_misaligned_buffer <= 0;
         inst_valid <= 0;
         pipeline_empty <= 1;
       end else begin
