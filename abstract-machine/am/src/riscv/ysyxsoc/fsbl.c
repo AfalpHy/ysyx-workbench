@@ -1,7 +1,7 @@
 #include <klib.h>
 void _ssbl();
 
-void __attribute__((section(".entry"))) _fsbl() {
+void __attribute__((section(".ssbl"))) _fsbl() {
   extern char _SSBL_size[], _SSBL_start[], _sram_start[];
   uint32_t loop = (uint32_t)_SSBL_size >> 2;
   uint32_t *origin_addr = (uint32_t *)_SSBL_start;
