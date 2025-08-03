@@ -188,9 +188,7 @@ module ysyx_25010008_IDU (
   assign mret = mret_buffer[1];
   assign fence_i = fence_i_buffer[1];
 
-  wire [4:0] rs1_tmp = inst[19:15];
-  wire [4:0] rs2_tmp = inst[24:20];
-  assign idu_ready = !load | ((rs1_tmp == 0 || rs1_tmp != inst_q[11:7]) && (rs2_tmp == 0 || rs2_tmp != inst_q[11:7]));
+  assign idu_ready = !load;
 
   //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
   //                   +----+----+----+----+----+
