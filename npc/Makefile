@@ -69,10 +69,10 @@ endif
 
 
 ifdef DIFF_TEST
- ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
-
-endif
+ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+else
 ARGS += -b
+endif
 
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
