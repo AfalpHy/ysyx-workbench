@@ -54,7 +54,7 @@ module ysyx_25010008_EXU (
   reg [31:0] csr_src_buffer;
   reg [31:0] exu_npc_tmp;
 
-  always @(npc_sel_buffer or snpc or dnpc or alu_result or csr_src_buffer) begin
+  always @(*) begin
     case (npc_sel_buffer)
       2'b00: exu_npc_tmp = snpc;
       2'b01: exu_npc_tmp = dnpc;  // jal
@@ -63,7 +63,7 @@ module ysyx_25010008_EXU (
     endcase
   end
 
-  always @(exu_r_wdata_sel_buffer or alu_result or snpc or dnpc or csr_src_buffer) begin
+  always @(*) begin
     case (exu_r_wdata_sel_buffer)
       2'b00: exu_r_wdata = alu_result;
       2'b01: exu_r_wdata = snpc;  // jal jalr

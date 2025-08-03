@@ -86,7 +86,7 @@ module ysyx_25010008_RegFile (
     end
   end
 
-  always @(csr_s) begin
+  always @(*) begin
     case (csr_s)
       12'h300: csr_src = mstatus;
       12'h305: csr_src = mtvec;
