@@ -92,9 +92,7 @@ verilog:
 	cat vsrc_for_npc_test/* > build/ysyx_25010008.v
 
 sim: all
-ifdef REBUILD
-	rm -rf $(BUILD_DIR)
-endif
+
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
 
