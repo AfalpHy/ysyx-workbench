@@ -92,7 +92,6 @@ verilog:
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	echo $(ARGS)
 	@$(BIN) $(ARGS)	
 
 convert-bin:
