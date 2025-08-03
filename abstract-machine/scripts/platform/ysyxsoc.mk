@@ -9,7 +9,8 @@ AM_SRCS := riscv/ysyxsoc/start.S \
 		   riscv/ysyxsoc/uart.c \
 		   riscv/ysyxsoc/gpu.c \
            riscv/ysyxsoc/mpe.c \
-           riscv/ysyxsoc/bootloader.c \
+           riscv/ysyxsoc/fsbl.c \
+           riscv/ysyxsoc/ssbl.c \
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDSCRIPTS += $(AM_HOME)/scripts/linker-ysyxsoc.ld
