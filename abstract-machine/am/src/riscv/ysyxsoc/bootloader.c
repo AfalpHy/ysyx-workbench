@@ -1,7 +1,7 @@
 #include <klib.h>
-void __attribute__((noinline)) _ssbl();
+void __attribute__((noinline))  _ssbl();
 
-void __attribute__((section(".entry"))) _fsbl() {
+void __attribute__((section(".entry")))__attribute__((noreturn)) _fsbl() {
   extern char _SSBL_size[], _SSBL_start[], _sram_start[];
   uint32_t loop = (uint32_t)_SSBL_size >> 2;
   uint32_t *origin_addr = (uint32_t *)_SSBL_start;
@@ -24,8 +24,8 @@ void __attribute__((section(".entry"))) _fsbl() {
   _ssbl();
 }
 
-void _trm_init();
-void __attribute__((section(".ssbl"))) _ssbl() {
+void __attribute__((noreturn))_trm_init();
+void __attribute__((section(".ssbl")))__attribute__((noreturn)) _ssbl() {
   extern char _total_size[], _text_start[], _sdram_start[];
   uint32_t loop = (uint32_t)_total_size >> 2;
   uint32_t *origin_addr = (uint32_t *)_text_start;
