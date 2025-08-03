@@ -40,6 +40,7 @@ SECTIONS {
     *(.sdata*)
     . = ALIGN(16);
   } > sdram AT > flash : data
+  _total_size = LOADADDR(.data) + SIZEOF(.data) - _text_start;
 
   .bss : {
     . = ALIGN(16);
@@ -48,7 +49,6 @@ SECTIONS {
     *(.scommon)
     . = ALIGN(16);
   } > sdram AT > flash : bss
-  _total_size = LOADADDR(.bss) - _text_start;
   _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
