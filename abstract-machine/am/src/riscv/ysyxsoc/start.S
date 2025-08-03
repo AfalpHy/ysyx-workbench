@@ -11,6 +11,7 @@ _FSBL:
   la a0, _sram_start
 _memcpy_FSBL:
   lbu a3, 0(a1)
+  lbu a3, 0(a1)
   sb a3, 0(a0)
   addi a1, a1, 1
   addi a0, a0, 1
