@@ -67,11 +67,13 @@ else
 ARGS = -log=$(BUILD_DIR)/npc-log.txt -ftrace-log=$(BUILD_DIR)/npc-ftrace-log.txt
 endif
 
+
 ifdef DIFF_TEST
-override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+else
+ARGS += -b
 endif
 
-ARGS += -b
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

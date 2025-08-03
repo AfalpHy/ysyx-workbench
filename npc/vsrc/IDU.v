@@ -158,16 +158,16 @@ module ysyx_25010008_IDU (
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
 
-  assign alu_operand1_sel[0] = inst_q[19:15] == rd_buffer && inst_q[19:15] != 0;
-  assign alu_operand1_sel[1] = inst_q[19:15] == rd && inst_q[19:15] != 0;
+  assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
+  assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
+
+  assign alu_operand1_sel[0] = rs1 != 0 && rs1 == rd_buffer;
+  assign alu_operand1_sel[1] = rs1 != 0 && rs1 == rd;
 
   assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
   assign alu_operand2_sel[1] = CSRRS | CSRRC;
-  assign alu_operand2_sel[2] = inst_q[24:20] == rd_buffer && inst_q[24:20] != 0;
-  assign alu_operand2_sel[3] = inst_q[24:20] == rd && inst_q[24:20] != 0; 
-
-  assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
-  assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
+  assign alu_operand2_sel[2] = rs2 != 0 && rs2 == rd_buffer ;
+  assign alu_operand2_sel[3] = rs2 != 0 && rs2 == rd; 
 
   assign exu_r_wdata_sel[0] = JAL | JALR | csr_inst;
   assign exu_r_wdata_sel[1] = AUIPC | csr_inst;
@@ -196,9 +196,7 @@ module ysyx_25010008_IDU (
   assign mret = mret_buffer[1];
   assign fence_i = fence_i_buffer[1];
 
-  wire [4:0] rs1_tmp = inst[19:15];
-  wire [4:0] rs2_tmp = inst[24:20];
-  assign idu_ready = !load | ((rs1_tmp == 0 || rs1_tmp != inst_q[11:7]) && (rs2_tmp == 0 || rs2_tmp != inst_q[11:7]));
+  assign idu_ready = !load ;
 
   //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
   //                   +----+----+----+----+----+
