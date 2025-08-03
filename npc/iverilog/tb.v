@@ -36,10 +36,8 @@ module top ();
 
   always #1 clock = ~clock;
 
-  always @(posedge cpu.idu.EBREAK) begin
-    if (cpu.reg_file.regs[10] == 0) $display("\033[32m\tHIT GOOD TRAP\033[0m");
-    else $display("\033[31m\tHIT BAD TRAP\033[0m");
-    $finish;
+  always @(posedge clock) begin
+    if (cpu.idu.EBREAK) $finish;
   end
 
   ysyx_25010008 cpu (
