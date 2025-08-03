@@ -25,7 +25,7 @@ void __attribute__((section(".entry"))) _fsbl() {
   _ssbl();
 }
 
-void __attribute__((section(".ssbl"))) _ssbl() {
+void __attribute__((section("ssbl"))) _ssbl() {
   extern char _total_size[], _text_start[], _sdram_start[];
   uint32_t loop = (uint32_t)_total_size >> 2;
   uint32_t *origin_addr = (uint32_t *)_text_start;
