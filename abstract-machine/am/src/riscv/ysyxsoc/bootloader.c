@@ -1,5 +1,5 @@
 #include <klib.h>
-void   _ssbl();
+void __attribute__((noinline))  _ssbl();
 
 void __attribute__((section(".entry"))) _fsbl() {
   extern char _SSBL_size[], _SSBL_start[], _sram_start[];
