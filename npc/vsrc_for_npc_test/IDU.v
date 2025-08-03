@@ -207,7 +207,7 @@ module ysyx_25010008_IDU (
   // I5: sll a4,a0,1                       | IF | ID | EX | LS | WB |
   //                                       +----+----+----+----+----+
   always @(posedge clock) begin
-    if (reset) begin
+    if (reset | clear_pipeline) begin
       inst_q          <= 0;
       decode_valid    <= 0;
 
@@ -224,23 +224,7 @@ module ysyx_25010008_IDU (
       mret_buffer <= 0;
       fence_i_buffer <= 0;
     end else begin
-      if (clear_pipeline) begin
-        inst_q <= 0;
-        decode_valid <= 0;
-
-        r_wen <= 0;
-        csr_wen <= 0;
-
-        mem_ren <= 0;
-        mem_wen <= 0;
-
-        r_wen_buffer <= 0;
-        csr_wen_buffer <= 0;
-
-        ecall_buffer <= 0;
-        mret_buffer <= 0;
-        fence_i_buffer <= 0;
-      end else if (!block) begin
+      if (!block) begin
         if (inst_valid & idu_ready) begin
           inst_q <= inst;
           decode_valid <= 1;

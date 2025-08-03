@@ -38,7 +38,6 @@ module ysyx_25010008_IFU (
     input rvalid,
     input rlast,
 
-    output inst_addr_misaligned,
     input  clear_cache,
     input  clear_pipeline
 );
@@ -59,15 +58,9 @@ module ysyx_25010008_IFU (
   wire [`ysyx_25010008_TAG_WIDTH-1:0] cache_tag = cache_block[`ysyx_25010008_CACHE_TAG_RANGE];
   wire [`ysyx_25010008_TAG_WIDTH-1:0] pc_tag = pc[`ysyx_25010008_PC_TAG_RANGE];
 
-  wire is_sram = pc[31:24] == 8'h0f;
-
   assign enable = state;
 
   reg pipeline_empty;
-
-  reg [3:0] inst_addr_misaligned_buffer;
-
-  assign inst_addr_misaligned = inst_addr_misaligned_buffer[3];
 
   always @(posedge clock) begin
     if (reset) begin
@@ -81,7 +74,6 @@ module ysyx_25010008_IFU (
       delay = 0;
       state <= READ_CACHE;
       pipeline_empty <= 1;
-      inst_addr_misaligned_buffer <= 0;
     end else begin
       if (clear_cache) begin
         for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
@@ -92,15 +84,12 @@ module ysyx_25010008_IFU (
       if (clear_pipeline) begin
         // exception is prior
         pc <= npc;
-        inst_addr_misaligned_buffer <= 0;
         inst_valid <= 0;
         pipeline_empty <= 1;
       end else begin
-        if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
-
         if (state == READ_CACHE & !block & idu_ready) begin
           // sram don't need cache
-          if (!is_sram && cache_valid && cache_tag == pc_tag) begin
+          if (cache_valid && cache_tag == pc_tag) begin
             inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
             ifu_pc <= pc;
@@ -109,20 +98,10 @@ module ysyx_25010008_IFU (
           end else begin
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == npc)) begin
-              if (is_sram) begin
-                araddr <= pc;
-                arlen  <= 0;
-              end else begin
-                araddr <= {pc[31:4], 4'b0};
-                arlen  <= 8'b11;
-              end
-              if (pc[1:0] == 0) begin
-                state   <= READ_MEMORY;
-                arvalid <= 1;
-              end else begin
-                ifu_pc <= pc;
-                inst_addr_misaligned_buffer[0] <= 1;
-              end
+              araddr  <= {pc[31:4], 4'b0};
+              arlen   <= 8'b11;
+              state   <= READ_MEMORY;
+              arvalid <= 1;
             end
             inst_valid <= 0;
           end
@@ -145,18 +124,11 @@ module ysyx_25010008_IFU (
 
             delay = 0;
           end
-          if (is_sram) begin
-            inst <= rdata;
-            inst_valid <= 1;
-            ifu_pc <= pc;
-            pc <= pc + 4;
-            pipeline_empty <= 0;
-          end else begin
-            cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] = {1'b1, pc_tag};
-            cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
-              rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
-            };
-          end
+
+          cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] <= {1'b1, pc_tag};
+          cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
+            rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
+          };
         end
       end
     end

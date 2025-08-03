@@ -68,7 +68,6 @@ module ysyx_25010008 (
   wire [31:0] ifu_pc;
   wire [1:0] npc_sel;
   wire ifu_enable;
-  wire inst_addr_misaligned;
 
   // instruction
   wire [31:0] inst;
@@ -183,7 +182,6 @@ module ysyx_25010008 (
       .rvalid(rvalid_0),
       .rlast (rlast_0),
 
-      .inst_addr_misaligned(inst_addr_misaligned),
       .clear_cache(clear_cache),
       .clear_pipeline(clear_pipeline)
   );
@@ -342,7 +340,6 @@ module ysyx_25010008 (
       .csr_src(csr_src),
 
       .ls_valid(ls_valid),
-      .inst_addr_misaligned(inst_addr_misaligned),
       .ecall(ecall),
       .mret(mret),
       .fence_i(fence_i),
