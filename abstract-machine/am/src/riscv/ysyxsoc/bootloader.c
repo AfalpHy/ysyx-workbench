@@ -45,5 +45,5 @@ void __attribute__((section(".ssbl"))) __attribute__((noinline)) _ssbl() {
     remain_origin_addr++;
     remain_target_addr++;
   }
-  ;
+  _trm_init();
 }
