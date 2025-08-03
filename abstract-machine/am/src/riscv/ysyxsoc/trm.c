@@ -40,13 +40,12 @@ void halt(int code) {
 }
 
 void init_uart() {
-  int tmp = inb(UART_ADDR + UART_REG_LC);
-  outb(UART_ADDR + UART_REG_LC, 0x80); // set dlab(divisor latch access bit)
+  uint8_t tmp = inb(UART_ADDR + UART_REG_LC);
+  outb(UART_ADDR + UART_REG_LC,
+       tmp | 0x80); // set dlab(divisor latch access bit)
   outb(UART_ADDR + UART_REG_DLH, 0);
   outb(UART_ADDR + UART_REG_DLL, 1);
-  outb(UART_ADDR + UART_REG_LC, 3); // recover
-  printf("%d\n", tmp);
-
+  outb(UART_ADDR + UART_REG_LC, tmp); // recover
 }
 
 void display_id() {
