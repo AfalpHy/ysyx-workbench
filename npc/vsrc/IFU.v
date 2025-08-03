@@ -68,6 +68,8 @@ module ysyx_25010008_IFU (
   wire [`ysyx_25010008_TAG_WIDTH-1:0] cache_tag = cache_block[`ysyx_25010008_CACHE_TAG_RANGE];
   wire [`ysyx_25010008_TAG_WIDTH-1:0] pc_tag = pc[`ysyx_25010008_PC_TAG_RANGE];
 
+  wire is_sram = pc[31:24] == 8'h0f;
+
   assign enable = state;
 
   reg pipeline_empty;
@@ -106,7 +108,8 @@ module ysyx_25010008_IFU (
         if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
 
         if (state == READ_CACHE & !block & idu_ready) begin
-          if (cache_valid && cache_tag == pc_tag) begin
+          // sram don't need cache
+          if (!is_sram && cache_valid && cache_tag == pc_tag) begin
             inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
             ifu_pc <= pc;
@@ -116,8 +119,13 @@ module ysyx_25010008_IFU (
           end else begin
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == npc)) begin
-              araddr <= {pc[31:4], 4'b0};
-              arlen  <= 8'b11;
+              if (is_sram) begin
+                araddr <= pc;
+                arlen  <= 0;
+              end else begin
+                araddr <= {pc[31:4], 4'b0};
+                arlen  <= 8'b11;
+              end
               if (pc[1:0] == 0) begin
                 state   <= READ_MEMORY;
                 arvalid <= 1;
@@ -147,13 +155,20 @@ module ysyx_25010008_IFU (
             ifu_record1(delay);
             delay = 0;
           end
+          if (is_sram) begin
+            inst <= rdata;
+            inst_valid <= 1;
+            ifu_pc <= pc;
+            pc <= pc + 4;
+            pipeline_empty <= 0;
+          end else begin
+            cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] = {1'b1, pc_tag};
+            cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
+              rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
+            };
 
-          cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] <= {1'b1, pc_tag};
-          cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
-            rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
-          };
-
-          if (rlast) ifu_record0(-1);
+            if (rlast) ifu_record0(-1);
+          end
         end
       end
     end
