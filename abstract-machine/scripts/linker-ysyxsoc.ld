@@ -23,30 +23,30 @@ SECTIONS {
   
   .text : {
     *(.text*)
-    . = ALIGN(8);
+    . = ALIGN(16);
   } > sdram AT > flash : text
   _text_start = LOADADDR(.text);
 
   .rodata : {
-    . = ALIGN(8);
+    . = ALIGN(16);
     *(.rodata*)
     *(.srodata*)
-    . = ALIGN(8);
+    . = ALIGN(16);
   } > sdram AT > flash : rdata
 
   .data : {
-    . = ALIGN(8);
+    . = ALIGN(16);
     *(.data*)
     *(.sdata*)
-    . = ALIGN(8);
+    . = ALIGN(16);
   } > sdram AT > flash : data
 
   .bss : {
-    . = ALIGN(8);
+    . = ALIGN(16);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-    . = ALIGN(8);
+    . = ALIGN(16);
   } > sdram AT > flash : bss
   _total_size = LOADADDR(.bss) - _text_start;
   _heap_start = .;
