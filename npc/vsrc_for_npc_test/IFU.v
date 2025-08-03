@@ -38,6 +38,7 @@ module ysyx_25010008_IFU (
     input rvalid,
     input rlast,
 
+    output inst_addr_misaligned,
     input  clear_cache,
     input  clear_pipeline
 );
@@ -61,7 +62,9 @@ module ysyx_25010008_IFU (
   assign enable = state;
 
   reg pipeline_empty;
+  reg [3:0] inst_addr_misaligned_buffer;
 
+  assign inst_addr_misaligned = inst_addr_misaligned_buffer[3];
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
@@ -87,6 +90,8 @@ module ysyx_25010008_IFU (
         inst_valid <= 0;
         pipeline_empty <= 1;
       end else begin
+        if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
+
         if (state == READ_CACHE & !block & idu_ready) begin
           // sram don't need cache
           if (cache_valid && cache_tag == pc_tag) begin
@@ -98,10 +103,15 @@ module ysyx_25010008_IFU (
           end else begin
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == npc)) begin
-              araddr  <= {pc[31:4], 4'b0};
-              arlen   <= 8'b11;
-              state   <= READ_MEMORY;
-              arvalid <= 1;
+              araddr <= {pc[31:4], 4'b0};
+              arlen  <= 8'b11;
+              if (pc[1:0] == 0) begin
+                state   <= READ_MEMORY;
+                arvalid <= 1;
+              end else begin
+                ifu_pc <= pc;
+                inst_addr_misaligned_buffer[0] <= 1;
+              end
             end
             inst_valid <= 0;
           end

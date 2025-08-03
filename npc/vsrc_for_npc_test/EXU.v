@@ -76,14 +76,11 @@ module ysyx_25010008_EXU (
   wire [31:0] csr_src_tmp = csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata : csr_src;
 
   always @(posedge clock) begin
-    if (reset) begin
+    if (reset | clear_pipeline) begin
       execute_valid <= 0;
       wrong_prediction <= 0;
     end else begin
-      if (clear_pipeline) begin
-        execute_valid <= 0;
-        wrong_prediction <= 0;
-      end else if (!block) begin
+      if (!block) begin
         execute_valid <= decode_valid;
         wrong_prediction <= execute_valid && npc_sel_buffer != 0;
 

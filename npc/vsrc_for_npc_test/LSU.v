@@ -75,10 +75,8 @@ module ysyx_25010008_LSU (
   wire [31:0] exth = {16'b0, real_rdata[15:0]};
   wire [31:0] unsign_data = suffix_b_q ? extb : (suffix_h_q ? exth : real_rdata);
 
-  integer delay;
-
   always @(posedge clock) begin
-    if (reset) begin
+    if (reset | clear_pipeline) begin
       arvalid <= 0;
       rready <= 0;
 
@@ -90,29 +88,20 @@ module ysyx_25010008_LSU (
 
       load_addr_misaligned <= 0;
       store_addr_misaligned <= 0;
-
-      delay = 0;
     end else begin
       if (block) begin
-        if (clear_pipeline) begin
-          block <= 0;
-          load_addr_misaligned <= 0;
-          store_addr_misaligned <= 0;
-        end else begin
-          if (ren_q) begin
-            ren_q <= 0;
-            load_addr_misaligned <= addr_misaligned;
-            arvalid <= addr_misaligned ? 0 : 1;
-          end
+        if (ren_q) begin
+          ren_q <= 0;
+          load_addr_misaligned <= addr_misaligned;
+          arvalid <= addr_misaligned ? 0 : 1;
+        end
 
-          if (wen_q) begin
-            wen_q <= 0;
-            store_addr_misaligned <= addr_misaligned;
-            // must assert in the same time for sdram axi
-            awvalid <= addr_misaligned ? 0 : 1;
-            wvalid <= addr_misaligned ? 0 : 1;
-          end
-          delay = delay + 1;
+        if (wen_q) begin
+          wen_q <= 0;
+          store_addr_misaligned <= addr_misaligned;
+          // must assert in the same time for sdram axi
+          awvalid <= addr_misaligned ? 0 : 1;
+          wvalid <= addr_misaligned ? 0 : 1;
         end
 
         if (arvalid & arready) begin
@@ -125,7 +114,6 @@ module ysyx_25010008_LSU (
           r_wdata <= sext_q ? sign_data : unsign_data;
           block <= 0;
           ls_valid <= 1;
-          delay = 0;
         end
 
         if (awvalid & awready) begin
@@ -141,7 +129,6 @@ module ysyx_25010008_LSU (
           bready <= 0;
           block <= 0;
           ls_valid <= 1;
-          delay = 0;
         end
       end else begin
         addr_q <= addr;
