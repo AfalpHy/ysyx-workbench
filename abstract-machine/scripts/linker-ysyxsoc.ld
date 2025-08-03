@@ -15,11 +15,9 @@ SECTIONS {
     *(entry)
   } > flash : entry
 
-  .ssbl : {
-    *(SSBL)
-  } > sram AT > flash : ssbl
-  _SSBL_start = LOADADDR(.ssbl);
-  _SSBL_size = SIZEOF(.ssbl);
+  .ssbl : {} > sram AT > flash : ssbl
+  _ssbl_start = LOADADDR(.ssbl);
+  _ssbl_size = SIZEOF(.ssbl);
   
   .text : {
     *(.text*)
@@ -48,7 +46,7 @@ SECTIONS {
     *(.scommon)
     . = ALIGN(16);
   } > sdram AT > flash : bss
-  _total_size = LOADADDR(.bss) - _text_start;
+  _text_size = LOADADDR(.bss) - _text_start;
   _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
