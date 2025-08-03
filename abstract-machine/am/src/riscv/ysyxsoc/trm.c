@@ -63,6 +63,8 @@ void login() {
 void _trm_init() {
   init_uart();
   display_id();
+  extern char _total_size[];
+  printf("%d\n",_total_size);
   login();
   int ret = main(mainargs);
   halt(ret);
