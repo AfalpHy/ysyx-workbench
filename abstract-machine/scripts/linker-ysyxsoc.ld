@@ -15,9 +15,7 @@ SECTIONS {
     *(entry)
   } > flash : entry
 
-  .ssbl : {
-    *(SSBL)
-  } > sram AT > flash : ssbl
+  .ssbl : {} > sram AT > flash : ssbl
   _SSBL_start = LOADADDR(.ssbl);
   _SSBL_size = SIZEOF(.ssbl);
   
