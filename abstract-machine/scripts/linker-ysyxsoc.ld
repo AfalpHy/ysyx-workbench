@@ -48,7 +48,7 @@ SECTIONS {
     *(.scommon)
     . = ALIGN(16);
   } > sdram AT > flash : bss
-  _total_size = LOADADDR(.bss)  - _text_start;
+  _total_size = LOADADDR(.bss) - _text_start;
   _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
