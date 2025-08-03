@@ -9,7 +9,9 @@ SECTIONS {
   . = ORIGIN(flash);
   _sram_start = ORIGIN(sram);
   _sdram_start = ORIGIN(sdram);
-
+  /DISCARD/ : {
+    *(.riscv.attributes)
+  }
   .entry : {
     *(entry)
   } > flash
