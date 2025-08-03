@@ -15,7 +15,7 @@ SECTIONS {
     *(entry)
   } > flash : entry
 
-  .fsbl :{}> flash :entry
+  .fsbl :{}> flash : entry
   .ssbl : {
     *(SSBL)
   } > sram AT > flash : ssbl
