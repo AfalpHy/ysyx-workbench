@@ -28,21 +28,18 @@ SECTIONS {
   _text_start = LOADADDR(.text);
 
   .rodata : {
-    . = ALIGN(16);
     *(.rodata*)
     *(.srodata*)
     . = ALIGN(16);
   } > sdram AT > flash : rdata
 
   .data : {
-    . = ALIGN(16);
     *(.data*)
     *(.sdata*)
     . = ALIGN(16);
   } > sdram AT > flash : data
 
   .bss : {
-    . = ALIGN(16);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
