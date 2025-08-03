@@ -152,7 +152,7 @@ module ysyx_25010008_IFU (
             pc <= pc + 4;
             pipeline_empty <= 0;
           end else begin
-            cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] = {1'b1, pc_tag};
+            cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] <= {1'b1, pc_tag};
             cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
               rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
             };
