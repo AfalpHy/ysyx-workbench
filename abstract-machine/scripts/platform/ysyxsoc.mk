@@ -30,9 +30,6 @@ ifdef REBUILD
 	$(MAKE) -C $(NPC_HOME) clean
 endif
 
-perf: image rebuild
-	$(MAKE) -C $(NPC_HOME) sim PERF=ON IMG=$(IMAGE).bin OPT_FAST=""
-
 run: image rebuild
 	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin OPT_FAST=""
 
