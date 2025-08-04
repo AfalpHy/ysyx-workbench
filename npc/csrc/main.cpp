@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  // print_performance_info();
+  print_performance_info();
   if (status || isa_reg_str2val("a0") != 0) {
     cout << img << "\033[31m\tHIT BAD TRAP\033[0m" << endl;
     status = -1;
