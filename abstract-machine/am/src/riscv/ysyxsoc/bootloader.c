@@ -46,7 +46,7 @@ ssbl_memcpy(uint32_t size, uint32_t *origin_addr, uint32_t *target_addr) {
   }
 }
 
-void __attribute__((section(".ssbl"))) __attribute__((noinline)) _ssbl() {
+void __attribute__((section(".ssbl")))  _ssbl() {
   extern char _text_size[], _text_start[], _sdram_start[];
   ssbl_memcpy((uint32_t)_text_size, (uint32_t *)_text_start,
               (uint32_t *)_sdram_start);
