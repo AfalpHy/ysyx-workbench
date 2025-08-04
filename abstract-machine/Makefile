@@ -116,7 +116,7 @@ $(DST_DIR)/%.o: %.cpp
 ### Rule (compile): a single `.S` -> `.o` (gcc, which preprocesses and calls as)
 $(DST_DIR)/%.o: %.S
 	@mkdir -p $(dir $@) && echo + AS $<
-	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
+	$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 ### Rule (recursive make): build a dependent library (am, klib, ...)
 $(LIBS): %:
