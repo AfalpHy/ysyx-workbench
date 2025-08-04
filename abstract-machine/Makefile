@@ -117,6 +117,7 @@ $(DST_DIR)/%.o: %.cpp
 $(DST_DIR)/%.o: %.S
 	@mkdir -p $(dir $@) && echo + AS $<
 	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
+	@echo $(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 ### Rule (recursive make): build a dependent library (am, klib, ...)
 $(LIBS): %:
