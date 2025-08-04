@@ -146,12 +146,19 @@ int main(int argc, char **argv) {
 
   if (status || isa_reg_str2val("a0") != 0) {
     cout << img << "\033[31m\tHIT BAD TRAP\033[0m" << endl;
+    print_debug_info();
+    print_total_insts_num();
     status = -1;
   } else {
     cout << img << "\033[32m\tHIT GOOD TRAP\033[0m" << endl;
   }
-  print_debug_info();
-  print_total_insts_num();
+  img.pop_back();
+  img.pop_back();
+  img.pop_back();
+  string tmp = "riscv64-linux-gnu-objdump -d " + img + "elf";
+  system(tmp.c_str());
+#ifdef PRINT_PERFORMANCE_INFO
   print_performance_info();
+#endif
   return status;
 }
