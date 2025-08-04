@@ -117,7 +117,7 @@ gdb: all
 	gdb -args $(BIN) $(ARGS)
 
 perf:
-	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc PERF=ON  REBUILD=ON mainargs=test run
+	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc PERF=ON REBUILD=ON mainargs=train run
 
 .PHONY: all clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf
 
