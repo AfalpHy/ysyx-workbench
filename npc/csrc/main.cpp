@@ -147,16 +147,26 @@ int main(int argc, char **argv) {
   if (status || isa_reg_str2val("a0") != 0) {
     print_debug_info();
     print_total_insts_num();
-    img.pop_back();
-    img.pop_back();
-    img.pop_back();
-    string tmp = "cat " + img + "txt";
-    system(tmp.c_str());
     status = -1;
     cout << img << "\033[31m\tHIT BAD TRAP\033[0m" << endl;
   } else {
     cout << img << "\033[32m\tHIT GOOD TRAP\033[0m" << endl;
   }
+  img.pop_back();
+  img.pop_back();
+  img.pop_back();
+  string tmp = "cat " + img + "elf";
+  std::ifstream input(tmp, std::ios::binary);
+  if (!input) {
+    std::cerr << "Failed to open file.\n";
+  }
+
+  char byte;
+  while (input.get(byte)) {
+    std::bitset<8> bits(static_cast<unsigned char>(byte));
+    std::cout << bits;
+  }
+  std::cout << std::endl;
 #ifdef PRINT_PERFORMANCE_INFO
   print_performance_info();
 #endif
