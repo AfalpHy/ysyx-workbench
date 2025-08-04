@@ -25,7 +25,7 @@ void __attribute__((section(".entry"))) _fsbl() {
   _ssbl();
 }
 
-void __attribute__((section(".ssbl")))
+void __attribute__((section(".ssbl"))) __attribute__((noinline))
 ssbl_memcpy(uint32_t size, uint32_t *origin_addr, uint32_t *target_addr) {
   uint32_t loop = (uint32_t)size >> 2;
 
