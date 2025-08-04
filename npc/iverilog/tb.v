@@ -39,18 +39,19 @@ module top ();
 
   always #1 clock = ~clock;
 
-  always @(posedge cpu.idu.EBREAK) begin
-    ebreak_pc = cpu.idu.idu_pc;
+  always @(posedge cpu.ebreak) begin
+    ebreak_pc = cpu.idu_pc;
   end
 
   always @(posedge clock) begin
-    if (cpu.reg_file.lsu_pc == ebreak_pc) begin
+    if (cpu.lsu_pc == ebreak_pc) begin
+`ifndef NETLIST
       if (cpu.reg_file.regs[10]) $display("\033[31m\tHIT BAD TRAP\033[0m");
       else $display("\033[32m\tHIT GOOD TRAP\033[0m");
+`endif
       $finish;
     end
   end
-
 
   ysyx_25010008 cpu (
       .clock(clock),

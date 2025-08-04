@@ -78,6 +78,7 @@ module ysyx_25010008 (
   wire sext;
   wire inst_valid;
   wire ecall;
+  wire ebreak;
   wire mret;
   wire fence_i;
 
@@ -225,6 +226,7 @@ module ysyx_25010008 (
       .csr_wen(csr_wen),
 
       .ecall(ecall),
+      .ebreak(ebreak),
       .mret(mret),
       .fence_i(fence_i),
       .clear_pipeline(clear_pipeline)
@@ -344,6 +346,7 @@ module ysyx_25010008 (
       .ls_valid(ls_valid),
       .inst_addr_misaligned(inst_addr_misaligned),
       .ecall(ecall),
+      .ebreak(ebreak),
       .mret(mret),
       .fence_i(fence_i),
       .load_addr_misaligned(load_addr_misaligned),

@@ -45,6 +45,7 @@ module ysyx_25010008_IDU (
     output reg csr_wen,
 
     output ecall,
+    output ebreak,
     output mret,
     output fence_i,
     input clear_pipeline
@@ -56,6 +57,7 @@ module ysyx_25010008_IDU (
   reg [11:0] csr_d_buffer;
   reg r_wen_buffer,csr_wen_buffer;
   reg [1:0] ecall_buffer;
+  reg [1:0] ebreak_buffer;
   reg [1:0] mret_buffer;
   reg [1:0] fence_i_buffer;
 
@@ -195,6 +197,7 @@ module ysyx_25010008_IDU (
   assign alu_opcode[7] = CSRRC;
 
   assign ecall = ecall_buffer[1];
+  assign ebreak = ebreak_buffer[1];
   assign mret = mret_buffer[1];
   assign fence_i = fence_i_buffer[1];
 
@@ -231,6 +234,7 @@ module ysyx_25010008_IDU (
       csr_wen         <= 0;
 
       ecall_buffer    <= 0;
+      ebreak_buffer   <= 0;
       mret_buffer <= 0;
       fence_i_buffer <= 0;
     end else begin
@@ -253,6 +257,7 @@ module ysyx_25010008_IDU (
         csr_wen_buffer <= csr_inst;
 
         ecall_buffer <= {ecall_buffer[0], ECALL};
+        ebreak_buffer <= {ebreak_buffer[0], EBREAK};
         mret_buffer <= {mret_buffer[0], MRET};
         fence_i_buffer <= {fence_i_buffer[0], FENCE_I};
 
