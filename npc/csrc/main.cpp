@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
   img.pop_back();
   img.pop_back();
   img.pop_back();
-  string tmp = "cat " + img + "elf";
+  string tmp = img + "elf";
   std::ifstream input(tmp, std::ios::binary);
   if (!input) {
     std::cerr << "Failed to open file.\n";
