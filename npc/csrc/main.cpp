@@ -150,8 +150,18 @@ int main(int argc, char **argv) {
     img.pop_back();
     img.pop_back();
     img.pop_back();
-    string tmp = "cat " + img + "txt";
-    system(tmp.c_str());
+    string tmp = img + "elf";
+    std::ifstream input(tmp, std::ios::binary);
+    if (!input) {
+      std::cerr << "Failed to open file.\n";
+    } else {
+      char byte;
+      while (input.get(byte)) {
+        std::bitset<8> bits(static_cast<unsigned char>(byte));
+        std::cout << bits;
+      }
+      std::cout << std::endl;
+    }
     status = -1;
     cout << img << "\033[31m\tHIT BAD TRAP\033[0m" << endl;
   } else {
