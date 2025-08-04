@@ -43,8 +43,8 @@ static inline void print_debug_info() {
   isa_reg_display();
   iringbuf_display();
 
-  printf("current pc:%h\n", current_pc);
-  printf("current inst:%h\n", inst_buffer[3]);
+  printf("current pc:%x\n", current_pc);
+  printf("current inst:%x\n", inst_buffer[3]);
 }
 
 static inline void print_performance_info() {
