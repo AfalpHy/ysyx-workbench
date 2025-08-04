@@ -5,7 +5,7 @@ import "DPI-C" function void ifu_record1(int delay);
 `endif
 
 `define ysyx_25010008_M 4 
-`define ysyx_25010008_N 1
+`define ysyx_25010008_N 2
 `define ysyx_25010008_DATA_WIDTH (2 ** `ysyx_25010008_M) * 8
 `define ysyx_25010008_TAG_WIDTH 32 - (`ysyx_25010008_M + `ysyx_25010008_N) 
 `define ysyx_25010008_CACHE_WIDTH `ysyx_25010008_TAG_WIDTH + `ysyx_25010008_DATA_WIDTH + 1
