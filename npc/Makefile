@@ -89,7 +89,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 verilog:
-	cat vsrc_for_npc_test/* > build/ysyx_25010008.v
+	find ./vsrc -maxdepth 1 -type f ! -name 'ysyxSoCFull.v' -exec cat {} +> build/ysyx_25010008.v
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

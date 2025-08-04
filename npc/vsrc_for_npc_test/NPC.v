@@ -88,7 +88,7 @@ module ysyx_25010008 (
   wire [31:0] exu_pc;
   wire [31:0] exu_npc;
   wire execute_valid;
-  wire wrong_prediction;
+  wire is_wrong_prediction;
 
   // alu
   wire [7:0] alu_opcode;
@@ -265,7 +265,7 @@ module ysyx_25010008 (
       .csr_wdata  (csr_wdata),
 
       .clear_pipeline  (clear_pipeline),
-      .wrong_prediction(wrong_prediction)
+      .is_wrong_prediction(is_wrong_prediction)
   );
 
   ysyx_25010008_LSU lsu (
@@ -348,7 +348,7 @@ module ysyx_25010008 (
       .fence_i(fence_i),
       .load_addr_misaligned(load_addr_misaligned),
       .store_addr_misaligned(store_addr_misaligned),
-      .wrong_prediction(wrong_prediction),
+      .is_wrong_prediction(is_wrong_prediction),
       .clear_pipeline(clear_pipeline),
       .clear_cache(clear_cache),
 

@@ -33,7 +33,7 @@ module ysyx_25010008_EXU (
     output reg [31:0] csr_wdata,
 
     input clear_pipeline,
-    output reg wrong_prediction
+    output reg is_wrong_prediction
 );
 
   reg [ 7:0] opcode;
@@ -78,11 +78,11 @@ module ysyx_25010008_EXU (
   always @(posedge clock) begin
     if (reset | clear_pipeline) begin
       execute_valid <= 0;
-      wrong_prediction <= 0;
+      is_wrong_prediction <= 0;
     end else begin
       if (!block) begin
         execute_valid <= decode_valid;
-        wrong_prediction <= execute_valid && npc_sel_buffer != 0;
+        is_wrong_prediction <= execute_valid && npc_sel_buffer != 0;
 
         opcode <= alu_opcode;
         operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;

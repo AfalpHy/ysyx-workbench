@@ -1,3 +1,4 @@
+`ifdef __VERILATOR__
 import "DPI-C" function void set_skip_ref_inst();
 import "DPI-C" function void lsu_record0(
   int addr,
@@ -10,6 +11,8 @@ import "DPI-C" function void lsu_record1(
   int mask,
   int delay
 );
+`endif
+
 module ysyx_25010008_LSU (
     input clock,
     input reset,
@@ -87,7 +90,9 @@ module ysyx_25010008_LSU (
   wire [31:0] exth = {16'b0, real_rdata[15:0]};
   wire [31:0] unsign_data = suffix_b_q ? extb : (suffix_h_q ? exth : real_rdata);
 
+`ifdef __VERILATOR__
   integer delay;
+`endif
 
   always @(posedge clock) begin
     if (reset) begin
@@ -103,7 +108,9 @@ module ysyx_25010008_LSU (
       load_addr_misaligned <= 0;
       store_addr_misaligned <= 0;
 
+`ifdef __VERILATOR__
       delay = 0;
+`endif
     end else begin
       if (block) begin
         if (clear_pipeline) begin
@@ -124,12 +131,19 @@ module ysyx_25010008_LSU (
             awvalid <= addr_misaligned ? 0 : 1;
             wvalid <= addr_misaligned ? 0 : 1;
           end
+
+`ifdef __VERILATOR__
           delay = delay + 1;
+`endif
         end
 
         if (arvalid & arready) begin
+
+`ifdef __VERILATOR__
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
             set_skip_ref_inst();  //uart clint spi gpio ps2
+`endif
+
           rready  <= 1;
           arvalid <= 0;
         end
@@ -139,13 +153,20 @@ module ysyx_25010008_LSU (
           r_wdata <= sext_q ? sign_data : unsign_data;
           block <= 0;
           ls_valid <= 1;
+
+`ifdef __VERILATOR__
           lsu_record0(araddr, sext_q ? sign_data : unsign_data, delay);
           delay = 0;
+`endif
         end
 
         if (awvalid & awready) begin
+
+`ifdef __VERILATOR__
           if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
             set_skip_ref_inst();  //uart spi gpio vga
+`endif
+
           awvalid <= 0;
         end
 
@@ -158,8 +179,11 @@ module ysyx_25010008_LSU (
           bready <= 0;
           block <= 0;
           ls_valid <= 1;
+
+`ifdef __VERILATOR__
           lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
+`endif
         end
       end else begin
         addr_q <= addr;

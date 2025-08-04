@@ -1,9 +1,12 @@
+`ifdef __VERILATOR__
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 import "DPI-C" function void wbu_record(
   int pc,
   int npc
 );
 import "DPI-C" function void inst_done();
+`endif
+
 module ysyx_25010008_RegFile (
     input clock,
     input reset,
@@ -32,7 +35,7 @@ module ysyx_25010008_RegFile (
     input fence_i,
     input load_addr_misaligned,
     input store_addr_misaligned,
-    input wrong_prediction,
+    input is_wrong_prediction,
     output reg clear_pipeline,
     output reg clear_cache,
 
@@ -50,9 +53,11 @@ module ysyx_25010008_RegFile (
   assign src1 = regs[rs1[3:0]];
   assign src2 = regs[rs2[3:0]];
 
+`ifdef __VERILATOR__
   initial begin
     set_regs_ptr(regs);
   end
+`endif
 
   integer i;
 
@@ -61,9 +66,9 @@ module ysyx_25010008_RegFile (
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
-      mstatus   <= 32'h1800;
+      mstatus <= 32'h1800;
       mvendorid <= 32'h7973_7978;
-      marchid   <= 32'h17D_9F58;
+      marchid <= 32'h17D_9F58;
       clear_pipeline <= 0;
     end else begin
       if (clear_pipeline) begin
@@ -79,9 +84,12 @@ module ysyx_25010008_RegFile (
           mepc <= lsu_pc;
           npc <= mtvec;
           clear_pipeline <= 1;
+
+`ifdef __VERILATOR__
           wbu_record(lsu_pc, mtvec);
+`endif
         end else begin
-          clear_pipeline <= (fence_i | mret) ? 1 : wrong_prediction;
+          clear_pipeline <= (fence_i | mret) ? 1 : is_wrong_prediction;
           clear_cache <= fence_i;
           npc <= mret ? mepc : exu_npc;
           if (csr_wen) begin
@@ -92,10 +100,13 @@ module ysyx_25010008_RegFile (
               default: ;
             endcase
           end
+`ifdef __VERILATOR__
           wbu_record(lsu_pc, mret ? mepc : exu_npc);
+`endif
         end
-
+`ifdef __VERILATOR__
         if (ls_valid) inst_done();
+`endif
       end
     end
   end

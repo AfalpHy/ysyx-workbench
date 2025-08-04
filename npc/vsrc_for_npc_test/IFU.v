@@ -1,3 +1,9 @@
+`ifdef __VERILATOR__
+import "DPI-C" function void set_pc(input [31:0] ptr[]);
+import "DPI-C" function void ifu_record0(int inc);
+import "DPI-C" function void ifu_record1(int delay);
+`endif
+
 `define ysyx_25010008_M 4 
 `define ysyx_25010008_N 2
 `define ysyx_25010008_DATA_WIDTH (2 ** `ysyx_25010008_M) * 8
@@ -45,9 +51,20 @@ module ysyx_25010008_IFU (
 
   reg [31:0] pc;
 
+`ifdef __VERILATOR__
+  // set pointer of pc for cpp
+  initial begin
+    set_pc(pc);
+  end
+`endif
+
   reg [`ysyx_25010008_CACHE_WIDTH - 1 : 0] cache[0 : `ysyx_25010008_CACHE_SIZE - 1];
 
-  integer i, delay;
+  integer i;
+
+`ifdef __VERILATOR__
+  integer delay;
+`endif
 
   parameter READ_CACHE = 0;
   parameter READ_MEMORY = 1;
@@ -62,22 +79,30 @@ module ysyx_25010008_IFU (
   assign enable = state;
 
   reg pipeline_empty;
+
   reg [3:0] inst_addr_misaligned_buffer;
 
   assign inst_addr_misaligned = inst_addr_misaligned_buffer[3];
+
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
         cache[i][`ysyx_25010008_VALID_POS] <= 0;
       end
-      pc <= 32'h8000_0000;
+      pc <= 32'h3000_0000;
       arvalid <= 0;
       rready <= 0;
       inst_valid <= 0;
+
+`ifdef __VERILATOR__
       delay = 0;
+`endif
+
       state <= READ_CACHE;
       pipeline_empty <= 1;
     end else begin
+      if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
+
       if (clear_cache) begin
         for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
           cache[i][`ysyx_25010008_VALID_POS] <= 0;
@@ -87,32 +112,33 @@ module ysyx_25010008_IFU (
       if (clear_pipeline) begin
         // exception is prior
         pc <= npc;
-        inst_addr_misaligned_buffer <= 0;
+        if (pc[1:0] == 0) begin
+          inst_addr_misaligned_buffer <= 0;
+        end else begin
+          ifu_pc <= npc;
+          inst_addr_misaligned_buffer[0] <= 1;
+        end
         inst_valid <= 0;
         pipeline_empty <= 1;
       end else begin
-        if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
-
         if (state == READ_CACHE & !block & idu_ready) begin
-          // sram don't need cache
           if (cache_valid && cache_tag == pc_tag) begin
             inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
             ifu_pc <= pc;
             pc <= pc + 4;
             pipeline_empty <= 0;
+
+`ifdef __VERILATOR__
+            ifu_record0(1);
+`endif
           end else begin
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == npc)) begin
-              araddr <= {pc[31:4], 4'b0};
-              arlen  <= 8'b11;
-              if (pc[1:0] == 0) begin
-                state   <= READ_MEMORY;
-                arvalid <= 1;
-              end else begin
-                ifu_pc <= pc;
-                inst_addr_misaligned_buffer[0] <= 1;
-              end
+              araddr  <= {pc[31:4], 4'b0};
+              arlen   <= 8'b11;
+              state   <= READ_MEMORY;
+              arvalid <= 1;
             end
             inst_valid <= 0;
           end
@@ -120,9 +146,10 @@ module ysyx_25010008_IFU (
       end
 
       if (state == READ_MEMORY) begin
+`ifdef __VERILATOR__
         delay = delay + 1;
+`endif
         if (arvalid & arready) begin
-
           arvalid <= 0;
           rready  <= 1;
         end
@@ -133,13 +160,20 @@ module ysyx_25010008_IFU (
 
             state  <= READ_CACHE;
 
+`ifdef __VERILATOR__
+            ifu_record1(delay);
             delay = 0;
+`endif
           end
 
           cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] <= {1'b1, pc_tag};
           cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
             rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
           };
+
+`ifdef __VERILATOR__
+          if (rlast) ifu_record0(-1);
+`endif
         end
       end
     end

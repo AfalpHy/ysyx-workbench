@@ -26,7 +26,7 @@ module ysyx_25010008_RegFile (
     input fence_i,
     input load_addr_misaligned,
     input store_addr_misaligned,
-    input wrong_prediction,
+    input is_wrong_prediction,
     output reg clear_pipeline,
     output reg clear_cache,
 
@@ -70,7 +70,7 @@ module ysyx_25010008_RegFile (
           npc <= mtvec;
           clear_pipeline <= 1;
         end else begin
-          clear_pipeline <= (fence_i | mret) ? 1 : wrong_prediction;
+          clear_pipeline <= (fence_i | mret) ? 1 : is_wrong_prediction;
           clear_cache <= fence_i;
           npc <= mret ? mepc : exu_npc;
           if (csr_wen) begin
