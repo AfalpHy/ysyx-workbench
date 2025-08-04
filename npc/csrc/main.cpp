@@ -140,12 +140,17 @@ int main(int argc, char **argv) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  print_performance_info();
+
   if (status || isa_reg_str2val("a0") != 0) {
     cout << img << "\033[31m\tHIT BAD TRAP\033[0m" << endl;
     status = -1;
   } else {
     cout << img << "\033[32m\tHIT GOOD TRAP\033[0m" << endl;
+    print_debug_info();
+    print_total_insts_num();
   }
+#ifdef PRINT_PERFORMANCE_INFO
+  print_performance_info();
+#endif
   return status;
 }

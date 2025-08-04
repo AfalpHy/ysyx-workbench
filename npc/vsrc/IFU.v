@@ -108,11 +108,11 @@ module ysyx_25010008_IFU (
     end else begin
       if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
 
-      // if (clear_cache) begin
-      //   for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
-      //     cache[i][`ysyx_25010008_VALID_POS] <= 0;
-      //   end
-      // end
+      if (clear_cache) begin
+        for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
+          cache[i][`ysyx_25010008_VALID_POS] <= 0;
+        end
+      end
 
       if (clear_pipeline) begin
         // exception is prior

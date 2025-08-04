@@ -43,7 +43,7 @@ static inline void print_debug_info() {
 }
 
 static inline void print_performance_info() {
-  extern uint64_t get_inst, get_data, exu_done;
+  extern uint64_t get_inst, get_data;
   extern uint64_t total_cycles, calc_inst, ls_inst, csr_inst;
   extern uint64_t calc_inst_cycles, ls_inst_cycles, csr_inst_cycles;
   extern uint64_t ls_delay;
@@ -60,7 +60,6 @@ static inline void print_performance_info() {
   printf("ifu get inst:%ld\n", get_inst);
   printf("AMAT:%lf\n", double(miss_penalty) / total_insts_num + 1);
   printf("lsu get data:%ld\n", get_data);
-  printf("exu done:%ld\n", exu_done);
   printf("ls average delay:%lf\n", (double)ls_delay / ls_inst);
   printf("total cycles:%ld\n", total_cycles);
 

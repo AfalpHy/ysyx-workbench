@@ -23,7 +23,6 @@ bool finish_one_inst = false;
 uint64_t total_cycles = 0;
 uint64_t get_inst = 0;
 uint64_t get_data = 0;
-uint64_t exu_done = 0;
 int inst_type = 0;
 uint64_t calc_inst = 0, ls_inst = 0, csr_inst = 0;
 uint64_t calc_inst_cycles = 0, ls_inst_cycles = 0, csr_inst_cycles = 0;

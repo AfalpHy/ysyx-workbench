@@ -61,6 +61,10 @@ ifdef TRACE_WAVE
 override CXXFLAGS += -DTRACE_WAVE
 endif
 
+ifdef PERF
+override CXXFLAGS += -DPRINT_PERFORMANCE_INFO
+endif
+
 ifdef IMG
 ARGS = -log=$(shell dirname $(IMG))/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf -ftrace-log=$(shell dirname $(IMG))/npc-ftrace-log.txt
 else
@@ -113,7 +117,7 @@ gdb: all
 	gdb -args $(BIN) $(ARGS)
 
 perf:
-	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc mainargs=train run
+	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc PERF=ON mainargs=train run 
 
 .PHONY: all clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf
 
