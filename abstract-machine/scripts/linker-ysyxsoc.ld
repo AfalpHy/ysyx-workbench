@@ -24,29 +24,37 @@ SECTIONS {
     . = ALIGN(16);
   } > sdram AT > flash : text
   _text_start = LOADADDR(.text);
+  _text_size = SIZEOF(.text);
 
   .rodata : {
     . = ALIGN(16);
+    _rodata_target = .;
     *(.rodata*)
     *(.srodata*)
     . = ALIGN(16);
   } > sdram AT > flash : rdata
+  _rodata_start = LOADADDR(.rodata);
+  _rodata_size = SIZEOF(.rodata);
 
   .data : {
     . = ALIGN(16);
+    _data_target = .;
     *(.data*)
     *(.sdata*)
     . = ALIGN(16);
   } > sdram AT > flash : data
+  _data_start = LOADADDR(.data);
+  _data_size = SIZEOF(.data);
 
   .bss : {
     . = ALIGN(16);
+    _bss_target = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     . = ALIGN(16);
   } > sdram AT > flash : bss
-  _text_size = LOADADDR(.bss) - _text_start;
+  _bss_size = SIZEOF(.bss);
   _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);
