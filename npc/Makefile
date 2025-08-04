@@ -103,7 +103,7 @@ sim-iverilog: verilog convert-bin
 	$(BIN)
 
 sim-iverilog-netlist: convert-bin
-	iverilog -v -g2012 iverilog/tb.v $(NETLIST) $(CELLS) -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	iverilog -v -g2012 iverilog/tb.v $(NETLIST) $(CELLS) -DNETLIST -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
 	$(BIN)
 
 gdb: CXXFLAGS += -g
