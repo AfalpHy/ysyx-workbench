@@ -102,9 +102,9 @@ module ysyx_25010008_IFU (
 `ifdef __VERILATOR__
       delay = 0;
 `endif
-
       state <= READ_CACHE;
       pipeline_empty <= 1;
+      inst_addr_misaligned_buffer <= 0;
     end else begin
       if (!block) inst_addr_misaligned_buffer[3:1] <= inst_addr_misaligned_buffer[2:0];
 

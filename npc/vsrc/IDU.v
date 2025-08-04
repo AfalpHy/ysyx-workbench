@@ -52,6 +52,13 @@ module ysyx_25010008_IDU (
 
   reg [31:0] inst_q;
 
+  reg [4:0] rd_buffer;
+  reg [11:0] csr_d_buffer;
+  reg r_wen_buffer,csr_wen_buffer;
+  reg [1:0] ecall_buffer;
+  reg [1:0] mret_buffer;
+  reg [1:0] fence_i_buffer;
+
   wire [6:0] opcode = inst_q[6:0];
   wire [2:0] funct3 = inst_q[14:12];
   wire [6:0] funct7 = inst_q[31:25];
@@ -186,13 +193,6 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
-
-  reg [4:0] rd_buffer;
-  reg [11:0] csr_d_buffer;
-  reg r_wen_buffer,csr_wen_buffer;
-  reg [1:0] ecall_buffer;
-  reg [1:0] mret_buffer;
-  reg [1:0] fence_i_buffer;
 
   assign ecall = ecall_buffer[1];
   assign mret = mret_buffer[1];
