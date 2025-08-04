@@ -35,7 +35,7 @@ module ysyx_25010008_IFU (
     output enable,
     output reg [31:0] araddr,
     output reg arvalid,
-    output reg [7:0] arlen,
+    output [7:0] arlen,
     input arready,
 
     output reg rready,
@@ -77,6 +77,7 @@ module ysyx_25010008_IFU (
   wire [`ysyx_25010008_TAG_WIDTH-1:0] pc_tag = pc[`ysyx_25010008_PC_TAG_RANGE];
 
   assign enable = state;
+  assign arlen  = 8'b11;
 
   reg pipeline_empty;
 
@@ -125,7 +126,7 @@ module ysyx_25010008_IFU (
         inst_valid <= 0;
         pipeline_empty <= 1;
       end else begin
-        if (state == READ_CACHE & !block & idu_ready) begin
+        if (inst_addr_misaligned_buffer == 0 && state == READ_CACHE & !block & idu_ready) begin
           if (cache_valid && cache_tag == pc_tag) begin
             inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
@@ -140,7 +141,6 @@ module ysyx_25010008_IFU (
             // avoid invalid memory access
             if (pipeline_empty || (npc_valid && pc == npc)) begin
               araddr  <= {pc[31:4], 4'b0};
-              arlen   <= 8'b11;
               state   <= READ_MEMORY;
               arvalid <= 1;
             end
