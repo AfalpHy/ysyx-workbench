@@ -28,17 +28,29 @@ module top ();
   wire [1:0] bresp;
   wire bvalid;
 
+  reg [31:0] ebreak_pc;
+
   initial begin
     clock = 0;
     reset = 1;
+    ebreak_pc = 0;
     #20 reset = 0;
   end
 
   always #1 clock = ~clock;
 
-  always @(posedge clock) begin
-    if (cpu.idu.EBREAK) $finish;
+  always @(posedge cpu.idu.EBREAK) begin
+    ebreak_pc = cpu.idu.idu_pc;
   end
+
+  always @(posedge clock) begin
+    if (cpu.reg_file.lsu_pc == ebreak_pc) begin
+      if (cpu.reg_file.regs[10]) $display("\033[31m\tHIT BAD TRAP\033[0m");
+      else $display("\033[32m\tHIT GOOD TRAP\033[0m");
+      $finish;
+    end
+  end
+
 
   ysyx_25010008 cpu (
       .clock(clock),
