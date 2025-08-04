@@ -30,10 +30,10 @@ ifdef REBUILD
 	$(MAKE) -C $(NPC_HOME) clean
 endif
 
-run: rebuild
+run: image rebuild
 	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin OPT_FAST=""
 
-gdb: rebuild
+gdb: image rebuild
 	$(MAKE) -C $(NPC_HOME) gdb IMG=$(IMAGE).bin OPT_FAST=""
     
 .PHONY: rebuild
