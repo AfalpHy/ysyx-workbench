@@ -66,6 +66,7 @@ int load_img(const string &filepath) {
   file.seekg(0, ios::beg);
   file.read((char *)flash, size);
   file.close();
+  cout << "img size:" << size << endl;
   return size;
 }
 
