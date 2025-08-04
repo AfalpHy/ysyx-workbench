@@ -1,4 +1,4 @@
-`ifndef __ICARUS__
+`ifdef __VERILATOR__
 import "DPI-C" function void idu_record0(
   input calc,
   input ls,
