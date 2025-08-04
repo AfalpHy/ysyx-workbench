@@ -75,19 +75,15 @@ ifndef NO_BATCH
 ARGS += -b
 endif
 
-rebuild:
-ifdef REBUILD
-	rm -rf $(BUILD_DIR)
-endif
 
-$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE) 
+$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-all:  $(BIN) rebuild
+all: $(BIN)
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -119,6 +115,6 @@ gdb: all
 perf:
 	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc BATCH=ON mainargs=train run
 
-.PHONY: all rebuild clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf 
+.PHONY: all clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf
 
 include ../Makefile
