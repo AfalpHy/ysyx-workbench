@@ -44,7 +44,7 @@ SECTIONS {
     . = ALIGN(16);
   } > sdram AT > flash : data
   _data_start = LOADADDR(.data);
-  _data_size = SIZEOF(.data);
+  _data_size = LOADADDR(.bss) - _data_start;
 
   .bss : {
     . = ALIGN(16);
