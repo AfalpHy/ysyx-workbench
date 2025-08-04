@@ -27,10 +27,15 @@ image: image-dep
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
-run: insert-arg
-	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin	OPT_FAST=""
+rebuild:
+ifdef REBUILD
+	$(MAKE) -C $(NPC_HOME) clean
+endif
 
-gdb: insert-arg
+run: insert-arg rebuild
+	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin OPT_FAST=""
+
+gdb: insert-arg rebuild
 	$(MAKE) -C $(NPC_HOME) gdb IMG=$(IMAGE).bin OPT_FAST=""
     
-.PHONY: insert-arg
+.PHONY: insert-arg rebuild
