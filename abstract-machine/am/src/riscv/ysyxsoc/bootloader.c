@@ -26,19 +26,16 @@ void __attribute__((section(".entry"))) _fsbl() {
 }
 
 void _trm_init();
-
-void __attribute__((section(".ssbl"))) __attribute__((noinline)) _ssbl() {
-  extern char _text_size[], _text_start[], _sdram_start[];
-  uint32_t loop = (uint32_t)_text_size >> 2;
-  uint32_t *origin_addr = (uint32_t *)_text_start;
-  uint32_t *target_addr = (uint32_t *)_sdram_start;
+__attribute__((section(".ssbl"))) void
+ssbl_memcpy(uint32_t size, uint32_t *origin_addr, uint32_t *target_addr) {
+  uint32_t loop = (uint32_t)size >> 2;
 
   while (loop--) {
     *target_addr = *origin_addr;
     origin_addr++;
     target_addr++;
   }
-  uint32_t remain = (uint32_t)_text_size & 0x3;
+  uint32_t remain = (uint32_t)size & 0x3;
   uint8_t *remain_origin_addr = (uint8_t *)origin_addr;
   uint8_t *remain_target_addr = (uint8_t *)target_addr;
 
@@ -47,5 +44,50 @@ void __attribute__((section(".ssbl"))) __attribute__((noinline)) _ssbl() {
     remain_origin_addr++;
     remain_target_addr++;
   }
+}
+
+void __attribute__((section(".ssbl"))) __attribute__((noinline)) _ssbl() {
+  extern char _text_size[], _text_start[], _sdram_start[];
+  ssbl_memcpy((uint32_t)_text_size, (uint32_t *)_text_start,
+              (uint32_t *)_sdram_start);
+  // uint32_t loop = (uint32_t)_text_size >> 2;
+  // uint32_t *origin_addr = (uint32_t *)_text_start;
+  // uint32_t *target_addr = (uint32_t *)_sdram_start;
+
+  // while (loop--) {
+  //   *target_addr = *origin_addr;
+  //   origin_addr++;
+  //   target_addr++;
+  // }
+  // uint32_t remain = (uint32_t)_text_size & 0x3;
+  // uint8_t *remain_origin_addr = (uint8_t *)origin_addr;
+  // uint8_t *remain_target_addr = (uint8_t *)target_addr;
+
+  // while (remain--) {
+  //   *remain_target_addr = *remain_origin_addr;
+  //   remain_origin_addr++;
+  //   remain_target_addr++;
+  // }
+
+  // extern char _rodata_size[], _rodata_start[], _sdram_start[];
+  // uint32_t loop = (uint32_t)_text_size >> 2;
+  // uint32_t *origin_addr = (uint32_t *)_text_start;
+  // uint32_t *target_addr = (uint32_t *)_sdram_start;
+
+  // while (loop--) {
+  //   *target_addr = *origin_addr;
+  //   origin_addr++;
+  //   target_addr++;
+  // }
+  // uint32_t remain = (uint32_t)_text_size & 0x3;
+  // uint8_t *remain_origin_addr = (uint8_t *)origin_addr;
+  // uint8_t *remain_target_addr = (uint8_t *)target_addr;
+
+  // while (remain--) {
+  //   *remain_target_addr = *remain_origin_addr;
+  //   remain_origin_addr++;
+  //   remain_target_addr++;
+  // }
+
   _trm_init();
 }
