@@ -1,5 +1,5 @@
 
-module ysyx_25010008_NPC (
+module ysyx_25010008 (
     input clock,
     input reset,
     input io_interrupt,
@@ -68,6 +68,7 @@ module ysyx_25010008_NPC (
   wire [31:0] ifu_pc;
   wire [1:0] npc_sel;
   wire ifu_enable;
+  wire inst_addr_misaligned;
 
   // instruction
   wire [31:0] inst;
@@ -87,7 +88,7 @@ module ysyx_25010008_NPC (
   wire [31:0] exu_pc;
   wire [31:0] exu_npc;
   wire execute_valid;
-  wire wrong_prediction;
+  wire is_wrong_prediction;
 
   // alu
   wire [7:0] alu_opcode;
@@ -182,6 +183,7 @@ module ysyx_25010008_NPC (
       .rvalid(rvalid_0),
       .rlast (rlast_0),
 
+      .inst_addr_misaligned(inst_addr_misaligned),
       .clear_cache(clear_cache),
       .clear_pipeline(clear_pipeline)
   );
@@ -263,7 +265,7 @@ module ysyx_25010008_NPC (
       .csr_wdata  (csr_wdata),
 
       .clear_pipeline  (clear_pipeline),
-      .wrong_prediction(wrong_prediction)
+      .is_wrong_prediction(is_wrong_prediction)
   );
 
   ysyx_25010008_LSU lsu (
@@ -340,12 +342,13 @@ module ysyx_25010008_NPC (
       .csr_src(csr_src),
 
       .ls_valid(ls_valid),
+      .inst_addr_misaligned(inst_addr_misaligned),
       .ecall(ecall),
       .mret(mret),
       .fence_i(fence_i),
       .load_addr_misaligned(load_addr_misaligned),
       .store_addr_misaligned(store_addr_misaligned),
-      .wrong_prediction(wrong_prediction),
+      .is_wrong_prediction(is_wrong_prediction),
       .clear_pipeline(clear_pipeline),
       .clear_cache(clear_cache),
 

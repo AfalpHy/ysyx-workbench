@@ -5,7 +5,7 @@ YSYX_SOC = $(abspath ../ysyxSoC)
 PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc -O3 -j $(shell nproc) --timescale "1ns/1ns" --no-timing --trace\
-				-I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
+				-D__VERILATOR__ -I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
 				--x-assign fast --x-initial fast --noassert --autoflush
 
 BUILD_DIR = ./build
@@ -67,10 +67,11 @@ else
 ARGS = -log=$(BUILD_DIR)/npc-log.txt -ftrace-log=$(BUILD_DIR)/npc-ftrace-log.txt
 endif
 
-
 ifdef DIFF_TEST
 ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
-else
+endif
+
+ifndef NO_BATCH
 ARGS += -b
 endif
 
@@ -88,7 +89,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 verilog:
-	cat vsrc_for_npc_test/* > build/ysyx_25010008.v
+	find ./vsrc -maxdepth 1 -type f ! -name 'ysyxSoCFull.v' -exec cat {} +> build/ysyx_25010008.v
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

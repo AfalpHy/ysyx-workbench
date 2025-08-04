@@ -1,9 +1,12 @@
+`ifdef __VERILATOR__
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 import "DPI-C" function void wbu_record(
   int pc,
   int npc
 );
 import "DPI-C" function void inst_done();
+`endif
+
 module ysyx_25010008_RegFile (
     input clock,
     input reset,
@@ -26,12 +29,13 @@ module ysyx_25010008_RegFile (
     output reg [31:0] csr_src,
 
     input ls_valid,
+    input inst_addr_misaligned,
     input ecall,
     input mret,
     input fence_i,
     input load_addr_misaligned,
     input store_addr_misaligned,
-    input wrong_prediction,
+    input is_wrong_prediction,
     output reg clear_pipeline,
     output reg clear_cache,
 
@@ -49,20 +53,22 @@ module ysyx_25010008_RegFile (
   assign src1 = regs[rs1[3:0]];
   assign src2 = regs[rs2[3:0]];
 
+`ifdef __VERILATOR__
   initial begin
     set_regs_ptr(regs);
   end
+`endif
 
   integer i;
 
-  wire exception = ecall | load_addr_misaligned | store_addr_misaligned;
+  wire exception = inst_addr_misaligned | ecall | load_addr_misaligned | store_addr_misaligned;
 
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
-      mstatus   <= 32'h1800;
+      mstatus <= 32'h1800;
       mvendorid <= 32'h7973_7978;
-      marchid   <= 32'h17D_9F58;
+      marchid <= 32'h17D_9F58;
       clear_pipeline <= 0;
     end else begin
       if (clear_pipeline) begin
@@ -74,13 +80,16 @@ module ysyx_25010008_RegFile (
           regs[rd[3:0]] <= wdata;
         end
         if (exception) begin
-          mcause <= ecall ? 11 : load_addr_misaligned ? 4 : 6;
+          mcause <= inst_addr_misaligned ? 0 : ecall ? 11 : load_addr_misaligned ? 4 : 6;
           mepc <= lsu_pc;
           npc <= mtvec;
           clear_pipeline <= 1;
+
+`ifdef __VERILATOR__
           wbu_record(lsu_pc, mtvec);
+`endif
         end else begin
-          clear_pipeline <= (fence_i | mret) ? 1 : wrong_prediction;
+          clear_pipeline <= (fence_i | mret) ? 1 : is_wrong_prediction;
           clear_cache <= fence_i;
           npc <= mret ? mepc : exu_npc;
           if (csr_wen) begin
@@ -91,15 +100,18 @@ module ysyx_25010008_RegFile (
               default: ;
             endcase
           end
+`ifdef __VERILATOR__
           wbu_record(lsu_pc, mret ? mepc : exu_npc);
+`endif
         end
-
+`ifdef __VERILATOR__
         if (ls_valid) inst_done();
+`endif
       end
     end
   end
 
-  always @(csr_s) begin
+  always @(*) begin
     case (csr_s)
       12'h300: csr_src = mstatus;
       12'h305: csr_src = mtvec;

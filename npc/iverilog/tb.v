@@ -242,8 +242,10 @@ module ysyx_25010008_SRAM (
         if (!awready && !wready) wstate <= WRITING;
 
       end else if (wstate == WRITING) begin
-        if (_awaddr == 32'h2000_03f8) $write("%c", _wdata[7:0]);
-        else memory[_awaddr>>2] <= (memory[_awaddr>>2] & ~_wstrb) | (_wdata & _wstrb);
+        if (_awaddr == 32'h2000_03f8) begin
+          $write("%c", _wdata[7:0]);
+          $fflush();
+        end else memory[_awaddr>>2] <= (memory[_awaddr>>2] & ~_wstrb) | (_wdata & _wstrb);
         bvalid <= 1;
         wstate <= HANDLE_BRESP;
       end else begin
