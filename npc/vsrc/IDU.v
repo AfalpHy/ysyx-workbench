@@ -1,3 +1,4 @@
+`ifndef __ICARUS__
 import "DPI-C" function void idu_record0(
   input calc,
   input ls,
@@ -5,6 +6,7 @@ import "DPI-C" function void idu_record0(
 );
 
 import "DPI-C" function void idu_record1(int inst);
+`endif
 
 module ysyx_25010008_IDU (
     input clock,
