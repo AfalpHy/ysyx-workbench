@@ -48,13 +48,11 @@ SECTIONS {
 
   .bss : {
     . = ALIGN(16);
-    _bss_target = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     . = ALIGN(16);
   } > sdram AT > flash : bss
-  _bss_size = SIZEOF(.bss);
   _heap_start = .;
 
   _stack_pointer = ORIGIN(sram) + LENGTH(sram);

@@ -60,12 +60,5 @@ void __attribute__((section(".ssbl"))) __attribute__((noinline)) _ssbl() {
   ssbl_memcpy((uint32_t)_data_size, (uint32_t *)_data_start,
               (uint32_t *)_data_target);
 
-  extern char _bss_size[], _bss_target[];
-  uint32_t cnt = (uint32_t)_bss_size;
-  char *target_addr = _bss_target;
-  while (cnt--) {
-    *target_addr++ = 0;
-  }
-
   _trm_init();
 }
