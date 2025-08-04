@@ -38,8 +38,13 @@ static inline void print_total_insts_num() {
 static inline void print_debug_info() {
   extern void isa_reg_display();
   extern void iringbuf_display();
+  extern word_t inst_buffer[];
+  extern word_t current_pc;
   isa_reg_display();
   iringbuf_display();
+
+  printf("current pc:%h\n", current_pc);
+  printf("current inst:%h\n", inst_buffer[3]);
 }
 
 static inline void print_performance_info() {
