@@ -53,9 +53,7 @@ module top ();
     end
   end
 
-  ysyx_25010008 #(
-      .RESET_PC(32'h8000_0000)
-  ) cpu (
+  ysyx_25010008 cpu (
       .clock(clock),
       .reset(reset),
       .io_interrupt(1'h0),  // home/cloud/ysyx-workbench/ysyxSoC/src/CPU.scala:35:23, :36:19, :38:21

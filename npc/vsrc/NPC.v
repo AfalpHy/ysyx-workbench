@@ -1,7 +1,5 @@
 
-module ysyx_25010008 #(
-    parameter RESET_PC = 32'h3000_0000
-) (
+module ysyx_25010008 (
     input clock,
     input reset,
     input io_interrupt,
@@ -161,9 +159,7 @@ module ysyx_25010008 #(
   wire [1:0] bresp_1;
   wire bvalid_1;
 
-  ysyx_25010008_IFU #(
-      .RESET_PC(RESET_PC)
-  ) ifu (
+  ysyx_25010008_IFU ifu (
       .clock(clock),
       .reset(reset),
 
@@ -270,7 +266,7 @@ module ysyx_25010008 #(
       .exu_r_wdata(exu_r_wdata),
       .csr_wdata  (csr_wdata),
 
-      .clear_pipeline(clear_pipeline),
+      .clear_pipeline  (clear_pipeline),
       .is_wrong_prediction(is_wrong_prediction)
   );
 

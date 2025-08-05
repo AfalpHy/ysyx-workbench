@@ -1,4 +1,4 @@
-`ifdef __VERILATOR__
+`ifdef VERILATOR
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
 import "DPI-C" function void wbu_record(
   int pc,
@@ -54,7 +54,7 @@ module ysyx_25010008_RegFile (
   assign src1 = regs[rs1[3:0]];
   assign src2 = regs[rs2[3:0]];
 
-`ifdef __VERILATOR__
+`ifdef VERILATOR
   initial begin
     set_regs_ptr(regs);
   end
@@ -86,7 +86,7 @@ module ysyx_25010008_RegFile (
           npc <= mtvec;
           clear_pipeline <= 1;
 
-`ifdef __VERILATOR__
+`ifdef VERILATOR
           wbu_record(lsu_pc, mtvec);
 `endif
         end else begin
@@ -101,11 +101,11 @@ module ysyx_25010008_RegFile (
               default: ;
             endcase
           end
-`ifdef __VERILATOR__
+`ifdef VERILATOR
           wbu_record(lsu_pc, mret ? mepc : exu_npc);
 `endif
         end
-`ifdef __VERILATOR__
+`ifdef VERILATOR
         if (ls_valid) inst_done();
 `endif
       end

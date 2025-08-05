@@ -1,4 +1,4 @@
-`ifdef __VERILATOR__
+`ifdef VERILATOR
 import "DPI-C" function void idu_record0(
   input calc,
   input ls,
@@ -273,7 +273,7 @@ module ysyx_25010008_IDU (
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
 
-`ifdef __VERILATOR__
+`ifdef VERILATOR
         idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, csr_inst);
         idu_record1(inst);
 `endif
