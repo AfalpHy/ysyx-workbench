@@ -90,9 +90,15 @@ module ysyx_25010008_IFU (
       for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
         cache[i][`ysyx_25010008_VALID_POS] <= 0;
       end
-`ifdef __VERILATOR__
+`ifdef VERILATOR
+      pc <= 32'h3000_0000;
+`elsif __ICARUS__
       pc <= 32'h3000_0000;
 `else
+      pc <= 32'h8000_0000;
+`endif
+
+`ifdef __NPC__
       pc <= 32'h8000_0000;
 `endif
       arvalid <= 0;
