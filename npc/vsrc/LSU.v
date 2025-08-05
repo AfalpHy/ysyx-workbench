@@ -1,4 +1,4 @@
-`ifdef VERILATOR
+`ifdef __VERILATOR__
 import "DPI-C" function void set_skip_ref_inst();
 import "DPI-C" function void lsu_record0(
   int addr,
@@ -90,7 +90,7 @@ module ysyx_25010008_LSU (
   wire [31:0] exth = {16'b0, real_rdata[15:0]};
   wire [31:0] unsign_data = suffix_b_q ? extb : (suffix_h_q ? exth : real_rdata);
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
   integer delay;
 `endif
 
@@ -108,7 +108,7 @@ module ysyx_25010008_LSU (
       load_addr_misaligned <= 0;
       store_addr_misaligned <= 0;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
       delay = 0;
 `endif
     end else begin
@@ -132,14 +132,14 @@ module ysyx_25010008_LSU (
             wvalid <= addr_misaligned ? 0 : 1;
           end
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
           delay = delay + 1;
 `endif
         end
 
         if (arvalid & arready) begin
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
             set_skip_ref_inst();  //uart clint spi gpio ps2
 `endif
@@ -154,7 +154,7 @@ module ysyx_25010008_LSU (
           block <= 0;
           ls_valid <= 1;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
           lsu_record0(araddr, sext_q ? sign_data : unsign_data, delay);
           delay = 0;
 `endif
@@ -162,7 +162,7 @@ module ysyx_25010008_LSU (
 
         if (awvalid & awready) begin
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
           if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
             set_skip_ref_inst();  //uart spi gpio vga
 `endif
@@ -180,7 +180,7 @@ module ysyx_25010008_LSU (
           block <= 0;
           ls_valid <= 1;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
           lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
 `endif

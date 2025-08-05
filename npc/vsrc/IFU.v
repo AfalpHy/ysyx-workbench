@@ -1,4 +1,4 @@
-`ifdef VERILATOR
+`ifdef __VERILATOR__
 import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void ifu_record0(int inc);
 import "DPI-C" function void ifu_record1(int delay);
@@ -51,7 +51,7 @@ module ysyx_25010008_IFU (
 
   reg [31:0] pc;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
   // set pointer of pc for cpp
   initial begin
     set_pc(pc);
@@ -62,7 +62,7 @@ module ysyx_25010008_IFU (
 
   integer i;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
   integer delay;
 `endif
 
@@ -90,7 +90,7 @@ module ysyx_25010008_IFU (
       for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
         cache[i][`ysyx_25010008_VALID_POS] <= 0;
       end
-`ifdef VERILATOR
+`ifdef (VERILATOR||__ICARUS__)
       pc <= 32'h3000_0000;
 `else
       pc <= 32'h8000_0000;
@@ -99,7 +99,7 @@ module ysyx_25010008_IFU (
       rready <= 0;
       inst_valid <= 0;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
       delay = 0;
 `endif
       state <= READ_CACHE;
@@ -136,7 +136,7 @@ module ysyx_25010008_IFU (
             pc <= pc + 4;
             pipeline_empty <= 0;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
             ifu_record0(1);
 `endif
           end else begin
@@ -152,7 +152,7 @@ module ysyx_25010008_IFU (
       end
 
       if (state == READ_MEMORY) begin
-`ifdef VERILATOR
+`ifdef __VERILATOR__
         delay = delay + 1;
 `endif
         if (arvalid & arready) begin
@@ -170,7 +170,7 @@ module ysyx_25010008_IFU (
             rready <= 0;
             state  <= READ_CACHE;
 
-`ifdef VERILATOR
+`ifdef __VERILATOR__
             ifu_record0(-1);
             ifu_record1(delay);
             delay = 0;

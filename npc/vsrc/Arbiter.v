@@ -121,7 +121,7 @@ module ysyx_25010008_Arbiter (
       if (state == IDLE) begin
         if (lsu_enable) begin
           state <= CHOSE_LSU;
-`ifdef VERILATOR
+`ifdef __VERILATOR__
           is_clint_addr <= araddr_1 == 32'h0200_0048 || araddr_1 == 32'h0200_004c;
 `else
           is_clint_addr <= araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c;
