@@ -103,7 +103,7 @@ convert-bin:
 	hexdump -v -e '1/4 "%08X\n"' $(IMG) > $(basename $(IMG)).mem
 
 sim-iverilog: verilog convert-bin
-	iverilog -v -g2012 iverilog/tb.v build/ysyx_25010008.v -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	iverilog -v -g2012 iverilog/tb.v build/ysyx_25010008.v -D__NPC__ -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
 	$(BIN)
 
 sim-iverilog-netlist: convert-bin

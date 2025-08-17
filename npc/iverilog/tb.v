@@ -199,21 +199,24 @@ module ysyx_25010008_SRAM (
     $readmemh(`MEM_PATH, memory);
   end
 
+  reg is_begin;
+
   always @(posedge clk) begin
     if (rst) begin
-      rstate  <= HANDLE_RADDR;
-      wstate  <= HANDLE_WADDR;
+      rstate <= HANDLE_RADDR;
+      wstate <= HANDLE_WADDR;
 
       arready <= 1;
-      rresp   <= 0;
-      rvalid  <= 0;
-      rlast   <= 0;
+      rresp <= 0;
+      rvalid <= 0;
+      rlast <= 0;
 
       awready <= 1;
-      wready  <= 1;
+      wready <= 1;
 
-      bresp   <= 0;
-      bvalid  <= 0;
+      bresp <= 0;
+      bvalid <= 0;
+      is_begin <= 1;
     end else begin
       if (rstate == HANDLE_RADDR) begin
         if (arvalid) begin
@@ -223,7 +226,12 @@ module ysyx_25010008_SRAM (
           rstate  <= READING;
         end
       end else if (rstate == READING) begin
-        rdata  <= memory[_araddr>>2];
+        if (is_begin) begin
+          if (_arlen == 3) rdata <= 32'h80000537;  // lui a0, 0x80000
+          else if (_arlen == 2) rdata <= 32'h00050067;  // jalr zero, 0(a0)
+          else rdata <= 32'h00000013;  // nop
+        end else rdata <= memory[_araddr>>2];
+
         rvalid <= 1;
         if (_arlen != 0) begin
           _arlen  <= _arlen - 1;
@@ -231,7 +239,8 @@ module ysyx_25010008_SRAM (
           rlast   <= 0;
         end else begin
           rstate <= HANDLE_RDATA;
-          rlast  <= 1;
+          rlast <= 1;
+          is_begin <= 0;
         end
       end else begin
         if (rready) begin
