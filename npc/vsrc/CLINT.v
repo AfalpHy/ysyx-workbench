@@ -13,9 +13,12 @@ module ysyx_25010008_CLINT (
 );
 
   parameter HANDLE_RADDR = 0;
-  parameter HANDLE_RDATA = 1;
+  parameter READING = 1;
+  parameter HANDLE_RDATA = 2;
 
-  reg rstate;
+  reg [ 1:0] rstate;
+
+  reg [31:0] araddr_q;
 
   reg [63:0] mtime;
 
@@ -29,11 +32,14 @@ module ysyx_25010008_CLINT (
     end else begin
       if (rstate == HANDLE_RADDR) begin
         if (arvalid) begin
-          rdata   <= araddr[2] ? mtime[63:32] : mtime[31:0];
-          arready <= 0;
-          rvalid  <= 1;
-          rstate  <= HANDLE_RDATA;
+          araddr_q <= araddr;
+          arready  <= 0;
+          rstate   <= READING;
         end
+      end else if (rstate == READING) begin
+        rdata  <= araddr_q[2] ? mtime[63:32] : mtime[31:0];
+        rvalid <= 1;
+        rstate <= HANDLE_RDATA;
       end else begin
         if (rready) begin
           rvalid  <= 0;

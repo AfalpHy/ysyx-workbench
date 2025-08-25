@@ -90,7 +90,11 @@ module ysyx_25010008_IFU (
       for (i = 0; i < `ysyx_25010008_CACHE_SIZE; i = i + 1) begin
         cache[i][`ysyx_25010008_VALID_POS] <= 0;
       end
+`ifdef __VERILATOR__
       pc <= 32'h3000_0000;
+`else
+      pc <= 32'h8000_0000;
+`endif
       arvalid <= 0;
       rready <= 0;
       inst_valid <= 0;
@@ -124,9 +128,7 @@ module ysyx_25010008_IFU (
       end else begin
         if (inst_addr_misaligned_buffer == 0 && state == READ_CACHE & !block & idu_ready) begin
           if (cache_valid && cache_tag == pc_tag) begin
-            inst <= pc[3:2] == 2'b11 ? cache_block[127:96] :
-                    pc[3:2] == 2'b10 ? cache_block[95:64]  : 
-                    pc[3:2] == 2'b01 ? cache_block[63:32]  : cache_block[31:0];
+            inst <= pc[3:2] == 2'b11 ? cache_block[127:96] : pc[3:2] == 2'b10 ? cache_block[95:64] : pc[3:2] == 2'b01 ? cache_block[63:32] : cache_block[31:0];
             inst_valid <= 1;
             ifu_pc <= pc;
             pc <= pc + 4;
@@ -153,25 +155,29 @@ module ysyx_25010008_IFU (
 `endif
         if (arvalid & arready) begin
           arvalid <= 0;
-          rready <= 1;
-          cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] <= {1'b1, pc_tag};
+          rready  <= 1;
         end
 
         if (rready & rvalid) begin
-          cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
-            rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
-          };
-
           if (rlast) begin
             rready <= 0;
+
             state  <= READ_CACHE;
 
 `ifdef __VERILATOR__
-            ifu_record0(-1);
             ifu_record1(delay);
             delay = 0;
 `endif
           end
+
+          cache[index][`ysyx_25010008_VALID_POS-:`ysyx_25010008_TAG_WIDTH+1] <= {1'b1, pc_tag};
+          cache[index][`ysyx_25010008_DATA_WIDTH-1:0] <= {
+            rdata, cache[index][`ysyx_25010008_DATA_WIDTH-1:32]
+          };
+
+`ifdef __VERILATOR__
+          if (rlast) ifu_record0(-1);
+`endif
         end
       end
     end
