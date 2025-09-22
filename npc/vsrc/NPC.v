@@ -1,5 +1,5 @@
 
-module ysyx_25010008 (
+module ysyx_25010008_NPC (
     input clock,
     input reset,
     input io_interrupt,
@@ -78,7 +78,6 @@ module ysyx_25010008 (
   wire sext;
   wire inst_valid;
   wire ecall;
-  wire ebreak;
   wire mret;
   wire fence_i;
 
@@ -89,7 +88,7 @@ module ysyx_25010008 (
   wire [31:0] exu_pc;
   wire [31:0] exu_npc;
   wire execute_valid;
-  wire is_wrong_prediction;
+  wire wrong_prediction;
 
   // alu
   wire [7:0] alu_opcode;
@@ -226,7 +225,6 @@ module ysyx_25010008 (
       .csr_wen(csr_wen),
 
       .ecall(ecall),
-      .ebreak(ebreak),
       .mret(mret),
       .fence_i(fence_i),
       .clear_pipeline(clear_pipeline)
@@ -267,7 +265,7 @@ module ysyx_25010008 (
       .csr_wdata  (csr_wdata),
 
       .clear_pipeline  (clear_pipeline),
-      .is_wrong_prediction(is_wrong_prediction)
+      .wrong_prediction(wrong_prediction)
   );
 
   ysyx_25010008_LSU lsu (
@@ -346,12 +344,11 @@ module ysyx_25010008 (
       .ls_valid(ls_valid),
       .inst_addr_misaligned(inst_addr_misaligned),
       .ecall(ecall),
-      .ebreak(ebreak),
       .mret(mret),
       .fence_i(fence_i),
       .load_addr_misaligned(load_addr_misaligned),
       .store_addr_misaligned(store_addr_misaligned),
-      .is_wrong_prediction(is_wrong_prediction),
+      .wrong_prediction(wrong_prediction),
       .clear_pipeline(clear_pipeline),
       .clear_cache(clear_cache),
 

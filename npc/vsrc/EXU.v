@@ -33,7 +33,7 @@ module ysyx_25010008_EXU (
     output reg [31:0] csr_wdata,
 
     input clear_pipeline,
-    output reg is_wrong_prediction
+    output reg wrong_prediction
 );
 
   reg [ 7:0] opcode;
@@ -52,18 +52,18 @@ module ysyx_25010008_EXU (
   reg [ 1:0] npc_sel_buffer;
   reg [ 1:0] exu_r_wdata_sel_buffer;
   reg [31:0] csr_src_buffer;
-  reg [31:0] exu_npc_buffer;
+  reg [31:0] exu_npc_tmp;
 
-  always @(*) begin
+  always @(npc_sel_buffer or snpc or dnpc or alu_result or csr_src_buffer) begin
     case (npc_sel_buffer)
-      2'b00: exu_npc_buffer = snpc;
-      2'b01: exu_npc_buffer = dnpc;  // jal
-      2'b10: exu_npc_buffer = alu_result & (~32'b1);  // jalr
-      2'b11: exu_npc_buffer = alu_result[0] ? dnpc : snpc;  // branch
+      2'b00: exu_npc_tmp = snpc;
+      2'b01: exu_npc_tmp = dnpc;  // jal
+      2'b10: exu_npc_tmp = alu_result & (~32'b1);  // jalr
+      2'b11: exu_npc_tmp = alu_result[0] ? dnpc : snpc;  // branch
     endcase
   end
 
-  always @(*) begin
+  always @(exu_r_wdata_sel_buffer or alu_result or snpc or dnpc or csr_src_buffer) begin
     case (exu_r_wdata_sel_buffer)
       2'b00: exu_r_wdata = alu_result;
       2'b01: exu_r_wdata = snpc;  // jal jalr
@@ -76,13 +76,15 @@ module ysyx_25010008_EXU (
   wire [31:0] csr_src_tmp = csr_src_sel[0] ? alu_result : csr_src_sel[1] ? csr_wdata : csr_src;
 
   always @(posedge clock) begin
-    if (reset | clear_pipeline) begin
+    if (reset) begin
       execute_valid <= 0;
-      is_wrong_prediction <= 0;
     end else begin
-      if (!block) begin
+      if (clear_pipeline) begin
+        execute_valid <= 0;
+        wrong_prediction <= 0;
+      end else if (!block) begin
         execute_valid <= decode_valid;
-        is_wrong_prediction <= execute_valid && npc_sel_buffer != 0;
+        wrong_prediction <= execute_valid && npc_sel_buffer != 0;
 
         opcode <= alu_opcode;
         operand1 <= alu_operand1_sel[0] ? exu_r_wdata : alu_operand1_sel[1] ? forward_data : src1;
@@ -92,7 +94,7 @@ module ysyx_25010008_EXU (
         dnpc <= idu_pc + imm;
 
         exu_pc <= idu_pc;
-        exu_npc <= exu_npc_buffer;
+        exu_npc <= exu_npc_tmp;
 
         wsrc <= src2_tmp;
 

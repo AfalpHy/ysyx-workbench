@@ -43,18 +43,12 @@ void fflush_trace() {
 void sigint_handler(int sig) {
   print_debug_info();
   print_performance_info();
-#ifdef TRACE_WAVE
-  tfp->close();
-#endif
   exit(0);
 }
 
 void sigsegv_handler(int sig) {
   print_debug_info();
   print_performance_info();
-#ifdef TRACE_WAVE
-  tfp->close();
-#endif
   exit(-1);
 }
 
@@ -66,9 +60,6 @@ int load_img(const string &filepath) {
   file.seekg(0, ios::beg);
   file.read((char *)flash, size);
   file.close();
-  cout << endl;
-  cout << filepath << " size:" << size << endl;
-  cout << endl;
   return size;
 }
 
@@ -123,7 +114,7 @@ int main(int argc, char **argv) {
   }
   // expr
   init_regex();
-// disasm
+  // disasm
   init_disasm("riscv64-pc-linux-gnu");
   // init watchpoint
   init_wp_pool();
@@ -138,20 +129,14 @@ int main(int argc, char **argv) {
 #endif
 
   sdb_mainloop();
+  if (status || isa_reg_str2val("a0") != 0) {
+    cout << img << "\033[31m\tBAD TRAP\033[0m" << endl;
+  } else {
+    cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
+  }
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-
-  if (status || isa_reg_str2val("a0") != 0) {
-    print_debug_info();
-    print_total_insts_num();
-    status = -1;
-    cout << img << "\033[31m\tHIT BAD TRAP\033[0m" << endl;
-  } else {
-    cout << img << "\033[32m\tHIT GOOD TRAP\033[0m" << endl;
-  }
-#ifdef PRINT_PERFORMANCE_INFO
   print_performance_info();
-#endif
   return status;
 }

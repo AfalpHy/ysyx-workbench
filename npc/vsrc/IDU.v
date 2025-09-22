@@ -1,4 +1,3 @@
-`ifdef __VERILATOR__
 import "DPI-C" function void idu_record0(
   input calc,
   input ls,
@@ -6,7 +5,6 @@ import "DPI-C" function void idu_record0(
 );
 
 import "DPI-C" function void idu_record1(int inst);
-`endif
 
 module ysyx_25010008_IDU (
     input clock,
@@ -45,21 +43,12 @@ module ysyx_25010008_IDU (
     output reg csr_wen,
 
     output ecall,
-    output ebreak,
     output mret,
     output fence_i,
     input clear_pipeline
 );
 
   reg [31:0] inst_q;
-
-  reg [4:0] rd_buffer;
-  reg [11:0] csr_d_buffer;
-  reg r_wen_buffer,csr_wen_buffer;
-  reg [1:0] ecall_buffer;
-  reg [1:0] ebreak_buffer;
-  reg [1:0] mret_buffer;
-  reg [1:0] fence_i_buffer;
 
   wire [6:0] opcode = inst_q[6:0];
   wire [2:0] funct3 = inst_q[14:12];
@@ -169,16 +158,16 @@ module ysyx_25010008_IDU (
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
 
-  assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
-  assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
-
-  assign alu_operand1_sel[0] = rs1 != 0 && rs1 == rd_buffer;
-  assign alu_operand1_sel[1] = rs1 != 0 && rs1 == rd;
+  assign alu_operand1_sel[0] = inst_q[19:15] == rd_buffer && inst_q[19:15] != 0;
+  assign alu_operand1_sel[1] = inst_q[19:15] == rd && inst_q[19:15] != 0;
 
   assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
   assign alu_operand2_sel[1] = CSRRS | CSRRC;
-  assign alu_operand2_sel[2] = rs2 != 0 && rs2 == rd_buffer ;
-  assign alu_operand2_sel[3] = rs2 != 0 && rs2 == rd; 
+  assign alu_operand2_sel[2] = inst_q[24:20] == rd_buffer && inst_q[24:20] != 0;
+  assign alu_operand2_sel[3] = inst_q[24:20] == rd && inst_q[24:20] != 0; 
+
+  assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
+  assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
 
   assign exu_r_wdata_sel[0] = JAL | JALR | csr_inst;
   assign exu_r_wdata_sel[1] = AUIPC | csr_inst;
@@ -196,12 +185,20 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
+  reg [4:0] rd_buffer;
+  reg [11:0] csr_d_buffer;
+  reg r_wen_buffer,csr_wen_buffer;
+  reg [1:0] ecall_buffer;
+  reg [1:0] mret_buffer;
+  reg [1:0] fence_i_buffer;
+
   assign ecall = ecall_buffer[1];
-  assign ebreak = ebreak_buffer[1];
   assign mret = mret_buffer[1];
   assign fence_i = fence_i_buffer[1];
 
-  assign idu_ready = !load ;
+  wire [4:0] rs1_tmp = inst[19:15];
+  wire [4:0] rs2_tmp = inst[24:20];
+  assign idu_ready = !load | ((rs1_tmp == 0 || rs1_tmp != inst_q[11:7]) && (rs2_tmp == 0 || rs2_tmp != inst_q[11:7]));
 
   //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
   //                   +----+----+----+----+----+
@@ -220,7 +217,7 @@ module ysyx_25010008_IDU (
   // I5: sll a4,a0,1                       | IF | ID | EX | LS | WB |
   //                                       +----+----+----+----+----+
   always @(posedge clock) begin
-    if (reset | clear_pipeline) begin
+    if (reset) begin
       inst_q          <= 0;
       decode_valid    <= 0;
 
@@ -234,11 +231,26 @@ module ysyx_25010008_IDU (
       csr_wen         <= 0;
 
       ecall_buffer    <= 0;
-      ebreak_buffer   <= 0;
       mret_buffer <= 0;
       fence_i_buffer <= 0;
     end else begin
-      if (!block) begin
+      if (clear_pipeline) begin
+        inst_q <= 0;
+        decode_valid <= 0;
+
+        r_wen <= 0;
+        csr_wen <= 0;
+
+        mem_ren <= 0;
+        mem_wen <= 0;
+
+        r_wen_buffer <= 0;
+        csr_wen_buffer <= 0;
+
+        ecall_buffer <= 0;
+        mret_buffer <= 0;
+        fence_i_buffer <= 0;
+      end else if (!block) begin
         if (inst_valid & idu_ready) begin
           inst_q <= inst;
           decode_valid <= 1;
@@ -257,7 +269,6 @@ module ysyx_25010008_IDU (
         csr_wen_buffer <= csr_inst;
 
         ecall_buffer <= {ecall_buffer[0], ECALL};
-        ebreak_buffer <= {ebreak_buffer[0], EBREAK};
         mret_buffer <= {mret_buffer[0], MRET};
         fence_i_buffer <= {fence_i_buffer[0], FENCE_I};
 
@@ -273,10 +284,8 @@ module ysyx_25010008_IDU (
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
 
-`ifdef __VERILATOR__
         idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, csr_inst);
         idu_record1(inst);
-`endif
       end
     end
   end

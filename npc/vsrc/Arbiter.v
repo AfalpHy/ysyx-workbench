@@ -82,7 +82,7 @@ module ysyx_25010008_Arbiter (
   reg is_clint_addr;
 
   // only one master work at the same time, so its logic can be simplified
-  assign io_master_araddr = state == CHOSE_IFU ? araddr_0 : (state == CHOSE_LSU && !is_clint_addr) ? araddr_1 : 0;
+  assign io_master_araddr = state == CHOSE_IFU? araddr_0 : (state == CHOSE_LSU && !is_clint_addr) ? araddr_1 : 0;
   assign io_master_arvalid = (state == CHOSE_IFU && arvalid_0) | (state == CHOSE_LSU && !is_clint_addr && arvalid_1);
   assign io_master_arlen = state == CHOSE_IFU ? arlen_0 : 8'b0;
   assign io_master_arsize = state == CHOSE_IFU ? 3'b010 : arsize_1;
@@ -121,11 +121,7 @@ module ysyx_25010008_Arbiter (
       if (state == IDLE) begin
         if (lsu_enable) begin
           state <= CHOSE_LSU;
-`ifdef __VERILATOR__
           is_clint_addr <= araddr_1 == 32'h0200_0048 || araddr_1 == 32'h0200_004c;
-`else
-          is_clint_addr <= araddr_1 == 32'ha000_0048 || araddr_1 == 32'ha000_004c;
-`endif
         end else if (ifu_enable) begin
           state <= CHOSE_IFU;
         end

@@ -8,8 +8,7 @@ AM_SRCS := riscv/ysyxsoc/start.S \
 		   riscv/ysyxsoc/vme.c \
 		   riscv/ysyxsoc/uart.c \
 		   riscv/ysyxsoc/gpu.c \
-           riscv/ysyxsoc/mpe.c \
-           riscv/ysyxsoc/bootloader.c \
+           riscv/ysyxsoc/mpe.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDSCRIPTS += $(AM_HOME)/scripts/linker-ysyxsoc.ld
@@ -19,21 +18,20 @@ MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = The insert-arg rule in Makefile will insert mainargs here.
 CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAINARGS_PLACEHOLDER)"\"
 
+insert-arg: image
+	@python $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) "$(MAINARGS_PLACEHOLDER)" "$(mainargs)"
+
 image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
-	@python $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) "$(MAINARGS_PLACEHOLDER)" "$(mainargs)"
 
-rebuild:
-ifdef REBUILD
+run: insert-arg
 	$(MAKE) -C $(NPC_HOME) clean
-endif
+	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin	OPT_FAST=""
 
-run: image rebuild
-	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin OPT_FAST=""
-
-gdb: image rebuild
+gdb: insert-arg
+	$(MAKE) -C $(NPC_HOME) clean
 	$(MAKE) -C $(NPC_HOME) gdb IMG=$(IMAGE).bin OPT_FAST=""
     
-.PHONY: rebuild
+.PHONY: insert-arg
