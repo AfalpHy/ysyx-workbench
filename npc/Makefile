@@ -5,7 +5,7 @@ YSYX_SOC = $(abspath ../ysyxSoC)
 PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc -O3 -j $(shell nproc) --timescale "1ns/1ns" --no-timing --trace\
-				-D__VERILATOR__ -I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
+				-I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
 				--x-assign fast --x-initial fast --noassert --autoflush
 
 BUILD_DIR = ./build
@@ -61,10 +61,6 @@ ifdef TRACE_WAVE
 override CXXFLAGS += -DTRACE_WAVE
 endif
 
-ifdef PERF
-override CXXFLAGS += -DPRINT_PERFORMANCE_INFO
-endif
-
 ifdef IMG
 ARGS = -log=$(shell dirname $(IMG))/npc-log.txt -img=$(IMG) -elf=$(basename $(IMG)).elf -ftrace-log=$(shell dirname $(IMG))/npc-ftrace-log.txt
 else
@@ -72,13 +68,10 @@ ARGS = -log=$(BUILD_DIR)/npc-log.txt -ftrace-log=$(BUILD_DIR)/npc-ftrace-log.txt
 endif
 
 ifdef DIFF_TEST
-ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
-ifndef NO_BATCH
 ARGS += -b
-endif
-
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -93,7 +86,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 verilog:
-	find ./vsrc -maxdepth 1 -type f ! -name 'ysyxSoCFull.v' -exec cat {} +> build/ysyx_25010008.v
+	cat vsrc_for_npc_test/* > build/ysyx_25010008.v
 
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -103,11 +96,11 @@ convert-bin:
 	hexdump -v -e '1/4 "%08X\n"' $(IMG) > $(basename $(IMG)).mem
 
 sim-iverilog: verilog convert-bin
-	iverilog -v -g2012 iverilog/tb.v build/ysyx_25010008.v -D__NPC__ -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
 	$(BIN)
 
 sim-iverilog-netlist: convert-bin
-	iverilog -v -g2012 iverilog/tb.v $(NETLIST) $(CELLS) -DNETLIST -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
+	iverilog -g2012 iverilog/tb.v $(NETLIST) $(CELLS) -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
 	$(BIN)
 
 gdb: CXXFLAGS += -g
@@ -117,7 +110,7 @@ gdb: all
 	gdb -args $(BIN) $(ARGS)
 
 perf:
-	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc PERF=ON REBUILD=ON mainargs=train run
+	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc BATCH=ON mainargs=train run
 
 .PHONY: all clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf
 

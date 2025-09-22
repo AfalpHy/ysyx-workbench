@@ -1,9 +1,3 @@
-import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
-import "DPI-C" function void wbu_record(
-  int pc,
-  int npc
-);
-import "DPI-C" function void inst_done();
 module ysyx_25010008_RegFile (
     input clock,
     input reset,
@@ -50,10 +44,6 @@ module ysyx_25010008_RegFile (
   assign src1 = regs[rs1[3:0]];
   assign src2 = regs[rs2[3:0]];
 
-  initial begin
-    set_regs_ptr(regs);
-  end
-
   integer i;
 
   wire exception = inst_addr_misaligned | ecall | load_addr_misaligned | store_addr_misaligned;
@@ -61,9 +51,9 @@ module ysyx_25010008_RegFile (
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
-      mstatus   <= 32'h1800;
+      mstatus <= 32'h1800;
       mvendorid <= 32'h7973_7978;
-      marchid   <= 32'h17D_9F58;
+      marchid <= 32'h17D_9F58;
       clear_pipeline <= 0;
     end else begin
       if (clear_pipeline) begin
@@ -79,7 +69,6 @@ module ysyx_25010008_RegFile (
           mepc <= lsu_pc;
           npc <= mtvec;
           clear_pipeline <= 1;
-          wbu_record(lsu_pc, mtvec);
         end else begin
           clear_pipeline <= (fence_i | mret) ? 1 : wrong_prediction;
           clear_cache <= fence_i;
@@ -92,10 +81,7 @@ module ysyx_25010008_RegFile (
               default: ;
             endcase
           end
-          wbu_record(lsu_pc, mret ? mepc : exu_npc);
         end
-
-        if (ls_valid) inst_done();
       end
     end
   end

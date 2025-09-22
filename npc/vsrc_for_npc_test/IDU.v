@@ -1,11 +1,3 @@
-import "DPI-C" function void idu_record0(
-  input calc,
-  input ls,
-  input csr
-);
-
-import "DPI-C" function void idu_record1(int inst);
-
 module ysyx_25010008_IDU (
     input clock,
     input reset,
@@ -49,6 +41,13 @@ module ysyx_25010008_IDU (
 );
 
   reg [31:0] inst_q;
+
+  reg [4:0] rd_buffer;
+  reg [11:0] csr_d_buffer;
+  reg r_wen_buffer,csr_wen_buffer;
+  reg [1:0] ecall_buffer;
+  reg [1:0] mret_buffer;
+  reg [1:0] fence_i_buffer;
 
   wire [6:0] opcode = inst_q[6:0];
   wire [2:0] funct3 = inst_q[14:12];
@@ -185,13 +184,6 @@ module ysyx_25010008_IDU (
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
 
-  reg [4:0] rd_buffer;
-  reg [11:0] csr_d_buffer;
-  reg r_wen_buffer,csr_wen_buffer;
-  reg [1:0] ecall_buffer;
-  reg [1:0] mret_buffer;
-  reg [1:0] fence_i_buffer;
-
   assign ecall = ecall_buffer[1];
   assign mret = mret_buffer[1];
   assign fence_i = fence_i_buffer[1];
@@ -283,9 +275,6 @@ module ysyx_25010008_IDU (
 
         rd <= rd_buffer;
         csr_d <= csr_d_buffer;
-
-        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, csr_inst);
-        idu_record1(inst);
       end
     end
   end

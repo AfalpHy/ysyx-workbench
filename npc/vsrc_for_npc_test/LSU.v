@@ -1,15 +1,3 @@
-import "DPI-C" function void set_skip_ref_inst();
-import "DPI-C" function void lsu_record0(
-  int addr,
-  int data,
-  int delay
-);
-import "DPI-C" function void lsu_record1(
-  int addr,
-  int data,
-  int mask,
-  int delay
-);
 module ysyx_25010008_LSU (
     input clock,
     input reset,
@@ -128,8 +116,6 @@ module ysyx_25010008_LSU (
         end
 
         if (arvalid & arready) begin
-          if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
-            set_skip_ref_inst();  //uart clint spi gpio ps2
           rready  <= 1;
           arvalid <= 0;
         end
@@ -139,13 +125,10 @@ module ysyx_25010008_LSU (
           r_wdata <= sext_q ? sign_data : unsign_data;
           block <= 0;
           ls_valid <= 1;
-          lsu_record0(araddr, sext_q ? sign_data : unsign_data, delay);
           delay = 0;
         end
 
         if (awvalid & awready) begin
-          if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
-            set_skip_ref_inst();  //uart spi gpio vga
           awvalid <= 0;
         end
 
@@ -158,7 +141,6 @@ module ysyx_25010008_LSU (
           bready <= 0;
           block <= 0;
           ls_valid <= 1;
-          lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
         end
       end else begin
