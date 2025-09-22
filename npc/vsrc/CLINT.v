@@ -1,3 +1,4 @@
+import "DPI-C" function int pmem_read(input int addr);
 module ysyx_25010008_CLINT (
     input clock,
     input reset,
@@ -18,7 +19,7 @@ module ysyx_25010008_CLINT (
 
   reg [ 1:0] rstate;
 
-  reg [31:0] araddr_q;
+  reg [31:0] _araddr;
 
   reg [63:0] mtime;
 
@@ -30,14 +31,16 @@ module ysyx_25010008_CLINT (
       rvalid  <= 0;
       rstate  <= HANDLE_RADDR;
     end else begin
+      mtime <= mtime + 1;
       if (rstate == HANDLE_RADDR) begin
         if (arvalid) begin
-          araddr_q <= araddr;
-          arready  <= 0;
-          rstate   <= READING;
+          _araddr <= araddr;
+          arready <= 0;
+          rstate  <= READING;
         end
       end else if (rstate == READING) begin
-        rdata  <= araddr_q[2] ? mtime[63:32] : mtime[31:0];
+        // rdata  <= _araddr[2] ? mtime[63:32] : mtime[31:0];
+        rdata <= pmem_read(_araddr);
         rvalid <= 1;
         rstate <= HANDLE_RDATA;
       end else begin
@@ -48,11 +51,6 @@ module ysyx_25010008_CLINT (
         end
       end
     end
-  end
-
-  always @(posedge clock) begin
-    if (!reset)
-      mtime <= mtime + 1;  // add 1 to simulate real time acorrding to speed of npc's simulation
   end
 
 endmodule

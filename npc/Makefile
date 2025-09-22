@@ -1,10 +1,9 @@
 TOPNAME = ysyxSoCFull
 INC_PATH ?= $(NPC_HOME)/include
-NXDC_FILES = constr/$(TOPNAME).nxdc
 YSYX_SOC = $(abspath ../ysyxSoC)
 PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc -O3 -j $(shell nproc) --timescale "1ns/1ns" --no-timing --trace\
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --timescale "1ns/1ns" --no-timing --trace\
 				-I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
 				--x-assign fast --x-initial fast --noassert --autoflush
 
@@ -14,19 +13,10 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 $(shell mkdir -p $(BUILD_DIR))
 
-# constraint file
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-$(SRC_AUTO_BIND): $(NXDC_FILES)
-	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 VSRCS += $(shell find $(PERIP) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-CSRCS += $(SRC_AUTO_BIND)
-
-# rules for NVBoard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
@@ -71,7 +61,9 @@ ifdef DIFF_TEST
 override ARGS += -diff_so=$(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 endif
 
-ARGS += -b
+ifdef BATCH
+override ARGS += -b 
+endif
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
@@ -85,23 +77,9 @@ all: $(BIN)
 clean:
 	rm -rf $(BUILD_DIR)
 
-verilog:
-	cat vsrc_for_npc_test/* > build/ysyx_25010008.v
-
 sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@$(BIN) $(ARGS)	
-
-convert-bin:
-	hexdump -v -e '1/4 "%08X\n"' $(IMG) > $(basename $(IMG)).mem
-
-sim-iverilog: verilog convert-bin
-	iverilog -g2012 iverilog/tb.v build/ysyx_25010008.v -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
-	$(BIN)
-
-sim-iverilog-netlist: convert-bin
-	iverilog -g2012 iverilog/tb.v $(NETLIST) $(CELLS) -DMEM_PATH=\"$(basename $(IMG)).mem\" -o $(abspath $(BIN))
-	$(BIN)
 
 gdb: CXXFLAGS += -g
 gdb: VERILATOR_CFLAGS := $(filter-out -O3,$(VERILATOR_CFLAGS))
@@ -109,9 +87,7 @@ gdb: all
 	$(call git_commit, "sim RTL")
 	gdb -args $(BIN) $(ARGS)
 
-perf:
-	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc BATCH=ON mainargs=train run
 
-.PHONY: all clean verilog sim convert-bin sim-iverilog sim-iverilog-netlist gdb perf
+.PHONY: all clean sim gdb
 
 include ../Makefile
