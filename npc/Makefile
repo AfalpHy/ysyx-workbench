@@ -1,10 +1,9 @@
 TOPNAME = ysyxSoCFull
 INC_PATH ?= $(NPC_HOME)/include
-NXDC_FILES = constr/$(TOPNAME).nxdc
 YSYX_SOC = $(abspath ../ysyxSoC)
 PERIP = $(abspath $(YSYX_SOC)/perip)
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc -O3 -j $(shell nproc) --timescale "1ns/1ns" --no-timing --trace\
+VERILATOR_CFLAGS += -MMD --build -cc -O3 --timescale "1ns/1ns" --no-timing --trace\
 				-I$(PERIP)/uart16550/rtl -I$(PERIP)/spi/rtl\
 				--x-assign fast --x-initial fast --noassert --autoflush
 
@@ -14,19 +13,10 @@ BIN = $(BUILD_DIR)/$(TOPNAME)
 
 $(shell mkdir -p $(BUILD_DIR))
 
-# constraint file
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-$(SRC_AUTO_BIND): $(NXDC_FILES)
-	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 VSRCS += $(shell find $(PERIP) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-CSRCS += $(SRC_AUTO_BIND)
-
-# rules for NVBoard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
@@ -97,9 +87,7 @@ gdb: all
 	$(call git_commit, "sim RTL")
 	gdb -args $(BIN) $(ARGS)
 
-perf:
-	@make -s -C ../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc BATCH=ON mainargs=train run
 
-.PHONY: all clean sim gdb perf
+.PHONY: all clean sim gdb
 
 include ../Makefile

@@ -1,15 +1,5 @@
 import "DPI-C" function void set_skip_ref_inst();
-import "DPI-C" function void lsu_record0(
-  int addr,
-  int data,
-  int delay
-);
-import "DPI-C" function void lsu_record1(
-  int addr,
-  int data,
-  int mask,
-  int delay
-);
+
 module ysyx_25010008_LSU (
     input clock,
     input reset,
@@ -24,10 +14,10 @@ module ysyx_25010008_LSU (
 
     input [31:0] addr,
     output reg [31:0] mem_rdata,
-    output reg done,
+    output reg read_done,
+    output reg write_done,
 
     output reg [31:0] araddr,
-    output reg [2:0] arsize,
     output reg arvalid,
     input arready,
 
@@ -37,7 +27,6 @@ module ysyx_25010008_LSU (
     input rvalid,
 
     output reg [31:0] awaddr,
-    output reg [2:0] awsize,
     output reg awvalid,
     input awready,
 
@@ -52,79 +41,85 @@ module ysyx_25010008_LSU (
     input bvalid
 );
 
+  parameter IDLE = 0;
+  parameter HANDLE_RADDR = 1;
+  parameter HANDLE_RDATA = 2;
+  parameter HANDLE_WADDR = 3;
+  parameter HANDLE_WDATA = 4;
+  parameter HANDLE_BRESP = 5;
+  parameter WRITE_BACK = 6;
+
+  reg [2:0] state;
+
   assign araddr = addr;
-  assign arsize = suffix_b ? 0 : suffix_h ? 1 : 2;
-
   assign awaddr = addr;
-  assign awsize = suffix_b ? 0 : suffix_h ? 1 : 2;
 
-  assign wdata  = (suffix_b | suffix_h) ? (wsrc << {addr[1:0], 3'b0}) : wsrc;
-  assign wstrb  = (suffix_b ? 4'b0001 : (suffix_h ? 4'b0011 : 4'b1111)) << addr[1:0];
+  assign wdata = suffix_b ? (wsrc << {addr[1:0], 3'b0}) : (suffix_h ? (wsrc << {addr[1:0], 3'b0}) : wsrc);
+  assign wstrb = suffix_b ? (4'b0001 << addr[1:0]) : (suffix_h ? (4'b0011 << addr[1:0]) : 4'b1111);
 
-  wire [31:0] real_rdata = (suffix_b | suffix_h) ? (rdata >> {addr[1:0], 3'b0}) : rdata;
+  wire [31:0] real_rdata = suffix_b ? (rdata >> {addr[1:0], 3'b0}) : (suffix_h ? (rdata >> {addr[1:0], 3'b0}) : rdata);
   wire [31:0] sextb = {{24{real_rdata[7]}}, real_rdata[7:0]};
   wire [31:0] sexth = {{16{real_rdata[15]}}, real_rdata[15:0]};
-  wire [31:0] sign_data = suffix_b ? sextb : sexth;
-  wire [31:0] extb = {24'b0, real_rdata[7:0]};
-  wire [31:0] exth = {16'b0, real_rdata[15:0]};
-  wire [31:0] unsign_data = suffix_b ? extb : (suffix_h ? exth : real_rdata);
-
-  integer delay;
 
   always @(posedge clock) begin
     if (reset) begin
-      rready <= 0;
+      arvalid <= 0;
+      rready  <= 1;
 
-      wvalid <= 0;
-      bready <= 0;
+      awvalid <= 0;
+      wvalid  <= 0;
 
-      done   <= 0;
-      delay = 0;
+      bready  <= 1;
+      state   <= IDLE;
     end else begin
-      if (done) done <= 0;
-      else begin
-        if (rready | wvalid | bready) delay = delay + 1;
-
-        if (ren) arvalid <= 1;
+      if (state == IDLE) begin
+        if (ren) begin
+          arvalid <= 1;
+          state   <= HANDLE_RADDR;
+        end
         if (wen) begin
-          // must assert in the same time for sdram axi
           awvalid <= 1;
-          wvalid  <= 1;
+          state   <= HANDLE_WADDR;
         end
-
-        if (arvalid & arready) begin
-          if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
-            set_skip_ref_inst();  //uart clint spi gpio ps2
-          rready  <= 1;
+      end else if (state == HANDLE_RADDR) begin
+        if (arready) begin
+          if (araddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
           arvalid <= 0;
+          rready  <= 1;
+          state   <= HANDLE_RDATA;
         end
-
-        if (rready & rvalid) begin
+      end else if (state == HANDLE_RDATA) begin
+        if (rvalid) begin
           rready <= 0;
-          mem_rdata <= sext ? sign_data : unsign_data;
-          done <= 1;
-          lsu_record0(araddr, sext ? sign_data : unsign_data, delay);
-          delay = 0;
+          mem_rdata  <= sext ? (suffix_b ? sextb : sexth ) :
+          (suffix_b ? {24'b0, real_rdata[7:0]} :
+          (suffix_h ? {16'b0, real_rdata[15:0]} : real_rdata));
+          read_done <= 1;
+          state <= WRITE_BACK;
         end
-
-        if (awvalid & awready) begin
-          if (awaddr[31:12] == 20'h1_0000 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:24] == 8'h21)
-            set_skip_ref_inst();  //uart spi gpio vga
+      end else if (state == HANDLE_WADDR) begin
+        if (awready) begin
+          if (awaddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
           awvalid <= 0;
+          wvalid  <= 1;
+          state   <= HANDLE_WDATA;
         end
-
-        if (wvalid & wready) begin
+      end else if (state == HANDLE_WDATA) begin
+        if (wready) begin
           wvalid <= 0;
           bready <= 1;
+          state  <= HANDLE_BRESP;
         end
-
-        if (bready & bvalid) begin
+      end else if (state == HANDLE_BRESP) begin
+        if (bvalid) begin
           bready <= 0;
-          done   <= 1;
-          lsu_record1(araddr, wdata, {{8{wstrb[3]}}, {8{wstrb[2]}}, {8{wstrb[1]}}, {8{wstrb[0]}}},
-                      delay);
-          delay = 0;
+          write_done <= 1;
+          state <= WRITE_BACK;
         end
+      end else begin
+        if (read_done) read_done <= 0;
+        if (write_done) write_done <= 0;
+        state <= IDLE;
       end
     end
   end

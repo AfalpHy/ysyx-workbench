@@ -6,36 +6,19 @@
 #include "pmem.h"
 #include "string.h"
 #include "watchpoint.h"
-#include <nvboard.h>
 #include <verilated_vcd_c.h>
 
 extern TOP_NAME top;
 extern int status;
 extern bool diff_test_on;
+extern bool interrupt;
 
 uint64_t total_insts_num = 0;
-
-bool print_itrace = false;
-bool halt = false;
-bool finish_one_inst = false;
-
-// counter
-uint64_t total_cycles = 0;
-uint64_t get_inst = 0;
-uint64_t get_data = 0;
-uint64_t exu_done = 0;
-int inst_type = 0;
-uint64_t calc_inst = 0, ls_inst = 0, csr_inst = 0;
-uint64_t calc_inst_cycles = 0, ls_inst_cycles = 0, csr_inst_cycles = 0;
-uint64_t ls_delay = 0;
-uint64_t miss_penalty = 0;
-
-// make mtrace message follows itrace message
-char mtrace_buffer[256] = {};
-
 bool skip_ref_inst = false;
-extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
+uint32_t inst;
 
+extern "C" void set_skip_ref_inst() { skip_ref_inst = true; }
+extern "C" void set_inst(int _inst) { inst = _inst; }
 typedef struct {
   paddr_t pc;
   uint32_t inst;
@@ -51,111 +34,8 @@ char *one_inst_str(const DisasmInst *di) {
   return buff;
 }
 
-extern "C" void ifu_record0() { get_inst++; }
-
-extern "C" void ifu_record1(int inst, int npc) {
-  halt = inst == 0x00100073;
-
-#ifdef ITRACE
-  static FILE *pc_trace = nullptr;
-  if (!pc_trace) {
-    pc_trace = fopen("pc_trace.bin", "wb");
-    ASSERT(pc_trace, "open pc_trace.bin failed");
-    fwrite(pc, 4, 1, pc_trace);
-  }
-  static int follow = 0;
-  if (halt) {
-    fwrite(&follow, 4, 1, pc_trace);
-  } else {
-    if (npc != *pc + 4) {
-      fwrite(&follow, 4, 1, pc_trace);
-      follow = 0;
-      fwrite(&npc, 4, 1, pc_trace);
-    } else {
-      follow++;
-    }
-  }
-
-  int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
-  iringbuf[iringbuf_index].pc = *pc;
-  iringbuf[iringbuf_index].inst = inst;
-  disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str),
-              iringbuf[iringbuf_index].inst, (uint8_t *)&inst, 4);
-  auto str = one_inst_str(&iringbuf[iringbuf_index]);
-  if (print_itrace) {
-    printf("%s", str);
-  }
-  if (total_insts_num < 10000) // avoid trace file too big
-    fprintf(log_fp, "%s", str);
-#endif
-
-#ifdef MTRACE
-  if (mtrace_buffer[0]) {
-    fprintf(log_fp, "%s", mtrace_buffer);
-  }
-  mtrace_buffer[0] = 0;
-#endif
-
-#ifdef FTRACE
-  ftrace(*pc, npc, inst);
-#endif
-
-  finish_one_inst = true;
-
-  if (halt) {
-    total_cycles -= 20;
-    return;
-  }
-  // cpu will be reset extra 10 cycles by soc, and the total reset cylce is 20.
-  static uint64_t last_inst_end_cycles = 20;
-  uint64_t spend_cycles = total_cycles - last_inst_end_cycles;
-  switch (inst_type) {
-  case 1:
-    calc_inst_cycles += spend_cycles;
-    break;
-  case 2:
-    ls_inst_cycles += spend_cycles;
-    break;
-  case 4:
-    csr_inst_cycles += spend_cycles;
-    break;
-  default:
-    break;
-  }
-  last_inst_end_cycles = total_cycles;
-}
-
-extern "C" void ifu_record2(int delay) { miss_penalty += delay; }
-
-extern "C" void idu_record(bool calc, bool ls, bool csr) {
-  calc_inst += calc;
-  ls_inst += ls;
-  csr_inst += csr;
-  inst_type = (csr << 2) | (ls << 1) | calc;
-}
-
-extern "C" void exu_record() { exu_done++; }
-
-extern "C" void lsu_record0(paddr_t addr, word_t data, word_t delay) {
-  get_data++;
-  ls_delay += delay;
-#ifdef MTRACE
-  if (total_insts_num < 10000)
-    sprintf(mtrace_buffer, "read addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\n",
-            addr, data);
-#endif
-}
-
-extern "C" void lsu_record1(paddr_t addr, word_t data, word_t mask,
-                            word_t delay) {
-  ls_delay += delay;
-#ifdef MTRACE
-  if (total_insts_num < 10000)
-    sprintf(mtrace_buffer,
-            "write addr:\t" FMT_PADDR "\tdata:" FMT_WORD "\tmask:" FMT_WORD
-            "\n",
-            addr, data, mask);
-#endif
+static void display_one_inst(const DisasmInst *di) {
+  printf("%s", one_inst_str(di));
 }
 
 void iringbuf_display() {
@@ -163,7 +43,7 @@ void iringbuf_display() {
     int iringbuf_index = (total_insts_num + i) % MAX_IRINGBUF_LEN;
     const auto &buf = iringbuf[iringbuf_index];
     if (strcmp(buf.str, "")) {
-      printf("%s", one_inst_str(&buf));
+      display_one_inst(&buf);
     }
   }
 }
@@ -173,12 +53,15 @@ static int check_regs() {
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
   if (*pc != ref_pc) {
-    std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
+    std::cerr << total_insts_num << " instrutions have been executed"
+              << std::hex << " ref pc:" << ref_pc << " npc:" << *pc
               << std::endl;
     return -1;
   }
   for (int i = 0; i < REGS_NUM; i++) {
     if ((ref_reg[i] != regs[i]) || (*pc != ref_pc)) {
+      std::cerr << total_insts_num << " instrutions have been executed"
+                << std::endl;
       std::cerr << "reg index:" << i << " " << regs_name[i]
                 << " ref:" << std::hex << ref_reg[i] << " npc:" << regs[i]
                 << std::endl;
@@ -189,9 +72,6 @@ static int check_regs() {
 }
 
 void single_cycle() {
-  total_cycles++;
-
-  nvboard_update();
   extern VerilatedVcdC *tfp;
   top.clock = 1;
   top.eval();
@@ -219,15 +99,45 @@ void reset() {
 }
 
 void cpu_exec(uint32_t num) {
-  if (halt | status) {
-    printf("Program execution has finished or has some error\n");
+  static bool halt = false;
+  if (halt) {
+    printf("Program execution has ended\n");
     return;
   }
-  print_itrace = num <= 10;
+  uint32_t print_num = num;
   while (num-- > 0) {
-    finish_one_inst = false;
-    while (!finish_one_inst)
+#ifdef ITRACE
+    int iringbuf_index = total_insts_num % MAX_IRINGBUF_LEN;
+    iringbuf[iringbuf_index].pc = *pc;
+#endif
+
+#ifdef MTRACE
+    // only print inst memory access
+    print_mtrace = true;
+#endif
+
+    while (!(*write_back) && !interrupt)
       single_cycle();
+    single_cycle(); // write back
+
+#ifdef MTRACE
+    // only print inst memory access
+    print_mtrace = false;
+#endif
+
+    halt = inst == 0b00000000000100000000000001110011;
+
+#ifdef ITRACE
+    iringbuf[iringbuf_index].inst = inst;
+    disassemble(iringbuf[iringbuf_index].str, sizeof(DisasmInst::str),
+                iringbuf[iringbuf_index].inst, (uint8_t *)&inst, 4);
+    auto str = one_inst_str(&iringbuf[iringbuf_index]);
+    if (print_num <= 10) {
+      printf("%s", str);
+    }
+    if (total_insts_num < 10000) // avoid trace file too big
+      fprintf(log_fp, "%s", str);
+#endif
 
     total_insts_num++;
 
@@ -237,6 +147,10 @@ void cpu_exec(uint32_t num) {
               total_insts_num); // make trace more clear
 #endif
 
+#ifdef FTRACE
+    ftrace(iringbuf[iringbuf_index].pc, *pc, inst);
+#endif
+
     if (diff_test_on) {
       if (skip_ref_inst) {
         ref_difftest_regcpy(regs, pc, DIFFTEST_TO_REF);
@@ -244,16 +158,20 @@ void cpu_exec(uint32_t num) {
       } else {
         ref_difftest_exec(1);
         if (check_regs() != 0) {
+          extern void isa_reg_display();
+          isa_reg_display();
+          iringbuf_display();
           status = -1;
           return;
         }
       }
     }
-    if (halt) {
+    if (halt || interrupt) {
+      printf("\n%ld instructions have been executed\n", total_insts_num);
       return;
-    } else if (check_wp()) {
-      return;
-    } else if (check_breakpoint(*pc)) {
+    }
+    if (check_wp()) {
+      printf("watch point has been triggered\n");
       return;
     }
   }

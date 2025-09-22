@@ -1,10 +1,10 @@
+#include "device.h"
 #include "difftest.h"
 #include "disasm.h"
 #include "exec.h"
 #include "expr.h"
 #include "ftrace.h"
 #include "isa.h"
-#include "nvboard.h"
 #include "pmem.h"
 #include "sdb.h"
 #include "watchpoint.h"
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <signal.h>
+#include <sys/time.h>
 #include <vector>
 #include <verilated_vcd_c.h>
 
@@ -20,10 +21,9 @@ using namespace std;
 VerilatedVcdC *tfp = nullptr;
 TOP_NAME top;
 
-void nvboard_bind_all_pins(TOP_NAME *top);
-
 int status = 0;
 bool diff_test_on = false;
+uint64_t begin_us;
 
 FILE *log_fp = nullptr;
 extern FILE *ftrace_log;
@@ -35,30 +35,27 @@ void fflush_trace() {
   if (ftrace_log) {
     fflush(ftrace_log);
   }
+}
+bool interrupt = false;
+void sigint_handler(int sig) {
+  interrupt = true;
+  printf("receive SIGINT\n");
+}
+void sigsegv_handler(int sig) {
+  fflush_trace();
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-}
-
-void sigint_handler(int sig) {
-  print_debug_info();
-  print_performance_info();
-  exit(0);
-}
-
-void sigsegv_handler(int sig) {
-  print_debug_info();
-  print_performance_info();
-  exit(-1);
+  Assert(0, "receive SIGSEGV");
 }
 
 int load_img(const string &filepath) {
   ifstream file(filepath, ios::binary);
-  ASSERT(file.is_open(), "load img failed");
+  Assert(file.is_open(), "load img failed");
   file.seekg(0, ios::end);
   size_t size = file.tellg();
   file.seekg(0, ios::beg);
-  file.read((char *)flash, size);
+  file.read((char *)pmem, size);
   file.close();
   return size;
 }
@@ -67,9 +64,9 @@ int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
   signal(SIGSEGV, sigsegv_handler);
-
-  nvboard_bind_all_pins(&top);
-  nvboard_init();
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  begin_us = now.tv_sec * 1000000 + now.tv_usec;
 
 #ifdef TRACE_WAVE
   Verilated::traceEverOn(true);
@@ -77,7 +74,6 @@ int main(int argc, char **argv) {
   top.trace(tfp, 99);
   tfp->open("waveform.vcd");
 #endif
-
   // initial
   top.eval();
 
@@ -97,7 +93,7 @@ int main(int argc, char **argv) {
     }
     if (option == "log") {
       log_fp = fopen(tmp.substr(pos + 1).c_str(), "w");
-      ASSERT(log_fp, "open log file failed");
+      Assert(log_fp, "open log file failed");
     } else if (option == "img") {
       img = tmp.substr(pos + 1);
       size = load_img(img);
@@ -109,7 +105,7 @@ int main(int argc, char **argv) {
       elf_files.push_back(tmp.substr(pos + 1));
     } else if (option == "ftrace-log") {
       ftrace_log = fopen(tmp.substr(pos + 1).c_str(), "w");
-      ASSERT(ftrace_log, "open log file failed");
+      Assert(ftrace_log, "open log file failed");
     }
   }
   // expr
@@ -118,7 +114,8 @@ int main(int argc, char **argv) {
   init_disasm("riscv64-pc-linux-gnu");
   // init watchpoint
   init_wp_pool();
-
+  // init sdl
+  // init_vga();
   reset();
   if (!ref_so.empty()) {
     init_difftest(ref_so.c_str(), size);
@@ -129,7 +126,8 @@ int main(int argc, char **argv) {
 #endif
 
   sdb_mainloop();
-  if (status || isa_reg_str2val("a0") != 0) {
+  if (status != 0 || isa_reg_str2val("a0") != 0) {
+    status = -1;
     cout << img << "\033[31m\tBAD TRAP\033[0m" << endl;
   } else {
     cout << img << "\033[32m\tGOOD TRAP\033[0m" << endl;
@@ -137,6 +135,5 @@ int main(int argc, char **argv) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  print_performance_info();
   return status;
 }
