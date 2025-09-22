@@ -207,7 +207,9 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc); IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 0)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 1)));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = cpu.mepc; IFDEF(CONFIG_FTRACE, ftrace(s->pc, s->dnpc, s->isa.inst, 0, 1)); IFDEF(CONFIG_ETRACE, etrace(s->pc, 0)));
+  INSTPAT("??????? ????? ????? 001 ????? 00011 11", fence_i, N, ); //do nothing
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
+
   INSTPAT_END();
 
 #ifdef CONFIG_MTRACE
