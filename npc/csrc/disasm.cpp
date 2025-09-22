@@ -39,9 +39,9 @@
 
 using namespace llvm;
 
-static llvm::MCDisassembler *gDisassembler = nullptr;
-static llvm::MCSubtargetInfo *gSTI = nullptr;
-static llvm::MCInstPrinter *gIP = nullptr;
+// static llvm::MCDisassembler *gDisassembler = nullptr;
+// static llvm::MCSubtargetInfo *gSTI = nullptr;
+// static llvm::MCInstPrinter *gIP = nullptr;
 
 extern "C" void init_disasm(const char *triple) {
 //   llvm::InitializeAllTargetInfos();
