@@ -1,69 +1,39 @@
-`ifdef __VERILATOR__
-import "DPI-C" function void idu_record0(
-  input calc,
-  input ls,
-  input csr
-);
-
-import "DPI-C" function void idu_record1(int inst);
-`endif
-
 module ysyx_25010008_IDU (
-    input clock,
-    input reset,
-
-    input [31:0] ifu_pc,
     input [31:0] inst,
-    input inst_valid,
-    input block,
+    input ivalid,
 
-    output idu_ready,
-    output reg decode_valid,
-    output reg [31:0] idu_pc,
-    output [1:0] npc_sel,
+    output [2:0] npc_sel,
 
     output [31:0] imm,
-    output [7:0] alu_opcode,
-    output [1:0] alu_operand1_sel,
-    output [3:0] alu_operand2_sel,
+    output [1:0] alu_operand2_sel,
 
-    output reg suffix_b,
-    output reg suffix_h,
-    output reg sext,  
-    output reg mem_ren,
-    output reg mem_wen,
-
+    output suffix_b,
+    output suffix_h,
+    output sext,
+  
     output [4:0] rs1,
     output [4:0] rs2,
-    output reg [4:0] rd,
+    output [4:0] rd,
     output reg r_wen,
-    output [1:0] exu_r_wdata_sel,
+    output [2:0] r_wdata_sel,
 
     output [11:0] csr_s,
-    output [1:0] csr_src_sel,
-    output reg [11:0] csr_d,
-    output reg csr_wen,
+    output [11:0] csr_d1,
+    output [11:0] csr_d2,
+    output csr_wen1,
+    output csr_wen2,
+    output csr_wdata1_sel,
+    output csr_wdata2_sel,
 
-    output ecall,
-    output ebreak,
-    output mret,
-    output fence_i,
-    input clear_pipeline
+    output reg mem_ren,
+    output mem_wen,
+
+    output [7:0] alu_opcode
 );
 
-  reg [31:0] inst_q;
-
-  reg [4:0] rd_buffer;
-  reg [11:0] csr_d_buffer;
-  reg r_wen_buffer,csr_wen_buffer;
-  reg [1:0] ecall_buffer;
-  reg [1:0] ebreak_buffer;
-  reg [1:0] mret_buffer;
-  reg [1:0] fence_i_buffer;
-
-  wire [6:0] opcode = inst_q[6:0];
-  wire [2:0] funct3 = inst_q[14:12];
-  wire [6:0] funct7 = inst_q[31:25];
+  wire [6:0] opcode = inst[6:0];
+  wire [2:0] funct3 = inst[14:12];
+  wire [6:0] funct7 = inst[31:25];
 
   wire funct3_000 = funct3 == 3'b000;
   wire funct3_001 = funct3 == 3'b001;
@@ -143,49 +113,53 @@ module ysyx_25010008_IDU (
   wire CSRRS  = system & funct3_010;
   wire CSRRC  = system & funct3_011;
 
-  wire ECALL  = inst_q[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
-  wire EBREAK = inst_q[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
-  wire MRET   = inst_q[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
-
-  wire FENCE_I = funct3_001 & opcode == 7'b00_011_11;
-
-  wire csr_inst = CSRRW | CSRRS | CSRRC;
+  wire ECALL  = inst[31:0] == 32'b0000000_00000_00000_000_00000_11100_11;
+  wire EBREAK = inst[31:0] == 32'b0000000_00001_00000_000_00000_11100_11;
+  wire MRET   = inst[31:0] == 32'b0011000_00010_00000_000_00000_11100_11;
 
   assign npc_sel[0] = JAL | branch;
   assign npc_sel[1] = JALR | branch;
+  assign npc_sel[2] = ECALL | MRET;
 
   wire U_type = LUI | AUIPC;
   wire J_type = JAL;
   wire B_type = branch;
-  wire I_type = JALR | load | op_imm | csr_inst;
+  wire I_type = JALR | load | op_imm | CSRRW | CSRRS | CSRRC;
   wire S_type = store;
   wire R_type = op;
 
-  wire [31:0] U_imm = U_type ? {inst_q[31:12], {12{1'b0}}} : 0;
-  wire [31:0] J_imm = J_type ? {{12{inst_q[31]}}, inst_q[19:12], inst_q[20], inst_q[30:25], inst_q[24:21], 1'b0} : 0;
-  wire [31:0] B_imm = B_type ? {{20{inst_q[31]}}, inst_q[7], inst_q[30:25], inst_q[11:8], 1'b0} : 0;
-  wire [31:0] I_imm = I_type ? {{20{inst_q[31]}}, inst_q[31:20]} : 0;
-  wire [31:0] S_imm = S_type ? {{20{inst_q[31]}}, inst_q[31:25], inst_q[11:7]} : 0;
+  wire [31:0] U_imm = U_type ? {inst[31:12], {12{1'b0}}} : 0;
+  wire [31:0] J_imm = J_type ? {{12{inst[31]}}, inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0} : 0;
+  wire [31:0] B_imm = B_type ? {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} : 0;
+  wire [31:0] I_imm = I_type ? {{20{inst[31]}}, inst[31:20]} : 0;
+  wire [31:0] S_imm = S_type ? {{20{inst[31]}}, inst[31:25], inst[11:7]} : 0;
 
   assign imm         = U_imm | J_imm | B_imm | I_imm | S_imm;
-
-  assign rs1 = LUI ? 0 : inst_q[19:15]; // LUI always use x0 means 0 + imm
-  assign rs2 = CSRRW ? 0 : inst_q[24:20]; // CSRRW always use x0 means imm + 0
-
-  assign alu_operand1_sel[0] = rs1 != 0 && rs1 == rd_buffer;
-  assign alu_operand1_sel[1] = rs1 != 0 && rs1 == rd;
-
   assign alu_operand2_sel[0] = LUI | JALR | load | op_imm | S_type;
   assign alu_operand2_sel[1] = CSRRS | CSRRC;
-  assign alu_operand2_sel[2] = rs2 != 0 && rs2 == rd_buffer ;
-  assign alu_operand2_sel[3] = rs2 != 0 && rs2 == rd; 
+  assign suffix_b = LB | LBU | SB;
+  assign suffix_h = LH | LHU | SH;
+  assign sext = LB | LH;
 
-  assign exu_r_wdata_sel[0] = JAL | JALR | csr_inst;
-  assign exu_r_wdata_sel[1] = AUIPC | csr_inst;
+  assign rs1 = LUI ? 0 : inst[19:15]; // LUI always use x0 means 0 + imm
+  assign rs2 = CSRRW ? 0 : inst[24:20]; // CSRRW always use x0 means imm + 0
+  assign rd  = inst[11:7];
 
-  assign csr_s = inst_q[31:20];
-  assign csr_src_sel[0] = csr_s == csr_d_buffer;
-  assign csr_src_sel[1] = csr_s == csr_d;
+  assign r_wen = (U_type | J_type | I_type | R_type) & ivalid;
+  assign r_wdata_sel[0] = JAL | JALR | load;
+  assign r_wdata_sel[1] = AUIPC | load;
+  assign r_wdata_sel[2] = CSRRW | CSRRS | CSRRC;
+
+  assign csr_s = ECALL ? 12'h305 : (MRET ? 12'h341 : imm[11:0]);
+  assign csr_d1 = ECALL ? 12'h342 : imm[11:0];
+  assign csr_d2 = ECALL ? 12'h341 : imm[11:0];
+  assign csr_wen1 = (CSRRW | CSRRS | CSRRC | ECALL) & ivalid;
+  assign csr_wen2 = ECALL & ivalid;
+  assign csr_wdata1_sel = ECALL;
+  assign csr_wdata2_sel = ECALL;
+
+  assign mem_ren = load & ivalid;
+  assign mem_wen = store & ivalid;
 
   assign alu_opcode[0] = SUB | branch | SLTI | SLTIU | SLT | SLTU;
   assign alu_opcode[1] = XORI | XOR | BEQ;
@@ -195,91 +169,6 @@ module ysyx_25010008_IDU (
   assign alu_opcode[5] = SRLI | SRL | BLT | SLTI | SLT;
   assign alu_opcode[6] = SRAI | SRA | BGE;
   assign alu_opcode[7] = CSRRC;
-
-  assign ecall = ecall_buffer[1];
-  assign ebreak = ebreak_buffer[1];
-  assign mret = mret_buffer[1];
-  assign fence_i = fence_i_buffer[1];
-
-  assign idu_ready = !load ;
-
-  //                     T1   T2   T3   T4   T5   T6   T7   T8   T9
-  //                   +----+----+----+----+----+
-  // I1: add a0,t0,s0  | IF | ID | EX | LS | WB |
-  //                   +----+----+----+----+----+
-  //                       +----+----+----+----+----+
-  // I2: sub a1,a0,t0       | IF | ID | EX | LS | WB |
-  //                       +----+----+----+----+----+
-  //                             +----+----+----+----+----+
-  // I3: and a2,a0,s0            | IF | ID | EX | LS | WB |
-  //                             +----+----+----+----+----+
-  //                                 +----+----+----+----+----+
-  // I4: xor a3,a0,t1                 | IF | ID | EX | LS | WB |
-  //                                 +----+----+----+----+----+
-  //                                       +----+----+----+----+----+
-  // I5: sll a4,a0,1                       | IF | ID | EX | LS | WB |
-  //                                       +----+----+----+----+----+
-  always @(posedge clock) begin
-    if (reset | clear_pipeline) begin
-      inst_q          <= 0;
-      decode_valid    <= 0;
-
-      mem_ren         <= 0;
-      mem_wen         <= 0;
-
-      r_wen_buffer    <= 0;
-      csr_wen_buffer  <= 0;
-      
-      r_wen           <= 0;
-      csr_wen         <= 0;
-
-      ecall_buffer    <= 0;
-      ebreak_buffer   <= 0;
-      mret_buffer <= 0;
-      fence_i_buffer <= 0;
-    end else begin
-      if (!block) begin
-        if (inst_valid & idu_ready) begin
-          inst_q <= inst;
-          decode_valid <= 1;
-        end else begin
-          inst_q <= 0;
-          decode_valid <= 0;
-        end
-
-        r_wen <= r_wen_buffer;
-        csr_wen <= csr_wen_buffer;
-
-        mem_ren <= load;
-        mem_wen <= store;
-
-        r_wen_buffer <= U_type | J_type | I_type | R_type;
-        csr_wen_buffer <= csr_inst;
-
-        ecall_buffer <= {ecall_buffer[0], ECALL};
-        ebreak_buffer <= {ebreak_buffer[0], EBREAK};
-        mret_buffer <= {mret_buffer[0], MRET};
-        fence_i_buffer <= {fence_i_buffer[0], FENCE_I};
-
-        idu_pc <= ifu_pc;
-
-        suffix_b <= LB | LBU | SB;
-        suffix_h <= LH | LHU | SH;
-        sext <= LB | LH;
-
-        rd_buffer <= (U_type | J_type | I_type | R_type) ? inst_q[11:7] : 0;
-        csr_d_buffer <= csr_inst ? inst_q[31:20] : 0;
-
-        rd <= rd_buffer;
-        csr_d <= csr_d_buffer;
-
-`ifdef __VERILATOR__
-        idu_record0(LUI | AUIPC | JAL | JALR | branch | op_imm | op, load | store, csr_inst);
-        idu_record1(inst);
-`endif
-      end
-    end
-  end
 
 endmodule
 
