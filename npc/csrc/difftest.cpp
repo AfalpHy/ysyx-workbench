@@ -14,7 +14,7 @@ void init_difftest(const char *ref_so_file, int img_size) {
 
   void *handle;
   handle = dlopen(ref_so_file, RTLD_LAZY);
-  Assert(handle, "%s", dlerror());
+  assert(handle);
 
   int *regs_num = (int *)dlsym(handle, "regs_num");
   assert(regs_num);
@@ -40,5 +40,5 @@ void init_difftest(const char *ref_so_file, int img_size) {
   assert(ref_difftest_init);
 
   ref_difftest_init(0);
-  ref_difftest_memcpy(0x30000000, pmem, img_size, DIFFTEST_TO_REF);
+  ref_difftest_memcpy(0x30000000, flash, img_size, DIFFTEST_TO_REF);
 }
