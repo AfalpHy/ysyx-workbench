@@ -1,5 +1,5 @@
 
-module ysyx_25010008 (
+module ysyx_25010008_NPC (
     input clock,
     input reset,
     input io_interrupt,
