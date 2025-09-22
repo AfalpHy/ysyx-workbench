@@ -53,11 +53,11 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
 
 extern "C" void psram_read(paddr_t addr, int *data) {
   *data = psram[addr / 4];
-  printf("here %x %x \n", addr, *data);
+  printf("read %x %x \n", addr, *data);
 }
 
 extern "C" void psram_write(word_t addr, word_t data, int mask) {
-  printf("here %x %x %d\n", addr, data, mask);
+  printf("write %x %x %d\n", addr, data, mask);
   uint8_t *psram_addr = (uint8_t *)psram;
   psram_addr += addr;
   word_t origin_data = *(word_t *)psram_addr;
