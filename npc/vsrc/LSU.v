@@ -79,6 +79,7 @@ module ysyx_25010008_LSU (
         end
         if (wen) begin
           awvalid <= 1;
+          wvalid <=1;
           state   <= HANDLE_WADDR;
         end
       end else if (state == HANDLE_RADDR) begin
@@ -102,15 +103,13 @@ module ysyx_25010008_LSU (
           if (awaddr[31:12] == 20'h1_0000) set_skip_ref_inst();  //uart
           awvalid <= 0;
           wvalid  <= 1;
-          state   <= HANDLE_WDATA;
         end
-      end else if (state == HANDLE_WDATA) begin
-        if (wready) begin
+         if (wready) begin
           wvalid <= 0;
           bready <= 1;
           state  <= HANDLE_BRESP;
         end
-      end else if (state == HANDLE_BRESP) begin
+      end  else if (state == HANDLE_BRESP) begin
         if (bvalid) begin
           bready <= 0;
           write_done <= 1;
