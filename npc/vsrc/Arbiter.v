@@ -100,7 +100,7 @@ module ysyx_25010008_Arbiter (
   wire [31:0] CLINT_rdata;
   wire [1:0] CLINT_rresp;
   wire CLINT_rvalid;
-
+assign io_master_wlast = 1;
 
   assign io_master_araddr = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? araddr_1 : araddr_0);
   assign io_master_arvalid = (slave != SLAVE_OTHERS || master == MASTER_NULL) ? 0 : (master == MASTER_1 ? arvalid_1 : arvalid_0);
