@@ -1,9 +1,5 @@
 import "DPI-C" function void set_regs_ptr(input logic [31:0] ptr[]);
-import "DPI-C" function void wbu_record(
-  int pc,
-  int npc
-);
-import "DPI-C" function void inst_done();
+
 module ysyx_25010008_RegFile (
     input clock,
     input reset,
@@ -12,34 +8,23 @@ module ysyx_25010008_RegFile (
     input [4:0] rs2,
     input [4:0] rd,
 
+    input write_back,
     input wen,
     input [31:0] wdata,
 
     input [11:0] csr_s,
-    input [11:0] csr_d,
+    input [11:0] csr_d1,
+    input [11:0] csr_d2,
 
-    input csr_wen,
-    input [31:0] csr_wdata,
+    input csr_wen1,
+    input [31:0] csr_wdata1,
+
+    input csr_wen2,  // only for ecall 
+    input [31:0] csr_wdata2,
 
     output [31:0] src1,
     output [31:0] src2,
-    output reg [31:0] csr_src,
-
-    input ls_valid,
-    input inst_addr_misaligned,
-    input ecall,
-    input mret,
-    input fence_i,
-    input load_addr_misaligned,
-    input store_addr_misaligned,
-    input wrong_prediction,
-    output reg clear_pipeline,
-    output reg clear_cache,
-
-    input [31:0] lsu_pc,
-    input [31:0] exu_npc,
-    output reg [31:0] npc,
-    output reg npc_valid
+    output [31:0] csr_src
 );
 
   reg [31:0] regs[15:0];
@@ -56,8 +41,6 @@ module ysyx_25010008_RegFile (
 
   integer i;
 
-  wire exception = inst_addr_misaligned | ecall | load_addr_misaligned | store_addr_misaligned;
-
   always @(posedge clock) begin
     if (reset) begin
       for (i = 0; i < 16; i = i + 1) regs[i] <= 0;
@@ -65,50 +48,46 @@ module ysyx_25010008_RegFile (
       mvendorid <= 32'h7973_7978;
       marchid   <= 32'h17D_9F58;
     end else begin
-      if (clear_pipeline) begin
-        clear_pipeline <= 0;
-        npc_valid <= 0;
-      end else begin
-        npc_valid <= ls_valid;
-        if (wen && rd[3:0] != 0) begin
-          regs[rd[3:0]] <= wdata;
-        end
-        if (exception) begin
-          mcause <= inst_addr_misaligned ? 0 : ecall ? 11 : load_addr_misaligned ? 4 : 6;
-          mepc <= lsu_pc;
-          npc <= mtvec;
-          clear_pipeline <= 1;
-          wbu_record(lsu_pc, mtvec);
-        end else begin
-          clear_pipeline <= (fence_i | mret) ? 1 : wrong_prediction;
-          clear_cache <= fence_i;
-          npc <= mret ? mepc : exu_npc;
-          if (csr_wen) begin
-            case (csr_d)
-              12'h300: mstatus <= csr_wdata;
-              12'h305: mtvec <= csr_wdata;
-              12'h341: mepc <= csr_wdata;
-              default: ;
-            endcase
-          end
-          wbu_record(lsu_pc, mret ? mepc : exu_npc);
-        end
-
-        if (ls_valid) inst_done();
+      if (write_back && wen && rd[3:0] != 0) regs[rd[3:0]] <= wdata;
+      if (write_back & csr_wen1) begin
+        case (csr_d1)
+          12'h300: mstatus <= csr_wdata1;
+          12'h305: mtvec <= csr_wdata1;
+          12'h341: mepc <= csr_wdata1;
+          12'h342: mcause <= csr_wdata1;
+          default: ;
+        endcase
+      end
+      if (write_back & csr_wen2) begin
+        case (csr_d2)
+          12'h300: mstatus <= csr_wdata2;
+          12'h305: mtvec <= csr_wdata2;
+          12'h341: mepc <= csr_wdata2;
+          12'h342: mcause <= csr_wdata2;
+          default: ;
+        endcase
       end
     end
   end
 
-  always @(csr_s) begin
-    case (csr_s)
-      12'h300: csr_src = mstatus;
-      12'h305: csr_src = mtvec;
-      12'h341: csr_src = mepc;
-      12'h342: csr_src = mcause;
-      12'hF11: csr_src = mvendorid;
-      12'hF12: csr_src = marchid;
-      default: csr_src = 0;
-    endcase
-  end
+  ysyx_25010008_MuxKeyWithDefault #(6, 12, 32) mux_csr_src (
+      .out(csr_src),
+      .key(csr_s),
+      .default_out(32'b0),
+      .lut({
+        12'h300,
+        mstatus,
+        12'h305,
+        mtvec,
+        12'h341,
+        mepc,
+        12'h342,
+        mcause,
+        12'hF11,
+        mvendorid,
+        12'hF12,
+        marchid
+      })
+  );
 
 endmodule
