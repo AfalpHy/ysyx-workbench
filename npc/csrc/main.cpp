@@ -124,9 +124,9 @@ int main(int argc, char **argv) {
   // expr
   init_regex();
 // disasm
-#ifdef ITRACE
-  init_disasm("riscv64-pc-linux-gnu");
-#endif
+// #ifdef ITRACE
+//   init_disasm("riscv64-pc-linux-gnu");
+// #endif
   // init watchpoint
   init_wp_pool();
 
