@@ -40,8 +40,8 @@ static inline void print_debug_info() {
   extern void iringbuf_display();
   extern word_t inst_buffer[];
   extern word_t current_pc;
-  // isa_reg_display();
-  // iringbuf_display();
+  isa_reg_display();
+  iringbuf_display();
 
   printf("current pc:%x\n", current_pc);
   printf("current inst:%x\n", inst_buffer[3]);
