@@ -36,13 +36,14 @@ void fflush_trace() {
     fflush(ftrace_log);
   }
 #ifdef TRACE_WAVE
+  tfp->flush();
   tfp->close();
 #endif
 }
 
 void sigint_handler(int sig) {
-  // print_debug_info();
-  // print_performance_info();
+  print_debug_info();
+  print_performance_info();
 #ifdef TRACE_WAVE
   tfp->flush();
   tfp->close();
