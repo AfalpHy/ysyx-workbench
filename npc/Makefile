@@ -31,7 +31,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME=V$(TOPNAME)
-LDFLAGS += -lLLVM-14 -lSDL2 -lSDL2_image -lreadline 
+LDFLAGS += -lSDL2 -lSDL2_image -lreadline -lLLVM-14
 
 ifdef RV32IM
 override CXXFLAGS += -DRV32IM=1
