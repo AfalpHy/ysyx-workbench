@@ -46,7 +46,7 @@ void sigint_handler(int sig) {
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
-  exit(0);
+  exit(-1);
 }
 
 void sigsegv_handler(int sig) {
