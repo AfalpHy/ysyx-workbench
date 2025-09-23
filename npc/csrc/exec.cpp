@@ -238,6 +238,11 @@ void single_cycle() {
 #ifdef TRACE_WAVE
   Verilated::timeInc(1);
   tfp->dump(Verilated::time());
+  extern bool close_wave;
+  if (close_wave) {
+    tfp->close();
+    exit(-1);
+  }
 #endif
 }
 

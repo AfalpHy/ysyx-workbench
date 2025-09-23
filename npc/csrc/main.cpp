@@ -28,6 +28,8 @@ bool diff_test_on = false;
 FILE *log_fp = nullptr;
 extern FILE *ftrace_log;
 
+bool close_wave = false;
+
 void fflush_trace() {
   if (log_fp) {
     fflush(log_fp);
@@ -36,7 +38,7 @@ void fflush_trace() {
     fflush(ftrace_log);
   }
 #ifdef TRACE_WAVE
-  tfp->close();
+  close_wave = true;
 #endif
 }
 
@@ -44,17 +46,13 @@ void sigint_handler(int sig) {
   print_debug_info();
   print_performance_info();
 #ifdef TRACE_WAVE
-  tfp->close();
+  close_wave = true;
 #endif
-  exit(0);
 }
 
 void sigsegv_handler(int sig) {
   print_debug_info();
   print_performance_info();
-#ifdef TRACE_WAVE
-  tfp->close();
-#endif
   exit(-1);
 }
 
