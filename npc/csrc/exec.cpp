@@ -274,6 +274,9 @@ void cpu_exec(uint32_t num) {
               total_insts_num); // make trace more clear
 #endif
 
+    if (halt) {
+      return;
+    }
     if (diff_test_on) {
       if (skip_ref_inst) {
         ref_difftest_regcpy(regs, &current_npc, DIFFTEST_TO_REF);
@@ -286,9 +289,7 @@ void cpu_exec(uint32_t num) {
         }
       }
     }
-    if (halt) {
-      return;
-    } else if (check_wp()) {
+    if (check_wp()) {
       return;
     } else if (check_breakpoint(current_pc)) {
       return;
