@@ -51,7 +51,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
 extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
 
-extern "C" void psram_read(paddr_t addr, int *data) { *data = psram[addr / 4]; }
+extern "C" void psram_read(paddr_t addr, int *data) { *data = psram[addr / 4];  printf("write %x %x",addr,data); }
 
 extern "C" void psram_write(word_t addr, word_t data, int mask) {
   printf("write %x %x",addr,data);
