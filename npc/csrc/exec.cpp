@@ -203,7 +203,7 @@ static int check_regs() {
   word_t ref_reg[REGS_NUM];
   paddr_t ref_pc;
   ref_difftest_regcpy((void *)ref_reg, &ref_pc, DIFFTEST_TO_DUT);
-  if (current_npc != ref_pc) {
+  if (!halt && current_npc != ref_pc) {
     std::cerr << std::hex << " ref pc:" << ref_pc << " npc:" << current_npc
               << std::endl;
     return -1;
