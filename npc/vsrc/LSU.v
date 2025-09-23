@@ -129,10 +129,7 @@ module ysyx_25010008_LSU (
             store_addr_misaligned <= addr_misaligned;
             // must assert in the same time for sdram axi
             awvalid <= addr_misaligned ? 0 : 1;
-            if (addr_q[31:28] == 10) begin
-              wvalid <= addr_misaligned ? 0 : 1;
-
-            end
+            wvalid <= addr_misaligned ? 0 : 1;
           end
 
 `ifdef __VERILATOR__
@@ -171,11 +168,6 @@ module ysyx_25010008_LSU (
 `endif
 
           awvalid <= 0;
-          if (addr_q[31:28] != 10) begin
-            wvalid <= addr_misaligned ? 0 : 1;
-
-          end
-
         end
 
         if (wvalid & wready) begin
