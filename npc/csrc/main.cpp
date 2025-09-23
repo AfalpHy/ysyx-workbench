@@ -76,7 +76,7 @@ int load_img(const string &filepath) {
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   signal(SIGINT, sigint_handler);
-  // signal(SIGSEGV, sigsegv_handler);
+  signal(SIGSEGV, sigsegv_handler);
 
   nvboard_bind_all_pins(&top);
   nvboard_init();
