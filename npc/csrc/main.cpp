@@ -53,9 +53,6 @@ void sigint_handler(int sig) {
 void sigsegv_handler(int sig) {
   print_debug_info();
   print_performance_info();
-#ifdef TRACE_WAVE
-  tfp->close();
-#endif
   exit(-1);
 }
 
