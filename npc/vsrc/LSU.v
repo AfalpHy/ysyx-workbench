@@ -179,7 +179,7 @@ module ysyx_25010008_LSU (
           bready <= 0;
           block <= 0;
           ls_valid <= 1;
-
+          $display("bresp:", bresp);
 `ifdef __VERILATOR__
           lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
