@@ -284,7 +284,6 @@ void cpu_exec(uint32_t num) {
           status = -1;
           return;
         }
-        printf("check\n");
       }
     }
     if (halt) {
