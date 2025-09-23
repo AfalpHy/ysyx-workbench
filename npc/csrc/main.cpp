@@ -41,8 +41,8 @@ void fflush_trace() {
 }
 
 void sigint_handler(int sig) {
-  // print_debug_info();
-  // print_performance_info();
+  print_debug_info();
+  print_performance_info();
 #ifdef TRACE_WAVE
   tfp->close();
 #endif
