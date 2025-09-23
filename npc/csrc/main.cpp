@@ -37,7 +37,6 @@ void fflush_trace() {
   }
 #ifdef TRACE_WAVE
   tfp->flush();
-  tfp->close();
 #endif
 }
 
@@ -46,7 +45,6 @@ void sigint_handler(int sig) {
   print_performance_info();
 #ifdef TRACE_WAVE
   tfp->flush();
-  tfp->close();
 #endif
   exit(0);
 }
@@ -56,7 +54,6 @@ void sigsegv_handler(int sig) {
   print_performance_info();
 #ifdef TRACE_WAVE
   tfp->flush();
-  tfp->close();
 #endif
   exit(-1);
 }
