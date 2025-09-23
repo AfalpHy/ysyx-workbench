@@ -1,5 +1,4 @@
 `ifdef __VERILATOR__
-import "DPI-C" function void set_pc(input [31:0] ptr[]);
 import "DPI-C" function void ifu_record0(int inc);
 import "DPI-C" function void ifu_record1(int delay);
 `endif
@@ -50,13 +49,6 @@ module ysyx_25010008_IFU (
 );
 
   reg [31:0] pc;
-
-`ifdef __VERILATOR__
-  // set pointer of pc for cpp
-  initial begin
-    set_pc(pc);
-  end
-`endif
 
   reg [`ysyx_25010008_CACHE_WIDTH - 1 : 0] cache[0 : `ysyx_25010008_CACHE_SIZE - 1];
 
