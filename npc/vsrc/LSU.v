@@ -141,7 +141,13 @@ module ysyx_25010008_LSU (
 
 `ifdef __VERILATOR__
           if (araddr[31:12] == 20'h1_0000 || araddr[31:24] == 8'h02 || araddr[31:12] == 20'h1_0001 || araddr[31:12] == 20'h1_0002 || araddr[31:12] == 20'h1_0011)
+          begin
             set_skip_ref_inst();  //uart clint spi gpio ps2
+            if(araddr[31:12] == 20'h1_0000) begin
+              $write("%c",wdata[7:0]);
+            end
+          
+          end
 `endif
 
           rready  <= 1;
