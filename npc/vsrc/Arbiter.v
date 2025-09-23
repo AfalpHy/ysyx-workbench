@@ -96,6 +96,7 @@ module ysyx_25010008_Arbiter (
   assign io_master_wstrb = wstrb_1;
   assign io_master_wvalid = state == CHOSE_LSU ? wvalid_1 : 0;
   assign io_master_bready = state == CHOSE_LSU ? bready_1 : 0;
+  assign io_master_awburst = 2'b01;
   assign io_master_wlast = 1;
 
   assign arready_0 = state == CHOSE_IFU ? io_master_arready : 0;
