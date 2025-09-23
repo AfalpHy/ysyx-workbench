@@ -77,7 +77,7 @@ module ysyx_25010008_LSU (
   assign arsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
 
   assign awaddr = addr_q;
-  assign awsize = 2;
+  assign awsize = suffix_b_q ? 0 : suffix_h_q ? 1 : 2;
 
   assign wdata  = wsrc_q << {addr_q[1:0], 3'b0};
   assign wstrb  = (suffix_b_q ? 4'b0001 : (suffix_h_q ? 4'b0011 : 4'b1111)) << addr_q[1:0];
