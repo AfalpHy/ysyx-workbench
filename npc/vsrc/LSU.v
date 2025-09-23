@@ -130,7 +130,6 @@ module ysyx_25010008_LSU (
             // must assert in the same time for sdram axi
             awvalid <= addr_misaligned ? 0 : 1;
             wvalid <= addr_misaligned ? 0 : 1;
-            bready <= 1;
           end
 
 `ifdef __VERILATOR__
@@ -173,13 +172,14 @@ module ysyx_25010008_LSU (
 
         if (wvalid & wready) begin
           wvalid <= 0;
+          bready <= 1;
         end
 
         if (bready & bvalid) begin
           bready <= 0;
           block <= 0;
           ls_valid <= 1;
-          $display("bresp:", bresp);
+
 `ifdef __VERILATOR__
           lsu_record1(araddr, wdata, {28'b0, wstrb}, delay);
           delay = 0;
