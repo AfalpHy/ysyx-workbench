@@ -20,7 +20,8 @@ extern "C" void set_regs_ptr(const svOpenArrayHandle r) {
 
 word_t isa_reg_str2val(const char *s) {
   if (strcmp(s, "pc") == 0) {
-    return *pc;
+    extern word_t current_pc;
+    return current_pc;
   }
   for (int i = 0; i < REGS_NUM; i++) {
     if (strcmp(regs_name[i], s) == 0) {
