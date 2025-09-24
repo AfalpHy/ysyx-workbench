@@ -82,6 +82,7 @@ module ysyx_25010008_Arbiter (
   reg is_clint_addr;
 
   // only one master work at the same time, so its logic can be simplified
+  assign io_master_arid = 0;
   assign io_master_araddr = state == CHOSE_IFU ? araddr_0 : (state == CHOSE_LSU && !is_clint_addr) ? araddr_1 : 0;
   assign io_master_arvalid = (state == CHOSE_IFU && arvalid_0) | (state == CHOSE_LSU && !is_clint_addr && arvalid_1);
   assign io_master_arlen = state == CHOSE_IFU ? arlen_0 : 8'b0;
@@ -89,9 +90,12 @@ module ysyx_25010008_Arbiter (
   assign io_master_arburst = 2'b01;
   assign io_master_rready = rready_0 | rready_1;
 
+  assign io_master_awid = 0;
   assign io_master_awaddr = awaddr_1;
   assign io_master_awvalid = state == CHOSE_LSU ? awvalid_1 : 0;
+  assign io_master_awlen = 8'b0;
   assign io_master_awsize = awsize_1;
+  assign io_master_awburst = 2'b01;
   assign io_master_wdata = wdata_1;
   assign io_master_wstrb = wstrb_1;
   assign io_master_wvalid = state == CHOSE_LSU ? wvalid_1 : 0;
