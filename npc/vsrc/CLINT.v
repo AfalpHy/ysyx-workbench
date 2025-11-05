@@ -27,6 +27,7 @@ module ysyx_25010008_CLINT (
       rvalid  <= 0;
       rstate  <= HANDLE_RADDR;
     end else begin
+      mtime <= mtime + 1;  // add 1 to simulate real time acorrding to speed of npc's simulation
       if (rstate == HANDLE_RADDR) begin
         if (arvalid) begin
           rdata   <= araddr[2] ? mtime[63:32] : mtime[31:0];
@@ -42,11 +43,6 @@ module ysyx_25010008_CLINT (
         end
       end
     end
-  end
-
-  always @(posedge clock) begin
-    if (!reset)
-      mtime <= mtime + 1;  // add 1 to simulate real time acorrding to speed of npc's simulation
   end
 
 endmodule
